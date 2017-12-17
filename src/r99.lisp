@@ -2,19 +2,34 @@
   (:use :cl :cl-dbi :cl-who :hunchentoot))
 (in-package :r99)
 
-(defvar *db*)
-(defvar *http*)
-(defvar *port*)
+(defvar *version* "0.0")
+
+;;CHANGE
+(defvar *host* "localhost")
+(defvar *db* "r99")
+;;FIXME: getenv?
+(defvar *user* "user")
+(defvar *password* "pass")
+
+(defvar *http-port* 3030)
+(defvar *server* nil)
 
 (defun query (query)
-  (dbi:with-connection (conn :mysql :database-name *db*)
+  (dbi:with-connection
+      (conn :mysql
+            :host *host*
+            :username *user*
+            :password *password*
+            :database-name *db*)
     (let* ((query (dbi:prepare conn query))
            (answer (dbi:execute query)))
       (dbi:fetch-all answer))))
 
+(defun value (res)
+  (second (first res)))
+
 (defun now ()
-  (getf (first (query "select datetime('now','localtime')"))
-        :|datetime('now','localtime')|))
+  (value (query "select date_format(now(),'%Y-%m-%d %T')")))
 
 (defun auth ()
   (multiple-value-bind (user password) (hunchentoot:authorization)
@@ -22,7 +37,7 @@
         (and (string= user "bin") (string= password "ladyn"))
         (hunchentoot:require-authorization))))
 
-(defvar *navi*
+(defmacro navi ()
   '(htm
     (:p
      (:a :href "http://robocar.melt.kyutech.ac.jp" "robocar")
@@ -33,7 +48,7 @@
      " | "
      (:a :href "https://repl.it/languages/scheme" :target "_blank" "repl.it"))))
 
-(defmacro standard-page (&body body)
+(defmacro page (&body body)
   `(with-html-output-to-string
        (*standard-output* nil :prologue t :indent t)
      (:html
@@ -60,10 +75,13 @@
              ,@body
              (:hr)
              (:span "programmed by hkimura, release " (str *version*) "."))))))
-
+;;;
+(define-easy-handler (hello :uri "/hello") ()
+  (page (:h1 "hello")
+        (:p "it is " (str (now)) ". time to eat!")
+        (:p (format t "it is ~a using (format t ~~ )." (now)))))
 
 ;;;
-
 (setf (html-mode) :html5)
 
 (defun publish-static-content ()
@@ -76,19 +94,17 @@
   (push (create-static-file-dispatcher-and-handler
          "/r99.html" "static/r99.html") *dispatch-table*))
 
-(defvar *http*)
-
-(defun start-server (&optional (port *port*))
+(defun start-server (&optional (port *http-port*))
   (publish-static-content)
-  (setf *http* (make-instance 'easy-acceptor
+  (setf *server* (make-instance 'easy-acceptor
                               :address "127.0.0.1"
                               :port port
                               :document-root #p "tmp"))
-  (start *http*)
+  (start *server*)
   (format t "r99-~a started at ~d.~%" *version* port))
 
 (defun stop-server ()
-  (stop *http*))
+  (stop *server*))
 
 (defun main ()
   (start-server)
