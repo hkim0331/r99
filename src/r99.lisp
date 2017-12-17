@@ -31,6 +31,11 @@
 (defun now ()
   (value (query "select date_format(now(),'%Y-%m-%d %T')")))
 
+;; (defun to-date (sec)
+;;   (value (query (format nil
+;;                         "select date_format(~s, '%Y-%m-%d %T')"
+;;                         sec))))
+
 (defun auth ()
   (multiple-value-bind (user password) (hunchentoot:authorization)
     (or (and (string= user "hello") (string= password "world"))
