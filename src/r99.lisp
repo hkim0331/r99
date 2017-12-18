@@ -98,14 +98,14 @@
 
 (define-easy-handler (problems :uri "/problems") ()
   (page (:h2 "problems")
-        (let* ((sql "select num,detail from problems")
+        (let* ((sql "select num, detail from problems")
                (results (query sql)))
           (loop for row = (dbi:fetch results)
              while row
              do (format t
-                        "<li>~a <p>~a</p></li>~%"
-                        (get row :|num|)
-                        (get row :|detail|))))))
+                        "<p>~a, ~a</p>"
+                        (getf row :|num|)
+                        (getf row :|detail|))))))
 
 ;;
 (setf (html-mode) :html5)
