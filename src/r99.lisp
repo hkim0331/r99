@@ -81,13 +81,23 @@
         (:p "it is " (str (now)) ". time to eat!")
         (:p (format t "it is ~a using (format t ~~ )." (now)))))
 
+(defun stars-aux (n ret)
+  (if (zerop n) ret
+    (stars-aux (- n 1) (concatenate 'string ret "*"))))
+
+(defun stars (n)
+  (stars-aux n ""))
+
 (define-easy-handler (users :uri "/users") ()
-  (let* ((sql "select myid, count(id) from answers group by myid")
-         (results (query sql)))
-    (page (:h1 "users")
+  (page (:h1 "number of answers")
+        (let* ((sql "select myid, count(id) from answers group by myid")
+               (results (query sql)))
           (loop for row = (dbi:fetch results)
                 while row
-                do (format t "<p>~A</p>" row)))))
+                do (format t
+                           "<p>~A | ~A</p>"
+                           (getf row :|myid|)
+                           (stars (getf row :|count(id)|)))))))
 
 ;;
 (setf (html-mode) :html5)
