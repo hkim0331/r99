@@ -14,27 +14,21 @@
 (defvar *http-port* 3030)
 (defvar *server* nil)
 
-(defun query (query)
+;;changed
+(defun query (sql)
   (dbi:with-connection
       (conn :mysql
             :host *host*
             :username *user*
             :password *password*
             :database-name *db*)
-    (let* ((query (dbi:prepare conn query))
-           (answer (dbi:execute query)))
-      (dbi:fetch-all answer))))
+    (dbi:execute (dbi:prepare conn sql))))
 
 (defun value (res)
   (second (first res)))
 
 (defun now ()
-  (value (query "select date_format(now(),'%Y-%m-%d %T')")))
-
-;; (defun to-date (sec)
-;;   (value (query (format nil
-;;                         "select date_format(~s, '%Y-%m-%d %T')"
-;;                         sec))))
+  (second (dbi:fetch (query "select date_format(now(),'%Y-%m-%d')"))))
 
 (defun auth ()
   (multiple-value-bind (user password) (hunchentoot:authorization)
@@ -79,14 +73,23 @@
        (:div :class "container"
              ,@body
              (:hr)
-             (:span "programmed by hkimura, release " (str *version*) "."))))))
+             (:span "programmed by hkimura, release "
+                    (str *version*) "."))))))
 ;;;
 (define-easy-handler (hello :uri "/hello") ()
   (page (:h1 "hello")
         (:p "it is " (str (now)) ". time to eat!")
         (:p (format t "it is ~a using (format t ~~ )." (now)))))
 
-;;;
+(define-easy-handler (users :uri "/users") ()
+  (let* ((sql "select myid, count(id) from answers group by myid")
+         (results (query sql)))
+    (page (:h1 "users")
+          (loop for row = (dbi:fetch results)
+                while row
+                do (format t "<p>~A</p>" row)))))
+
+;;
 (setf (html-mode) :html5)
 
 (defun publish-static-content ()

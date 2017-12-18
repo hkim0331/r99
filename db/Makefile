@@ -1,7 +1,11 @@
 DB=r99
 USER=user
 
-all: users problems answers
+create: users problems answers
+
+seed:
+	ruby seed-users.rb
+	ruby seed-problems.rb
 
 users:
 	mysql -u ${USER} -p ${DB} < migrations/users.sql
