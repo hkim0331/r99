@@ -1,7 +1,16 @@
 DB=r99
 USER=user
 
-all: users problems answers
+create: users problems answers
+
+drop:
+	mysql -u ${USER} -p ${DB} < migrations/drop-users.sql
+	mysql -u ${USER} -p ${DB} < migrations/drop-problems.sql
+	mysql -u ${USER} -p ${DB} < migrations/drop-answers.sql
+
+seed:
+	ruby seed-users.rb
+	ruby seed-problems.rb
 
 users:
 	mysql -u ${USER} -p ${DB} < migrations/users.sql

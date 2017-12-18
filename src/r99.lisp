@@ -1,57 +1,56 @@
 (defpackage r99
-  (:use :cl :cl-dbi :cl-who :hunchentoot))
+  (:use :cl :cl-dbi :cl-who :hunchentoot :cl-ppcre))
 (in-package :r99)
 
 (defvar *version* "0.0")
-
-;;CHANGE
 (defvar *host* "localhost")
 (defvar *db* "r99")
 ;;FIXME: getenv?
 (defvar *user* "user")
 (defvar *password* "pass")
+(defvar *myid* nil)
 
 (defvar *http-port* 3030)
 (defvar *server* nil)
 
-(defun query (query)
+(defun query (sql)
   (dbi:with-connection
       (conn :mysql
             :host *host*
             :username *user*
             :password *password*
             :database-name *db*)
-    (let* ((query (dbi:prepare conn query))
-           (answer (dbi:execute query)))
-      (dbi:fetch-all answer))))
-
-(defun value (res)
-  (second (first res)))
+    (dbi:execute (dbi:prepare conn sql))))
 
 (defun now ()
-  (value (query "select date_format(now(),'%Y-%m-%d %T')")))
+  (second (dbi:fetch (query "select date_format(now(),'%Y-%m-%d')"))))
 
-;; (defun to-date (sec)
-;;   (value (query (format nil
-;;                         "select date_format(~s, '%Y-%m-%d %T')"
-;;                         sec))))
+(defun password (myid)
+  (let ((sql (format nil
+                     "select password from users where myid='~a'"
+                     myid)))
+    (second (dbi:fetch (query sql)))))
 
-(defun auth ()
-  (multiple-value-bind (user password) (hunchentoot:authorization)
-    (or (and (string= user "hello") (string= password "world"))
-        (and (string= user "bin") (string= password "ladyn"))
-        (hunchentoot:require-authorization))))
+(defun answered? (pid)
+  (let ((sql (format
+              nil
+              "select id from answers where myid='~a' and pid='~a'"
+              *myid*
+              pid)))
+    (dbi:fetch (query sql))))
 
 (defmacro navi ()
   '(htm
     (:p
      (:a :href "http://robocar.melt.kyutech.ac.jp" "robocar")
-     " | "
-     (:a :href "http://redmine.melt.kyutech.ac.jp" "redmine")
-     " | "
-     (:a :href "http://mt.melt.kyutech.ac.jp" "micro twitter")
-     " | "
-     (:a :href "https://repl.it/languages/scheme" :target "_blank" "repl.it"))))
+          " | "
+     (:a :href "/problems" "problems")
+          " | "
+     (:a :href "/users" "answers")
+          " | "
+     (:a :href "/login" "login")
+     " / "
+     (:a :href "/logout" "logout"))))
 
 (defmacro page (&body body)
   `(with-html-output-to-string
@@ -69,33 +68,116 @@
         :href "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css"
         :integrity "sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb"
         :crossorigin "anonymous")
-       (:title "Robocar 99")
+       (:title "R99")
        (:link :type "text/css" :rel "stylesheet" :href "/r99.css"))
       (:body
        (:div :class "navbar navbar-default navbar-fixed-top"
              (:div :class "container"
-                   (:h1 :class "pahe-header hidden-xs" "Robocar 99")
+                   (:h1 :class "pahe-header hidden-xs" "R99")
                    (navi)))
        (:div :class "container"
              ,@body
              (:hr)
-             (:span "programmed by hkimura, release " (str *version*) "."))))))
+             (:span "programmed by hkimura, release "
+                    (str *version*) "."))
+       (:script
+        :src "https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        :integrity "sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        :crossorigin "anonymous")
+       (:script
+        :src
+        "https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"
+        :integrity
+        "sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4"
+        :crossorigin "anonymous")
+       (:script
+        :src
+        "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"
+        :integrity
+        "sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1"
+        :crossorigin "anonymous")))))
 ;;;
 (define-easy-handler (hello :uri "/hello") ()
   (page (:h1 "hello")
         (:p "it is " (str (now)) ". time to eat!")
         (:p (format t "it is ~a using (format t ~~ )." (now)))))
 
+(defun stars-aux (n ret)
+  (if (zerop n) ret
+    (stars-aux (- n 1) (concatenate 'string ret "*"))))
+
+(defun stars (n)
+  (stars-aux n ""))
+
+(define-easy-handler (users :uri "/users") ()
+  (page (:h2 "number of answers")
+        (let* ((sql "select myid, count(id) from answers group by myid")
+               (results (query sql)))
+          (loop for row = (dbi:fetch results)
+                while row
+                do (format t
+                           "<p>~A | ~A</p>"
+                           (getf row :|myid|)
+                           (stars (getf row :|count(id)|)))))))
+
+(define-easy-handler (problems :uri "/problems") ()
+  (page (:h2 "problems")
+        (:p "番号をクリックして回答提出")
+        (let* ((sql "select num, detail from problems")
+               (results (query sql)))
+          (loop for row = (dbi:fetch results)
+             while row
+             do (format t
+                        "<p><a href='/answer?pid=~a'>~a</a>, ~a</p>"
+                        (getf row :|num|)
+                        (getf row :|num|)
+                        (getf row :|detail|))))))
+
+(defun show-answers (pid)
+  (page (:h2 "answers" (str pid)))
+  )
+
+;; BUG!
+;; 呼ばれていない？
+;; 呼ばれた上で true を返している。
+(defmacro auth ()
+  '(multiple-value-bind (user pass) (authorization)
+    (if (string= (password user) pass)
+        t
+        (require-authorization))))
+
+(define-easy-handler (submit :uri "/submit") (pid answer)
+  (when (auth)
+    (page
+      (:p "pid " (str pid))
+      (:p "myid " (str *myid*))
+      (:p (str answer)))))
+
+(defun submit-answer (pid)
+  (page (:h2 "please submit your answer to " (str pid))
+        (:form :method "post" :action "/submit"
+               (:input :type "hidden" :name "pid" :value pid)
+               (:textarea :name "answer" :rows 10 :cols 50)
+               (:br)
+               (:input :type "submit"))))
+
+;; (define-easy-handler (login :uri "/login") ()
+;;   (page (auth?)))
+
+(define-easy-handler (answer :uri "/answer") (pid)
+  (if (answered? pid) (show-answers pid)
+      (submit-answer pid)))
+
 ;;;
 (setf (html-mode) :html5)
 
 (defun publish-static-content ()
   (push (create-static-file-dispatcher-and-handler
-         "/robots.txt" "static/robots.txt")  *dispatch-table*)
+         "/robots.txt" "static/robots.txt") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
-         "/favicon.ico" "static/favicon.ico")  *dispatch-table*)
+         "/favicon.ico" "static/favicon.ico") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
-         "/r99.css" "static/r99.css")  *dispatch-table*)
+         "/r99.css" "static/r99.css") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
          "/r99.html" "static/r99.html") *dispatch-table*))
 
