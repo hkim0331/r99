@@ -14,7 +14,7 @@
 (defvar *http-port* 3030)
 (defvar *server* nil)
 
-;;changed
+;; changed, return cursor.
 (defun query (sql)
   (dbi:with-connection
       (conn :mysql
@@ -23,9 +23,6 @@
             :password *password*
             :database-name *db*)
     (dbi:execute (dbi:prepare conn sql))))
-
-(defun value (res)
-  (second (first res)))
 
 (defun now ()
   (second (dbi:fetch (query "select date_format(now(),'%Y-%m-%d')"))))
@@ -89,7 +86,7 @@
   (stars-aux n ""))
 
 (define-easy-handler (users :uri "/users") ()
-  (page (:h1 "number of answers")
+  (page (:h2 "number of answers")
         (let* ((sql "select myid, count(id) from answers group by myid")
                (results (query sql)))
           (loop for row = (dbi:fetch results)
@@ -98,6 +95,17 @@
                            "<p>~A | ~A</p>"
                            (getf row :|myid|)
                            (stars (getf row :|count(id)|)))))))
+
+(define-easy-handler (problems :uri "/problems") ()
+  (page (:h2 "problems")
+        (let* ((sql "select num,detail from problems")
+               (results (query sql)))
+          (loop for row = (dbi:fetch results)
+             while row
+             do (format t
+                        "<li>~a <p>~a</p></li>~%"
+                        (get row :|num|)
+                        (get row :|detail|))))))
 
 ;;
 (setf (html-mode) :html5)
