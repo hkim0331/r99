@@ -1,10 +1,8 @@
 (defpackage r99
-  (:use :cl :cl-dbi :cl-who :hunchentoot))
+  (:use :cl :cl-dbi :cl-who :hunchentoot :cl-ppcre))
 (in-package :r99)
 
 (defvar *version* "0.0")
-
-;;CHANGE
 (defvar *host* "localhost")
 (defvar *db* "r99")
 ;;FIXME: getenv?
@@ -40,14 +38,6 @@
               *myid*
               pid)))
     (dbi:fetch (query sql))))
-
-(defun auth ()
-  (multiple-value-bind (myid pass) (hunchentoot:authorization)
-    (if (or *myid* (string= (password myid) pass))
-        (progn
-          (setf *myid* myid)
-          t)
-        (hunchentoot:require-authorization))))
 
 (defmacro navi ()
   '(htm
@@ -147,25 +137,47 @@
   (page (:h2 "answers" (str pid)))
   )
 
+;; BUG!
+;; 呼ばれていない？
+;; 呼ばれた上で true を返している。
+(defmacro auth ()
+  '(multiple-value-bind (user pass) (authorization)
+    (if (string= (password user) pass)
+        t
+        (require-authorization))))
+
+(define-easy-handler (submit :uri "/submit") (pid answer)
+  (when (auth)
+    (page
+      (:p "pid " (str pid))
+      (:p "myid " (str *myid*))
+      (:p (str answer)))))
+
 (defun submit-answer (pid)
-  (page (:h2 "please submit your answer to ") (str pid))
-  )
+  (page (:h2 "please submit your answer to " (str pid))
+        (:form :method "post" :action "/submit"
+               (:input :type "hidden" :name "pid" :value pid)
+               (:textarea :name "answer" :rows 10 :cols 50)
+               (:br)
+               (:input :type "submit"))))
+
+;; (define-easy-handler (login :uri "/login") ()
+;;   (page (auth?)))
 
 (define-easy-handler (answer :uri "/answer") (pid)
-  (when (auth)
-      (if (answered? pid)
-          (show-answers pid)
-          (submit-answer pid))))
-;;
+  (if (answered? pid) (show-answers pid)
+      (submit-answer pid)))
+
+;;;
 (setf (html-mode) :html5)
 
 (defun publish-static-content ()
   (push (create-static-file-dispatcher-and-handler
-         "/robots.txt" "static/robots.txt")  *dispatch-table*)
+         "/robots.txt" "static/robots.txt") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
-         "/favicon.ico" "static/favicon.ico")  *dispatch-table*)
+         "/favicon.ico" "static/favicon.ico") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
-         "/r99.css" "static/r99.css")  *dispatch-table*)
+         "/r99.css" "static/r99.css") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
          "/r99.html" "static/r99.html") *dispatch-table*))
 
