@@ -25,6 +25,7 @@
 (defun now ()
   (second (dbi:fetch (query "select date_format(now(),'%Y-%m-%d')"))))
 
+;;FIXME: (password NIL) returns NIL
 (defun password (myid)
   (let ((sql (format nil
                      "select password from users where myid='~a'"
@@ -137,13 +138,11 @@
   (page (:h2 "answers" (str pid)))
   )
 
-;; BUG!
-;; 呼ばれていない？
-;; 呼ばれた上で true を返している。
-(defmacro auth ()
-  '(multiple-value-bind (user pass) (authorization)
-    (if (string= (password user) pass)
-        t
+;; fix bug: (authorization) returns nil nil
+(defun auth ()
+  (multiple-value-bind (myid pass) (hunchentoot:authorization)
+    (or (and (not (null myid)) (not (null pass))
+             (string= (password  myid) pass))
         (require-authorization))))
 
 (define-easy-handler (submit :uri "/submit") (pid answer)
@@ -161,8 +160,6 @@
                (:br)
                (:input :type "submit"))))
 
-;; (define-easy-handler (login :uri "/login") ()
-;;   (page (auth?)))
 
 (define-easy-handler (answer :uri "/answer") (pid)
   (if (answered? pid) (show-answers pid)
