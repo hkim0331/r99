@@ -83,10 +83,10 @@
              (:span "programmed by hkimura, release "
                     (str *version*) "."))))))
 ;;;
-(define-easy-handler (hello :uri "/hello") ()
-  (page (:h1 "hello")
-        (:p "it is " (str (now)) ". time to eat!")
-        (:p (format t "it is ~a using (format t ~~ )." (now)))))
+;; (define-easy-handler (hello :uri "/hello") ()
+;;   (page (:h1 "hello")
+;;         (:p "it is " (str (now)) ". time to eat!")
+;;         (:p (format t "it is ~a using (format t ~~ )." (now)))))
 
 (defun stars-aux (n ret)
   (if (zerop n) ret
@@ -119,9 +119,38 @@
                         (getf row :|num|)
                         (getf row :|detail|))))))
 
+(defun my-answer (pid)
+  (let* ((q
+          (format
+           nil
+           "select answer from answers where myid='~a' and pid='~a'"
+           *myid* pid))
+         (answer (dbi:fetch (query q))))
+    (if (null answer) nil
+        (getf answer :|answer|))))
+
 (defun show-answers (pid)
-  (page (:h2 "answers" (str pid)))
-  )
+  (let* ((sql1
+          (format
+           nil
+           "select answer from answers where myid='~a' and pid='~a'"
+           *myid*
+           pid))
+         (yours (dbi:fetch (query sql1)))
+         (sql2
+          (format
+           nil
+           "select answer from answers where pid='~a' order by
+  update_at limit 5"
+           pid))
+         (theirs (query sql2)))
+    (page (:h2 "answers " (str pid))
+          (:h3 "yours")
+          (:pre yours)
+          (:h3 "other answers")
+          (loop for row = (dbi:fetch theirs)
+             while row
+             do (format t "<pre>~a</pre>" row)))))
 
 (define-easy-handler (auth :uri "/auth") (myid pass)
   (if (or *myid*
@@ -182,7 +211,6 @@
   (if (exist? pid)
       (update pid answer)
       (insert pid answer)))
-
 
 (define-easy-handler (submit :uri "/submit") (pid answer)
   (if *myid*
