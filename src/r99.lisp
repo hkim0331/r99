@@ -77,7 +77,7 @@
                    (:h1 :class "pahe-header hidden-xs" "R99")
                    (navi)))
        (:div :class "container"
-             (:p "*myid*:" (str *myid*))
+             (:p "myid: " (str *myid*))
              ,@body
              (:hr)
              (:span "programmed by hkimura, release "
@@ -123,20 +123,26 @@
   (page (:h2 "answers" (str pid)))
   )
 
-(defun auth ()
-  (multiple-value-bind (myid pass) (hunchentoot:authorization)
-    (if (or *myid*
-            (and (not (null myid)) (not (null pass))
-                 (string= (password  myid) pass)))
-        (progn (setf *myid* myid) t)
-        (require-authorization))))
+(define-easy-handler (auth :uri "/auth") (myid pass)
+  (if (or *myid*
+          (and (not (null myid)) (not (null pass))
+               (string= (password  myid) pass)))
+      (progn
+        (setf *myid* myid)
+        (redirect "/problems"))
+      (redirect "/login")))
 
 ;;FIXME: need private login/logout functions
 (define-easy-handler (login :uri "/login") ()
-  (and (auth)
-       (redirect "/problems")))
+  (page
+    (:h2 "LOGIN")
+    (:form :method "post" :action "/auth"
+           (:p "myid")
+           (:p (:input :type "text" :name "myid"))
+           (:p "password")
+           (:p (:input :type "password" :name "pass"))
+           (:p (:input :type "submit" :value "login")))))
 
-;;NG.
 (define-easy-handler (logout :uri "/logout") ()
   (setf *myid* nil)
   (redirect "/problems"))
@@ -177,11 +183,13 @@
       (update pid answer)
       (insert pid answer)))
 
-;; upsert?
+
 (define-easy-handler (submit :uri "/submit") (pid answer)
-  (when (auth)
-    (upsert pid answer)
-    (redirect "/users")))
+  (if *myid*
+      (progn
+        (upsert pid answer)
+        (redirect "/users"))
+      (redirect "/login")))
 
 (defun submit-answer (pid)
   (page (:h2 "please submit your answer to " (str pid))
