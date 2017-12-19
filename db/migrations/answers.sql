@@ -1,4 +1,4 @@
-fcreate table answers (
+create table answers (
        id integer primary key auto_increment,
        myid       integer not null,
        pid        integer not null,
