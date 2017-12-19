@@ -49,9 +49,7 @@
           " | "
      (:a :href "/users" "answers")
           " | "
-     (:a :href "/login" "login")
-     " / "
-     (:a :href "/logout" "logout"))))
+     (:a :href "/login" "login"))))
 
 (defmacro page (&body body)
   `(with-html-output-to-string
@@ -77,26 +75,11 @@
                    (:h1 :class "pahe-header hidden-xs" "R99")
                    (navi)))
        (:div :class "container"
+             (:p "*myid*:" (str *myid*))
              ,@body
              (:hr)
              (:span "programmed by hkimura, release "
-                    (str *version*) "."))
-       (:script
-        :src "https://code.jquery.com/jquery-3.2.1.slim.min.js"
-        :integrity "sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-        :crossorigin "anonymous")
-       (:script
-        :src
-        "https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"
-        :integrity
-        "sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4"
-        :crossorigin "anonymous")
-       (:script
-        :src
-        "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"
-        :integrity
-        "sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1"
-        :crossorigin "anonymous")))))
+                    (str *version*) "."))))))
 ;;;
 (define-easy-handler (hello :uri "/hello") ()
   (page (:h1 "hello")
@@ -138,19 +121,48 @@
   (page (:h2 "answers" (str pid)))
   )
 
-;; fix bug: (authorization) returns nil nil
 (defun auth ()
   (multiple-value-bind (myid pass) (hunchentoot:authorization)
-    (or (and (not (null myid)) (not (null pass))
-             (string= (password  myid) pass))
+    (if (or *myid*
+            (and (not (null myid)) (not (null pass))
+                 (string= (password  myid) pass)))
+        (progn (setf *myid* myid) t)
         (require-authorization))))
 
+;;FIXME: need private login/logout functions
+(define-easy-handler (login :uri "/login") ()
+  (and (auth)
+       (redirect "/problems")))
+
+;;NG.
+(define-easy-handler (logout :uri "/logout") ()
+  (setf *myid* nil)
+  (redirect "/problems"))
+
+(defun exist? (pid)
+  (let* ((sql (format
+               nil
+               "select id from answers where myid='~a' and pid='~a'"
+               *myid*
+               pid)))
+    (not (null (dbi:fetch (query sql))))))
+
+(defun update (pid answer)
+  
+  )
+
+(defun insert (pid answer)
+  )
+(defun upsert (pid answer)
+  (if (exist? pid)
+      (update pid answer)
+      (insert pid answer)))
+
+;; upsert?
 (define-easy-handler (submit :uri "/submit") (pid answer)
   (when (auth)
-    (page
-      (:p "pid " (str pid))
-      (:p "myid " (str *myid*))
-      (:p (str answer)))))
+    (upsert pid answer)
+    (redirect "/users")))
 
 (defun submit-answer (pid)
   (page (:h2 "please submit your answer to " (str pid))
