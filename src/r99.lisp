@@ -5,13 +5,13 @@
 (defvar *version* "0.0")
 (defvar *host* "localhost")
 (defvar *db* "r99")
+(defvar *myid* nil)
+(defvar *http-port* 3030)
+(defvar *server* nil)
+
 ;;FIXME: getenv?
 (defvar *user* "user")
 (defvar *password* "pass")
-(defvar *myid* nil)
-
-(defvar *http-port* 3030)
-(defvar *server* nil)
 
 (defun query (sql)
   (dbi:with-connection
@@ -129,28 +129,25 @@
     (if (null answer) nil
         (getf answer :|answer|))))
 
+(defun other-answers (pid)
+  (let ((q
+          (format
+           nil
+           "select answer from answers where not(myid='~a') and pid='~a'"
+           *myid* pid)))
+    (query q)))
+
 (defun show-answers (pid)
-  (let* ((sql1
-          (format
-           nil
-           "select answer from answers where myid='~a' and pid='~a'"
-           *myid*
-           pid))
-         (yours (dbi:fetch (query sql1)))
-         (sql2
-          (format
-           nil
-           "select answer from answers where pid='~a' order by
-  update_at limit 5"
-           pid))
-         (theirs (query sql2)))
+  (let* ((my (my-answer pid) )
+         (others (other-answers pid)))
     (page (:h2 "answers " (str pid))
-          (:h3 "yours")
-          (:pre yours)
+          (:h3 "your answer")
+          (:pre (str my))
           (:h3 "other answers")
-          (loop for row = (dbi:fetch theirs)
+          (loop for row = (dbi:fetch others)
              while row
-             do (format t "<pre>~a</pre>" row)))))
+             do (format t "<pre>~a</pre>"
+                        (getf row :|answer|))))))
 
 (define-easy-handler (auth :uri "/auth") (myid pass)
   (if (or *myid*
