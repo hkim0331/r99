@@ -2,7 +2,8 @@
   (:use :cl :cl-dbi :cl-who :hunchentoot :cl-ppcre))
 (in-package :r99)
 
-(defvar *version* "0.0")
+(defvar *version* "0.1")
+
 (defvar *host* "localhost")
 (defvar *db* "r99")
 (defvar *myid* nil)
