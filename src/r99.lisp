@@ -44,12 +44,14 @@
   '(htm
     (:p
      (:a :href "http://robocar.melt.kyutech.ac.jp" "robocar")
-          " | "
+     " | "
      (:a :href "/problems" "problems")
-          " | "
+     " | "
      (:a :href "/users" "answers")
-          " | "
-     (:a :href "/login" "login"))))
+     " | "
+     (:a :href "/login" "login")
+     " / "
+     (:a :href "/logout" "logout"))))
 
 (defmacro page (&body body)
   `(with-html-output-to-string
@@ -140,19 +142,36 @@
   (redirect "/problems"))
 
 (defun exist? (pid)
-  (let* ((sql (format
-               nil
-               "select id from answers where myid='~a' and pid='~a'"
-               *myid*
-               pid)))
+  (let ((sql (format
+              nil
+              "select id from answers where myid='~a' and pid='~a'"
+              *myid*
+              pid)))
     (not (null (dbi:fetch (query sql))))))
 
 (defun update (pid answer)
-  
-  )
+  (let ((sql (format
+              nil
+              "update answers set answer='~a', update_at='~a' where myid='~a' and pid='~a'"
+              answer
+              (now)
+              *myid*
+              pid)))
+    (query sql)
+    (redirect "/users")))
 
 (defun insert (pid answer)
-  )
+  (let ((sql (format
+              nil
+              "insert into answers (myid, pid, answer, update_at)
+  values ('~a','~a', '~a', '~a')"
+              *myid*
+              pid
+              answer
+              (now))))
+    (query sql)
+    (redirect "/users")))
+
 (defun upsert (pid answer)
   (if (exist? pid)
       (update pid answer)
