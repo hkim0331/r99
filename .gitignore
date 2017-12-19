@@ -7,3 +7,5 @@
 *~
 .#*
 /src/r99
+!/db/migrations/*.sql
+
