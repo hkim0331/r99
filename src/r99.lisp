@@ -134,7 +134,7 @@
   (let ((q
           (format
            nil
-           "select answer from answers where not(myid='~a') and pid='~a'"
+           "select answer from answers where not (myid='~a') and pid='~a'"
            *myid* pid)))
     (query q)))
 
@@ -143,7 +143,7 @@
          (others (other-answers pid)))
     (page (:h2 "answers " (str pid))
           (:h3 "your answer")
-          (:pre (str my))
+          (:pre (:code (str my)))
           (:h3 "other answers")
           (loop for row = (dbi:fetch others)
              while row
@@ -205,10 +205,15 @@
     (query sql)
     (redirect "/users")))
 
+(defun escape-back-slash (s)
+  (regex-replace "\\n" s "unchi"))
+
+
 (defun upsert (pid answer)
-  (if (exist? pid)
-      (update pid answer)
-      (insert pid answer)))
+  (let ((answer2 (escape-back-slash answer)))
+    (if (exist? pid)
+        (update pid answer2)
+        (insert pid answer2))))
 
 (define-easy-handler (submit :uri "/submit") (pid answer)
   (if *myid*
