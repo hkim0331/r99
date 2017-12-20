@@ -9,10 +9,12 @@
 (defvar *http-port* 3030)
 (defvar *server* nil)
 
-(setq hunchentoot:*hunchentoot-default-external-format*
-      (flex:make-external-format :utf-8 :eol-style :lf))
+(setf sb-impl::*default-external-format* :utf-8)
+(setf sb-alien::*default-c-string-external-format* :utf-8)
 
-(setq hunchentoot:*default-content-type* "text/html; charset=utf-8")
+;; (setq hunchentoot:*hunchentoot-default-external-format*
+;;       (flex:make-external-format :utf-8 :eol-style :lf))
+;; (setq hunchentoot:*default-content-type* "text/html; charset=utf-8")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
