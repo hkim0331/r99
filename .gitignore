@@ -8,4 +8,5 @@
 .#*
 /src/r99
 !/db/migrations/*.sql
+/db/sid-uid-myid-jname.txt
 
