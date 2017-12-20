@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :hunchentoot :cl-ppcre))
 (in-package :r99)
 
-(defvar *version* "0.1")
+(defvar *version* "0.2")
 
 (defvar *db* "r99")
 (defvar *myid* nil)
@@ -128,7 +128,7 @@
           (loop for row = (dbi:fetch results)
              while row
              do (format t
-                        "<p><a href='/answer?pid=~a'>~a</a>, ~a</p>"
+                        "<p><a href='/answer?pid=~a'>~a</a>, ~a</p>~%"
                         (getf row :|num|)
                         (getf row :|num|)
                         (getf row :|detail|))))))
