@@ -4,15 +4,28 @@
 
 (defvar *version* "0.1")
 
-(defvar *host* "localhost")
 (defvar *db* "r99")
 (defvar *myid* nil)
 (defvar *http-port* 3030)
 (defvar *server* nil)
 
-;;FIXME: getenv?
-(defvar *user* "user")
-(defvar *password* "pass")
+(defun getenv (name &optional default)
+  "Obtains the current value of the POSIX environment variable NAME."
+  (declare (type (or string symbol) name))
+  (let ((name (string name)))
+    (or #+abcl (ext:getenv name)
+        #+ccl (ccl:getenv name)
+        #+clisp (ext:getenv name)
+        #+cmu (unix:unix-getenv name) ; since CMUCL 20b
+        #+ecl (si:getenv name)
+        #+gcl (si:getenv name)
+        #+mkcl (mkcl:getenv name)
+        #+sbcl (sb-ext:posix-getenv name)
+        default)))
+
+(defvar *host* (or (getev "R99_HOST") "localhost"))
+(defvar *user* (or (getenv "R99_USER") "user"))
+(defvar *password* (or (getenv "R99_PASS") "pass"))
 
 (defun query (sql)
   (dbi:with-connection
