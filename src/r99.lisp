@@ -23,7 +23,7 @@
         #+sbcl (sb-ext:posix-getenv name)
         default)))
 
-(defvar *host* (or (getev "R99_HOST") "localhost"))
+(defvar *host* (or (getenv "R99_HOST") "localhost"))
 (defvar *user* (or (getenv "R99_USER") "user"))
 (defvar *password* (or (getenv "R99_PASS") "pass"))
 
