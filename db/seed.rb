@@ -1,12 +1,12 @@
 #!/usr/bin/env ruby
 require 'sequel'
 
-DB = Sequel.mysql2(database:"r99",
-                   username: (ENV["R99_USER"] or "user"),
-                   password: (ENV["R99_PASS"] or "pass"),
-                   host: (ENV["R99_HOST"] or "localhost"),
-                   port: 3306,
-                   encoding: "utf8")
+# DB = Sequel.mysql2(database:"r99",
+#                    username: (ENV["R99_USER"] or "user"),
+#                    password: (ENV["R99_PASS"] or "pass"),
+#                    host: (ENV["R99_HOST"] or "localhost"),
+#                    port: 3306,
+#                    encoding: "utf8")
 
 problems = DB[:problems]
 num = 0

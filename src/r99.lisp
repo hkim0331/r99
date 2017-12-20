@@ -2,19 +2,18 @@
   (:use :cl :cl-dbi :cl-who :hunchentoot :cl-ppcre))
 (in-package :r99)
 
-(defvar *version* "0.2")
+(setf sb-impl::*default-external-format* :utf-8)
+(setf sb-alien::*default-c-string-external-format* :utf-8)
+(setq hunchentoot:*hunchentoot-default-external-format*
+      (flex:make-external-format :utf-8 :eol-style :lf))
+(setq hunchentoot:*default-content-type* "text/html; charset=utf-8")
+
+(defvar *version* "0.2.1")
 
 (defvar *db* "r99")
 (defvar *myid* nil)
 (defvar *http-port* 3030)
 (defvar *server* nil)
-
-(setf sb-impl::*default-external-format* :utf-8)
-(setf sb-alien::*default-c-string-external-format* :utf-8)
-
-;; (setq hunchentoot:*hunchentoot-default-external-format*
-;;       (flex:make-external-format :utf-8 :eol-style :lf))
-;; (setq hunchentoot:*default-content-type* "text/html; charset=utf-8")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -99,6 +98,7 @@
                    (navi)))
        (:div :class "container"
              (:p "myid: " (str *myid*))
+             (:p "db: " (str *host*) ":" (str *db*))
              ,@body
              (:hr)
              (:span "programmed by hkimura, release "
