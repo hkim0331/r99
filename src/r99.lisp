@@ -119,15 +119,30 @@
                     (query "select num, detail from problems")))
 
 ;; BUG 日本語を正しく表示しない。
+;; (define-easy-handler (problems :uri "/problems") ()
+;;   (page (:h2 "problems")
+;;         (:p "番号をクリックして回答提出")
+;;         (loop for row = (dbi:fetch
+;;                          (query "select * from problems"))
+;;            while row
+;;            do (format t
+;;                       "<p><a href='/answer?pid=~a'>~a</a>, ~a</p>~%"
+;;                       (getf row :|num|)
+;;                       (getf row :|num|)
+;;                       (getf row :|detail|)))))
+
 (define-easy-handler (problems :uri "/problems") ()
   (page (:h2 "problems")
         (:p "番号をクリックして回答提出")
-        (loop for row in *problems*
-           do (format t
-                      "<p><a href='/answer?pid=~a'>~a</a>, ~a</p>~%"
-                      (getf row :|num|)
-                      (getf row :|num|)
-                      (getf row :|detail|)))))
+        (let* ((sql "select num, detail from problems")
+               (results (query sql)))
+          (loop for row = (dbi:fetch results)
+             while row
+             do (format t
+                        "<p><a href='/answer?pid=~a'>~a</a>, ~a</p>~%"
+                        (getf row :|num|)
+                        (getf row :|num|)
+                        (getf row :|detail|))))))
 
 (defun my-answer (pid)
   (let* ((q
