@@ -6,3 +6,7 @@
 *.x86f
 *~
 .#*
+/src/r99
+!/db/*.sql
+/db/sid-uid-myid-jname.txt
+

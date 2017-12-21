@@ -2,16 +2,30 @@
   (:use :cl :cl-dbi :cl-who :hunchentoot :cl-ppcre))
 (in-package :r99)
 
-(defvar *version* "0.0")
-(defvar *host* "localhost")
-(defvar *db* "r99")
-;;FIXME: getenv?
-(defvar *user* "user")
-(defvar *password* "pass")
-(defvar *myid* nil)
+(defvar *version* "0.2.2")
 
+(defvar *db* "r99")
+(defvar *myid* nil)
 (defvar *http-port* 3030)
 (defvar *server* nil)
+
+(defun getenv (name &optional default)
+  "Obtains the current value of the POSIX environment variable NAME."
+  (declare (type (or string symbol) name))
+  (let ((name (string name)))
+    (or #+abcl (ext:getenv name)
+        #+ccl (ccl:getenv name)
+        #+clisp (ext:getenv name)
+        #+cmu (unix:unix-getenv name) ; since CMUCL 20b
+        #+ecl (si:getenv name)
+        #+gcl (si:getenv name)
+        #+mkcl (mkcl:getenv name)
+        #+sbcl (sb-ext:posix-getenv name)
+        default)))
+
+(defvar *host* (or (getenv "R99_HOST") "localhost"))
+(defvar *user* (or (getenv "R99_USER") "user"))
+(defvar *password* (or (getenv "R99_PASS") "pass"))
 
 (defun query (sql)
   (dbi:with-connection
@@ -43,11 +57,11 @@
   '(htm
     (:p
      (:a :href "http://robocar.melt.kyutech.ac.jp" "robocar")
-          " | "
+     " | "
      (:a :href "/problems" "problems")
-          " | "
+     " | "
      (:a :href "/users" "answers")
-          " | "
+     " | "
      (:a :href "/login" "login")
      " / "
      (:a :href "/logout" "logout"))))
@@ -76,31 +90,12 @@
                    (:h1 :class "pahe-header hidden-xs" "R99")
                    (navi)))
        (:div :class "container"
+             (:p "myid: " (str *myid*))
+             (:p "db: " (str *host*) ":" (str *db*))
              ,@body
              (:hr)
              (:span "programmed by hkimura, release "
-                    (str *version*) "."))
-       (:script
-        :src "https://code.jquery.com/jquery-3.2.1.slim.min.js"
-        :integrity "sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-        :crossorigin "anonymous")
-       (:script
-        :src
-        "https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"
-        :integrity
-        "sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4"
-        :crossorigin "anonymous")
-       (:script
-        :src
-        "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"
-        :integrity
-        "sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1"
-        :crossorigin "anonymous")))))
-;;;
-(define-easy-handler (hello :uri "/hello") ()
-  (page (:h1 "hello")
-        (:p "it is " (str (now)) ". time to eat!")
-        (:p (format t "it is ~a using (format t ~~ )." (now)))))
+                    (str *version*) "."))))))
 
 (defun stars-aux (n ret)
   (if (zerop n) ret
@@ -120,6 +115,22 @@
                            (getf row :|myid|)
                            (stars (getf row :|count(id)|)))))))
 
+(defvar *problems* (dbi:fetch-all
+                    (query "select num, detail from problems")))
+
+;; BUG 日本語を正しく表示しない。
+;; (define-easy-handler (problems :uri "/problems") ()
+;;   (page (:h2 "problems")
+;;         (:p "番号をクリックして回答提出")
+;;         (loop for row = (dbi:fetch
+;;                          (query "select * from problems"))
+;;            while row
+;;            do (format t
+;;                       "<p><a href='/answer?pid=~a'>~a</a>, ~a</p>~%"
+;;                       (getf row :|num|)
+;;                       (getf row :|num|)
+;;                       (getf row :|detail|)))))
+
 (define-easy-handler (problems :uri "/problems") ()
   (page (:h2 "problems")
         (:p "番号をクリックして回答提出")
@@ -128,30 +139,112 @@
           (loop for row = (dbi:fetch results)
              while row
              do (format t
-                        "<p><a href='/answer?pid=~a'>~a</a>, ~a</p>"
+                        "<p><a href='/answer?pid=~a'>~a</a>, ~a</p>~%"
                         (getf row :|num|)
                         (getf row :|num|)
                         (getf row :|detail|))))))
 
-(defun show-answers (pid)
-  (page (:h2 "answers" (str pid)))
-  )
+(defun my-answer (pid)
+  (let* ((q
+          (format
+           nil
+           "select answer from answers where myid='~a' and pid='~a'"
+           *myid* pid))
+         (answer (dbi:fetch (query q))))
+    (if (null answer) nil
+        (getf answer :|answer|))))
 
-;; BUG!
-;; 呼ばれていない？
-;; 呼ばれた上で true を返している。
-(defmacro auth ()
-  '(multiple-value-bind (user pass) (authorization)
-    (if (string= (password user) pass)
-        t
-        (require-authorization))))
+(defun other-answers (pid)
+  (let ((q
+          (format
+           nil
+           "select answer from answers where not (myid='~a') and pid='~a'"
+           *myid* pid)))
+    (query q)))
+
+(defun show-answers (pid)
+  (let* ((my (my-answer pid) )
+         (others (other-answers pid)))
+    (page (:h2 "answers " (str pid))
+          (:h3 "your answer")
+          (:pre (:code (str my)))
+          (:h3 "other answers")
+          (loop for row = (dbi:fetch others)
+             while row
+             do (format t "<pre>~a</pre>"
+                        (getf row :|answer|))))))
+
+(define-easy-handler (auth :uri "/auth") (myid pass)
+  (if (or *myid*
+          (and (not (null myid)) (not (null pass))
+               (string= (password  myid) pass)))
+      (progn
+        (setf *myid* myid)
+        (redirect "/problems"))
+      (redirect "/login")))
+
+;;FIXME: need private login/logout functions
+(define-easy-handler (login :uri "/login") ()
+  (page
+    (:h2 "LOGIN")
+    (:form :method "post" :action "/auth"
+           (:p "myid")
+           (:p (:input :type "text" :name "myid"))
+           (:p "password")
+           (:p (:input :type "password" :name "pass"))
+           (:p (:input :type "submit" :value "login")))))
+
+(define-easy-handler (logout :uri "/logout") ()
+  (setf *myid* nil)
+  (redirect "/problems"))
+
+(defun exist? (pid)
+  (let ((sql (format
+              nil
+              "select id from answers where myid='~a' and pid='~a'"
+              *myid*
+              pid)))
+    (not (null (dbi:fetch (query sql))))))
+
+(defun update (pid answer)
+  (let ((sql (format
+              nil
+              "update answers set answer='~a', update_at='~a' where myid='~a' and pid='~a'"
+              answer
+              (now)
+              *myid*
+              pid)))
+    (query sql)
+    (redirect "/users")))
+
+(defun insert (pid answer)
+  (let ((sql (format
+              nil
+              "insert into answers (myid, pid, answer, update_at)
+  values ('~a','~a', '~a', '~a')"
+              *myid*
+              pid
+              answer
+              (now))))
+    (query sql)
+    (redirect "/users")))
+
+(defun escape-back-slash (s)
+  (regex-replace "\\n" s "unchi"))
+
+
+(defun upsert (pid answer)
+  (let ((answer2 (escape-back-slash answer)))
+    (if (exist? pid)
+        (update pid answer2)
+        (insert pid answer2))))
 
 (define-easy-handler (submit :uri "/submit") (pid answer)
-  (when (auth)
-    (page
-      (:p "pid " (str pid))
-      (:p "myid " (str *myid*))
-      (:p (str answer)))))
+  (if *myid*
+      (progn
+        (upsert pid answer)
+        (redirect "/users"))
+      (redirect "/login")))
 
 (defun submit-answer (pid)
   (page (:h2 "please submit your answer to " (str pid))
@@ -161,8 +254,6 @@
                (:br)
                (:input :type "submit"))))
 
-;; (define-easy-handler (login :uri "/login") ()
-;;   (page (auth?)))
 
 (define-easy-handler (answer :uri "/answer") (pid)
   (if (answered? pid) (show-answers pid)
@@ -182,6 +273,11 @@
          "/r99.html" "static/r99.html") *dispatch-table*))
 
 (defun start-server (&optional (port *http-port*))
+  (setf sb-impl::*default-external-format* :utf-8)
+  (setf sb-alien::*default-c-string-external-format* :utf-8)
+  (setq hunchentoot:*hunchentoot-default-external-format*
+        (flex:make-external-format :utf-8 :eol-style :lf))
+  (setq hunchentoot:*default-content-type* "text/html; charset=utf-8")
   (publish-static-content)
   (setf *server* (make-instance 'easy-acceptor
                               :address "127.0.0.1"
