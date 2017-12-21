@@ -4,10 +4,6 @@
 
 (defvar *version* "0.2.2")
 
-(defvar *db* "r99")
-(defvar *myid* nil)
-(defvar *http-port* 3030)
-(defvar *server* nil)
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -23,13 +19,17 @@
         #+sbcl (sb-ext:posix-getenv name)
         default)))
 
+(defvar *db* "r99")
+(defvar *myid* nil)
+(defvar *http-port* 3030)
+(defvar *server* nil)
 (defvar *host* (or (getenv "R99_HOST") "localhost"))
-(defvar *user* (or (getenv "R99_USER") "user"))
-(defvar *password* (or (getenv "R99_PASS") "pass"))
+(defvar *user* (or (getenv "R99_USER") "user1"))
+(defvar *password* (or (getenv "R99_PASS") "pass1"))
 
 (defun query (sql)
   (dbi:with-connection
-      (conn :mysql
+      (conn :postgres
             :host *host*
             :username *user*
             :password *password*
@@ -120,14 +120,16 @@
 
 ;; BUG 日本語を正しく表示しない。
 (define-easy-handler (problems :uri "/problems") ()
-  (page (:h2 "problems")
-        (:p "番号をクリックして回答提出")
-        (loop for row in *problems*
-           do (format t
-                      "<p><a href='/answer?pid=~a'>~a</a>, ~a</p>~%"
-                      (getf row :|num|)
-                      (getf row :|num|)
-                      (getf row :|detail|)))))
+  (let ((results (query "select num, detail from problems")))
+    (page (:h2 "problems")
+	  (:p "番号をクリックして回答提出")
+	  (loop for row = (dbi:fetch results)
+	     while row
+	     do (format t
+			"<p><a href='/answer?pid=~a'>~a</a>, ~a</p>~%"
+			(getf row :|num|)
+			(getf row :|num|)
+			(getf row :|detail|))))))
 
 (defun my-answer (pid)
   (let* ((q
@@ -269,6 +271,7 @@
                               :port port
                               :document-root #p "tmp"))
   (start *server*)
+;;  (query "set names utf8")
   (format t "r99-~a started at ~d.~%" *version* port))
 
 (defun stop-server ()
