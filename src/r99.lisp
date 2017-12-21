@@ -2,13 +2,7 @@
   (:use :cl :cl-dbi :cl-who :hunchentoot :cl-ppcre))
 (in-package :r99)
 
-(setf sb-impl::*default-external-format* :utf-8)
-(setf sb-alien::*default-c-string-external-format* :utf-8)
-(setq hunchentoot:*hunchentoot-default-external-format*
-      (flex:make-external-format :utf-8 :eol-style :lf))
-(setq hunchentoot:*default-content-type* "text/html; charset=utf-8")
-
-(defvar *version* "0.2.1")
+(defvar *version* "0.2.2")
 
 (defvar *db* "r99")
 (defvar *myid* nil)
@@ -45,7 +39,6 @@
 (defun now ()
   (second (dbi:fetch (query "select date_format(now(),'%Y-%m-%d')"))))
 
-;;FIXME: (password NIL) returns NIL
 (defun password (myid)
   (let ((sql (format nil
                      "select password from users where myid='~a'"
@@ -103,11 +96,6 @@
              (:hr)
              (:span "programmed by hkimura, release "
                     (str *version*) "."))))))
-;;;
-;; (define-easy-handler (hello :uri "/hello") ()
-;;   (page (:h1 "hello")
-;;         (:p "it is " (str (now)) ". time to eat!")
-;;         (:p (format t "it is ~a using (format t ~~ )." (now)))))
 
 (defun stars-aux (n ret)
   (if (zerop n) ret
@@ -127,18 +115,19 @@
                            (getf row :|myid|)
                            (stars (getf row :|count(id)|)))))))
 
+(defvar *problems* (dbi:fetch-all
+                    (query "select num, detail from problems")))
+
+;; BUG 日本語を正しく表示しない。
 (define-easy-handler (problems :uri "/problems") ()
   (page (:h2 "problems")
         (:p "番号をクリックして回答提出")
-        (let* ((sql "select num, detail from problems")
-               (results (query sql)))
-          (loop for row = (dbi:fetch results)
-             while row
-             do (format t
-                        "<p><a href='/answer?pid=~a'>~a</a>, ~a</p>~%"
-                        (getf row :|num|)
-                        (getf row :|num|)
-                        (getf row :|detail|))))))
+        (loop for row in *problems*
+           do (format t
+                      "<p><a href='/answer?pid=~a'>~a</a>, ~a</p>~%"
+                      (getf row :|num|)
+                      (getf row :|num|)
+                      (getf row :|detail|)))))
 
 (defun my-answer (pid)
   (let* ((q
@@ -269,6 +258,11 @@
          "/r99.html" "static/r99.html") *dispatch-table*))
 
 (defun start-server (&optional (port *http-port*))
+  (setf sb-impl::*default-external-format* :utf-8)
+  (setf sb-alien::*default-c-string-external-format* :utf-8)
+  (setq hunchentoot:*hunchentoot-default-external-format*
+        (flex:make-external-format :utf-8 :eol-style :lf))
+  (setq hunchentoot:*default-content-type* "text/html; charset=utf-8")
   (publish-static-content)
   (setf *server* (make-instance 'easy-acceptor
                               :address "127.0.0.1"
