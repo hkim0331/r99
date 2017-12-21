@@ -4,10 +4,11 @@
 
 (defvar *version* "0.2.2")
 
-(defvar *db* "r99")
-(defvar *myid* nil)
-(defvar *http-port* 3030)
-(defvar *server* nil)
+(setf sb-impl::*default-external-format* :utf-8)
+(setf sb-alien::*default-c-string-external-format* :utf-8)
+(setq hunchentoot:*hunchentoot-default-external-format*
+      (flex:make-external-format :utf-8 :eol-style :lf))
+(setq hunchentoot:*default-content-type* "text/html; charset=utf-8")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -26,18 +27,26 @@
 (defvar *host* (or (getenv "R99_HOST") "localhost"))
 (defvar *user* (or (getenv "R99_USER") "user"))
 (defvar *password* (or (getenv "R99_PASS") "pass"))
+(defvar *db* "r99")
+
+(defvar *server* nil)
+(defvar *http-port* 3030)
+
+(defvar *myid* nil)
 
 (defun query (sql)
   (dbi:with-connection
-      (conn :mysql
+      (conn :postgres
             :host *host*
             :username *user*
             :password *password*
             :database-name *db*)
     (dbi:execute (dbi:prepare conn sql))))
 
+;;postgres
 (defun now ()
-  (second (dbi:fetch (query "select date_format(now(),'%Y-%m-%d')"))))
+  (second
+   (dbi:fetch (query "select now()::text"))))
 
 (defun password (myid)
   (let ((sql (format nil
@@ -52,6 +61,9 @@
               *myid*
               pid)))
     (dbi:fetch (query sql))))
+
+(defun login? ()
+  *myid*)
 
 (defmacro navi ()
   '(htm
@@ -91,7 +103,6 @@
                    (navi)))
        (:div :class "container"
              (:p "myid: " (str *myid*))
-             (:p "db: " (str *host*) ":" (str *db*))
              ,@body
              (:hr)
              (:span "programmed by hkimura, release "
@@ -117,19 +128,6 @@
 
 (defvar *problems* (dbi:fetch-all
                     (query "select num, detail from problems")))
-
-;; BUG 日本語を正しく表示しない。
-;; (define-easy-handler (problems :uri "/problems") ()
-;;   (page (:h2 "problems")
-;;         (:p "番号をクリックして回答提出")
-;;         (loop for row = (dbi:fetch
-;;                          (query "select * from problems"))
-;;            while row
-;;            do (format t
-;;                       "<p><a href='/answer?pid=~a'>~a</a>, ~a</p>~%"
-;;                       (getf row :|num|)
-;;                       (getf row :|num|)
-;;                       (getf row :|detail|)))))
 
 (define-easy-handler (problems :uri "/problems") ()
   (page (:h2 "problems")
@@ -230,11 +228,11 @@
     (redirect "/users")))
 
 (defun escape-back-slash (s)
-  (regex-replace "\\n" s "unchi"))
-
+  (identity s))
 
 (defun upsert (pid answer)
-  (let ((answer2 (escape-back-slash answer)))
+  (let ((answer2 (escape-back-slash answer))
+        )
     (if (exist? pid)
         (update pid answer2)
         (insert pid answer2))))
@@ -247,18 +245,22 @@
       (redirect "/login")))
 
 (defun submit-answer (pid)
-  (page (:h2 "please submit your answer to " (str pid))
-        (:form :method "post" :action "/submit"
-               (:input :type "hidden" :name "pid" :value pid)
-               (:textarea :name "answer" :rows 10 :cols 50)
-               (:br)
-               (:input :type "submit"))))
+  (let* ((q (format nil "select detail from problems where id='~a'" pid))
+         (p (second (dbi:fetch (query q)))))
+    (page (:h2 "submit your answer to")
+          (:p (str p))
+          (:form :method "post" :action "/submit"
+                 (:input :type "hidden" :name "pid" :value pid)
+                 (:textarea :name "answer" :rows 10 :cols 50)
+                 (:br)
+                 (:input :type "submit")))))
 
 
 (define-easy-handler (answer :uri "/answer") (pid)
-  (if (answered? pid) (show-answers pid)
-      (submit-answer pid)))
-
+  (if (login?)
+      (if (answered? pid) (show-answers pid)
+          (submit-answer pid))
+      (redirect "/login")))
 ;;;
 (setf (html-mode) :html5)
 
@@ -273,11 +275,6 @@
          "/r99.html" "static/r99.html") *dispatch-table*))
 
 (defun start-server (&optional (port *http-port*))
-  (setf sb-impl::*default-external-format* :utf-8)
-  (setf sb-alien::*default-c-string-external-format* :utf-8)
-  (setq hunchentoot:*hunchentoot-default-external-format*
-        (flex:make-external-format :utf-8 :eol-style :lf))
-  (setq hunchentoot:*default-content-type* "text/html; charset=utf-8")
   (publish-static-content)
   (setf *server* (make-instance 'easy-acceptor
                               :address "127.0.0.1"
