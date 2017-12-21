@@ -4,15 +4,6 @@
 
 (defvar *version* "0.2.2")
 
-<<<<<<< HEAD
-(setf sb-impl::*default-external-format* :utf-8)
-(setf sb-alien::*default-c-string-external-format* :utf-8)
-(setq hunchentoot:*hunchentoot-default-external-format*
-      (flex:make-external-format :utf-8 :eol-style :lf))
-(setq hunchentoot:*default-content-type* "text/html; charset=utf-8")
-=======
->>>>>>> 2e2f0476e099f520093cfa397e061cf0d954a57c
-
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
   (declare (type (or string symbol) name))
@@ -27,24 +18,15 @@
         #+sbcl (sb-ext:posix-getenv name)
         default)))
 
+
+
 (defvar *db* "r99")
-(defvar *myid* nil)
-(defvar *http-port* 3030)
-(defvar *server* nil)
 (defvar *host* (or (getenv "R99_HOST") "localhost"))
-<<<<<<< HEAD
-(defvar *user* (or (getenv "R99_USER") "user"))
-(defvar *password* (or (getenv "R99_PASS") "pass"))
-(defvar *db* "r99")
-
-(defvar *server* nil)
 (defvar *http-port* 3030)
-
 (defvar *myid* nil)
-=======
-(defvar *user* (or (getenv "R99_USER") "user1"))
 (defvar *password* (or (getenv "R99_PASS") "pass1"))
->>>>>>> 2e2f0476e099f520093cfa397e061cf0d954a57c
+(defvar *server* nil)
+(defvar *user* (or (getenv "R99_USER") "user1"))
 
 (defun query (sql)
   (dbi:with-connection
@@ -230,11 +212,10 @@
   (let ((sql (format
               nil
               "insert into answers (myid, pid, answer, update_at)
-  values ('~a','~a', '~a', '~a')"
+  values ('~a','~a', '~a', 'timestamp::text')"
               *myid*
               pid
-              answer
-              (now))))
+              answer)))
     (query sql)
     (redirect "/users")))
 
