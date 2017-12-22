@@ -21,10 +21,11 @@
 (defvar *db* "r99")
 (defvar *host* (or (getenv "R99_HOST") "localhost"))
 (defvar *http-port* 3030)
-(defvar *myid* nil)
 (defvar *password* (or (getenv "R99_PASS") "pass1"))
 (defvar *server* nil)
 (defvar *user* (or (getenv "R99_USER") "user1"))
+
+(defvar *myid* "r99");; cookie name
 
 (defun query (sql)
   (dbi:with-connection
@@ -50,12 +51,12 @@
   (let ((sql (format
               nil
               "select id from answers where myid='~a' and pid='~a'"
-              *myid*
+              (myid)
               pid)))
     (dbi:fetch (query sql))))
 
-(defun login? ()
-  *myid*)
+(defun myid ()
+  (cookie-in  *myid*))
 
 (defmacro navi ()
   '(htm
@@ -94,7 +95,7 @@
                    (:h1 :class "pahe-header hidden-xs" "R99")
                    (navi)))
        (:div :class "container"
-             (:p "myid: " (str *myid*))
+             (:p "myid: " (str (myid)))
              ,@body
              (:hr)
              (:span "programmed by hkimura, release "
@@ -142,17 +143,18 @@
           (format
            nil
            "select answer from answers where myid='~a' and pid='~a'"
-           *myid* pid))
+           (myid) pid))
          (answer (dbi:fetch (query q))))
     (if (null answer) nil
         (getf answer :|answer|))))
 
+;; display myid?
 (defun other-answers (pid)
   (let ((q
           (format
            nil
-           "select answer from answers where not (myid='~a') and pid='~a'"
-           *myid* pid)))
+           "select myid, answer from answers where not (myid='~a') and pid='~a'"
+           (myid) pid)))
     (query q)))
 
 (defun show-answers (pid)
@@ -160,19 +162,25 @@
          (others (other-answers pid)))
     (page (:h2 "answers " (str pid))
           (:h3 "your answer")
-          (:pre (:code (str my)))
+          (:form :method "post" :action "/update-answer"
+                 (:input :type "hidden" :name "pid" :value pid)
+                 (:textarea :name "answer"
+                            :cols 50 :rows 6 (str my))
+                 (:br)
+                 (:input :type "submit" :value "update"))
           (:h3 "other answers")
           (loop for row = (dbi:fetch others)
              while row
-             do (format t "<pre>~a</pre>"
+             do (format t "<p>~a:<pre>~a</pre></p>"
+                        (getf row :|myid|)
                         (getf row :|answer|))))))
 
-(define-easy-handler (auth :uri "/auth") (myid pass)
-  (if (or *myid*
-          (and (not (null myid)) (not (null pass))
-               (string= (password  myid) pass)))
+(define-easy-handler (auth :uri "/auth") (id pass)
+  (if (or (myid)
+          (and (not (null id)) (not (null pass))
+               (string= (password  id) pass)))
       (progn
-        (setf *myid* myid)
+        (set-cookie *myid* :value id :max-age 86400)
         (redirect "/problems"))
       (redirect "/login")))
 
@@ -182,13 +190,13 @@
     (:h2 "LOGIN")
     (:form :method "post" :action "/auth"
            (:p "myid")
-           (:p (:input :type "text" :name "myid"))
+           (:p (:input :type "text" :name "id"))
            (:p "password")
            (:p (:input :type "password" :name "pass"))
            (:p (:input :type "submit" :value "login")))))
 
 (define-easy-handler (logout :uri "/logout") ()
-  (setf *myid* nil)
+  (set-cookie *myid* :max-age 0)
   (redirect "/problems"))
 
 (defun exist? (pid)
@@ -198,6 +206,9 @@
               *myid*
               pid)))
     (not (null (dbi:fetch (query sql))))))
+
+(define-easy-handler (update-answer :uri "/update-answer") (pid answer)
+  (update pid answer))
 
 (defun update (pid answer)
   (let ((sql (format
@@ -231,7 +242,7 @@
         (insert pid answer2))))
 
 (define-easy-handler (submit :uri "/submit") (pid answer)
-  (if *myid*
+  (if (myid)
       (progn
         (upsert pid answer)
         (redirect "/users"))
@@ -250,7 +261,7 @@
 
 
 (define-easy-handler (answer :uri "/answer") (pid)
-  (if (login?)
+  (if (myid)
       (if (answered? pid) (show-answers pid)
           (submit-answer pid))
       (redirect "/login")))
