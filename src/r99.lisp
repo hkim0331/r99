@@ -167,7 +167,7 @@ pid='~a' limit 5"
           (:form :method "post" :action "/update-answer"
                  (:input :type "hidden" :name "pid" :value pid)
                  (:textarea :name "answer"
-                            :cols 50 :rows 6 (str (espace my)))
+                            :cols 50 :rows 6 (str (escape my)))
                  (:br)
                  (:input :type "submit" :value "update"))
           (:h3 "other answers")
@@ -175,7 +175,7 @@ pid='~a' limit 5"
              while row
              do (format t "<p>~a:<pre>~a</pre></p>"
                         (getf row :|myid|)
-                        (espace (getf row :|answer|)))))))
+                        (escape (getf row :|answer|)))))))
 
 (define-easy-handler (auth :uri "/auth") (id pass)
   (if (or (myid)
@@ -240,7 +240,7 @@ pid='~a' limit 5"
       (update myid pid answer)
       (insert myid pid answer)))
 
-(defun espace (string)
+(defun escape (string)
   (regex-replace-all "<" string "&lt;"))
 
 (define-easy-handler (submit :uri "/submit") (pid answer)
