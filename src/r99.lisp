@@ -67,6 +67,8 @@
      " | "
      (:a :href "/users" "answers")
      " | "
+     (:a :href "/status" "status")
+     " | "
      (:a :href "/login" "login")
      " / "
      (:a :href "/logout" "logout"))))
@@ -176,7 +178,7 @@ num='~a' order by update_at desc limit 5"
       (:form :method "post" :action "/update-answer"
              (:input :type "hidden" :name "num" :value num)
              (:textarea :name "answer"
-                        :cols 50 (str (escape my)))
+                        :cols 60 (str (escape my)))
              (:br)
              (:input :type "submit" :value "update"))
       (:br)
@@ -211,7 +213,6 @@ num='~a' order by update_at desc limit 5"
   (set-cookie *myid* :max-age 0)
   (redirect "/problems"))
 
-;;
 (defun exist? (num)
   (let ((sql (format
               nil
@@ -268,7 +269,7 @@ num='~a' order by update_at desc limit 5"
       (:p (str p))
       (:form :method "post" :action "/submit"
              (:input :type "hidden" :name "num" :value num)
-             (:textarea :name "answer" :cols 50 :rows 10 )
+             (:textarea :name "answer" :cols 60 :rows 10 )
              (:br)
              (:input :type "submit")))))
 
@@ -277,6 +278,18 @@ num='~a' order by update_at desc limit 5"
   (if (myid)
       (if (answered? num) (show-answers num)
           (submit-answer num))
+      (redirect "/login")))
+
+(defun solved (myid)
+    (let* ((q (format nil "select num from answers where myid='~a'"
+                      myid))
+           (ret (dbi:fetch-all (query q))))
+      (mapcar (lambda (x) (getf x :|num|)) ret)))
+
+;; under construction
+(define-easy-handler (status :uri "/status") ()
+  (if (myid)
+      (page)
       (redirect "/login")))
 ;;;
 (setf (html-mode) :html5)

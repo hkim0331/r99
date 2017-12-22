@@ -1,7 +1,7 @@
 create table answers (
        id integer primary key auto_increment,
        myid       integer not null,
-       pid        integer not null,
+       pid        integer not null, -- rename num
        answer     text,
        update_at  timestamp) default charset=utf8mb4;
 
