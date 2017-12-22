@@ -124,6 +124,9 @@
 (defvar *problems* (dbi:fetch-all
                     (query "select num, detail from problems")))
 
+(define-easy-handler (index-alias :uri "/") ()
+  (redirect "/problems"))
+
 (define-easy-handler (problems :uri "/problems") ()
   (let ((results (query "select num, detail from problems")))
     (page (:h2 "problems")
