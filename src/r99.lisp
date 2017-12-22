@@ -289,7 +289,13 @@ num='~a' order by update_at desc limit 5"
 ;; under construction
 (define-easy-handler (status :uri "/status") ()
   (if (myid)
-      (page)
+      (let ((sv (apply #'vector (solved (myid)))))
+        (page
+          (:h3 "status")
+          (loop for n from 1 to 99 do
+               (htm (:a :href (format nil "/answer?num=~a" n)
+                        :class (if (find n sv) "found" "not-found")
+                        (str n))))))
       (redirect "/login")))
 ;;;
 (setf (html-mode) :html5)

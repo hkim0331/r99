@@ -6,3 +6,10 @@ pre.answer {
 form {
     font-family: monospace;
 }
+
+a.found {
+    background: red;
+}
+
+a.not-found {
+}
