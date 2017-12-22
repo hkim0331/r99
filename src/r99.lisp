@@ -56,7 +56,7 @@
     (dbi:fetch (query sql))))
 
 (defun myid ()
-  (cookie-in  *myid*))
+  (cookie-in *myid*))
 
 (defmacro navi ()
   '(htm
@@ -203,7 +203,7 @@
   (let ((sql (format
               nil
               "select id from answers where myid='~a' and pid='~a'"
-              *myid*
+              (myid)
               pid)))
     (not (null (dbi:fetch (query sql))))))
 
@@ -215,7 +215,7 @@
               nil
               "update answers set answer='~a', update_at=now() where myid='~a' and pid='~a'"
               answer
-              *myid*
+              (myid)
               pid)))
     (query sql)
     (redirect "/users")))
@@ -225,7 +225,7 @@
               nil
               "insert into answers (myid, pid, answer, update_at)
   values ('~a','~a', '~a', now())"
-              *myid*
+              (myid)
               pid
               answer)))
     (query sql)
