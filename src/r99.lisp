@@ -21,10 +21,11 @@
 (defvar *db* "r99")
 (defvar *host* (or (getenv "R99_HOST") "localhost"))
 (defvar *http-port* 3030)
-(defvar *myid* nil)
 (defvar *password* (or (getenv "R99_PASS") "pass1"))
 (defvar *server* nil)
 (defvar *user* (or (getenv "R99_USER") "user1"))
+
+(defvar *myid* "r99");; cookie name
 
 (defun query (sql)
   (dbi:with-connection
@@ -50,12 +51,12 @@
   (let ((sql (format
               nil
               "select id from answers where myid='~a' and pid='~a'"
-              *myid*
+              (myid)
               pid)))
     (dbi:fetch (query sql))))
 
-(defun login? ()
-  *myid*)
+(defun myid ()
+  (cookie-in  *myid*))
 
 (defmacro navi ()
   '(htm
@@ -94,7 +95,7 @@
                    (:h1 :class "pahe-header hidden-xs" "R99")
                    (navi)))
        (:div :class "container"
-             (:p "myid: " (str *myid*))
+             (:p "myid: " (str (myid)))
              ,@body
              (:hr)
              (:span "programmed by hkimura, release "
@@ -142,7 +143,7 @@
           (format
            nil
            "select answer from answers where myid='~a' and pid='~a'"
-           *myid* pid))
+           (myid) pid))
          (answer (dbi:fetch (query q))))
     (if (null answer) nil
         (getf answer :|answer|))))
@@ -153,7 +154,7 @@
           (format
            nil
            "select myid, answer from answers where not (myid='~a') and pid='~a'"
-           *myid* pid)))
+           (myid) pid)))
     (query q)))
 
 (defun show-answers (pid)
@@ -174,12 +175,12 @@
                         (getf row :|myid|)
                         (getf row :|answer|))))))
 
-(define-easy-handler (auth :uri "/auth") (myid pass)
-  (if (or *myid*
-          (and (not (null myid)) (not (null pass))
-               (string= (password  myid) pass)))
+(define-easy-handler (auth :uri "/auth") (id pass)
+  (if (or (myid)
+          (and (not (null id)) (not (null pass))
+               (string= (password  id) pass)))
       (progn
-        (setf *myid* myid)
+        (set-cookie *myid* :value id :max-age 86400)
         (redirect "/problems"))
       (redirect "/login")))
 
@@ -189,7 +190,7 @@
     (:h2 "LOGIN")
     (:form :method "post" :action "/auth"
            (:p "myid")
-           (:p (:input :type "text" :name "myid"))
+           (:p (:input :type "text" :name "id"))
            (:p "password")
            (:p (:input :type "password" :name "pass"))
            (:p (:input :type "submit" :value "login")))))
@@ -241,7 +242,7 @@
         (insert pid answer2))))
 
 (define-easy-handler (submit :uri "/submit") (pid answer)
-  (if *myid*
+  (if (myid)
       (progn
         (upsert pid answer)
         (redirect "/users"))
@@ -260,7 +261,7 @@
 
 
 (define-easy-handler (answer :uri "/answer") (pid)
-  (if (login?)
+  (if (myid)
       (if (answered? pid) (show-answers pid)
           (submit-answer pid))
       (redirect "/login")))
