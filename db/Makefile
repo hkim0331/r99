@@ -1,23 +1,13 @@
 DB=r99
-USER=user
+USER=user1
 
-create: users problems answers
+create:
+	psql -h localhost -U ${USER} -W ${DB} < create-all.pg
 
 drop:
-	mysql -u ${USER} -p ${DB} < migrations/drop-users.sql
-	mysql -u ${USER} -p ${DB} < migrations/drop-problems.sql
-	mysql -u ${USER} -p ${DB} < migrations/drop-answers.sql
+	mysql -u ${USER} -p ${DB} < drop-all.sql
 
 seed:
-	ruby seed-users.rb
-	ruby seed-problems.rb
+	ruby seed.rb
 
-users:
-	mysql -u ${USER} -p ${DB} < migrations/users.sql
-
-problems:
-	mysql -u ${USER} -p ${DB} < migrations/problems.sql
-
-answers:
-	mysql -u ${USER} -p ${DB} < migrations/answers.sql
 
