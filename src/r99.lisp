@@ -56,7 +56,7 @@
     (dbi:fetch (query sql))))
 
 (defun myid ()
-  (cookie-in  *myid*))
+  (cookie-value  *myid*))
 
 (defmacro navi ()
   '(htm
@@ -203,7 +203,7 @@
   (let ((sql (format
               nil
               "select id from answers where myid='~a' and pid='~a'"
-              *myid*
+              (myid)
               pid)))
     (not (null (dbi:fetch (query sql))))))
 
