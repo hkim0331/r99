@@ -5,9 +5,7 @@ create:
 	psql -h localhost -U ${USER} -W ${DB} < create-all.pg
 
 drop:
-	mysql -u ${USER} -p ${DB} < drop-all.sql
+	psql -h localhost -U ${USER} -W ${DB} < drop-all.sql
 
 seed:
 	ruby seed.rb
-
-
