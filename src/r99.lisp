@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :hunchentoot :cl-ppcre))
 (in-package :r99)
 
-(defvar *version* "0.4")
+(defvar *version* "0.4.1")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -155,7 +155,7 @@
           (format
            nil
            "select myid, answer from answers where not (myid='~a') and
-pid='~a' limit 5"
+pid='~a' order by update_at desc limit 5"
            (myid) pid)))
     (query q)))
 
