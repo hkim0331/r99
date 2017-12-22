@@ -175,7 +175,7 @@ num='~a' order by update_at desc limit 5"
     (page
       (:p (format t "~a, ~a" num (detail num)))
       (:h3 "your answer")
-      (:form :method "post" :action "/update-answer"
+      (:form :class "answer" :method "post" :action "/update-answer"
              (:input :type "hidden" :name "num" :value num)
              (:textarea :name "answer"
                         :cols 60 (str (escape my)))

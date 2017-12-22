@@ -3,8 +3,9 @@ pre.answer {
     padding: 5px;
 }
 
-form {
+form.answer {
     font-family: monospace;
+    font-size: large;
 }
 
 a.found {
