@@ -196,7 +196,7 @@
            (:p (:input :type "submit" :value "login")))))
 
 (define-easy-handler (logout :uri "/logout") ()
-  (setf *myid* nil)
+  (set-cookie *myid* :max-age 0)
   (redirect "/problems"))
 
 (defun exist? (pid)
