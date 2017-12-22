@@ -168,10 +168,10 @@ num='~a' order by update_at desc limit 5"
       (getf ret :|detail|))))
 
 (defun show-answers (num)
-  (let* ((my (my-answer num) )
+  (let* ((my (my-answer num))
          (others (other-answers num)))
     (page
-      (:h2 "answers " (str num))
+      (:p (format t "~a, ~a" num (detail num)))
       (:h3 "your answer")
       (:form :method "post" :action "/update-answer"
              (:input :type "hidden" :name "num" :value num)
@@ -179,10 +179,11 @@ num='~a' order by update_at desc limit 5"
                         :cols 50 :rows 10 (str (escape my)))
              (:br)
              (:input :type "submit" :value "update"))
-      (:h3 "other answers")
+      (:br)
+      (:h3 "others")
       (loop for row = (dbi:fetch others)
          while row
-         do (format t "<p>~a:<pre>~a</pre></p>"
+         do (format t "<p>~a:<pre class='answer'><code>~a</code></pre></p>"
                     (getf row :|myid|)
                     (escape (getf row :|answer|)))))))
 
