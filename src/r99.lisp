@@ -110,7 +110,8 @@
 
 (define-easy-handler (users :uri "/users") ()
   (page (:h2 "number of answers")
-        (let* ((sql "select myid, count(id) from answers group by myid")
+        (let* ((sql "select myid, count(id) from answers group by myid
+  order by myid")
                (results (query sql)))
           (loop for row = (dbi:fetch results)
                 while row
@@ -199,6 +200,7 @@
   (set-cookie *myid* :max-age 0)
   (redirect "/problems"))
 
+;;
 (defun exist? (pid)
   (let ((sql (format
               nil
@@ -208,43 +210,39 @@
     (not (null (dbi:fetch (query sql))))))
 
 (define-easy-handler (update-answer :uri "/update-answer") (pid answer)
-  (update pid answer))
+  (update (myid)  pid answer))
 
-(defun update (pid answer)
+(defun update (myid pid answer)
   (let ((sql (format
               nil
               "update answers set answer='~a', update_at=now() where myid='~a' and pid='~a'"
               answer
-              (myid)
+              myid
               pid)))
     (query sql)
     (redirect "/users")))
 
-(defun insert (pid answer)
+(defun insert (myid pid answer)
   (let ((sql (format
               nil
               "insert into answers (myid, pid, answer, update_at)
   values ('~a','~a', '~a', now())"
-              (myid)
+              myid
               pid
               answer)))
     (query sql)
     (redirect "/users")))
 
-(defun escape-back-slash (s)
-  (identity s))
 
-(defun upsert (pid answer)
-  (let ((answer2 (escape-back-slash answer))
-        )
-    (if (exist? pid)
-        (update pid answer2)
-        (insert pid answer2))))
+(defun upsert (myid pid answer)
+  (if (exist? pid)
+      (update myid pid answer)
+      (insert myid pid answer)))
 
 (define-easy-handler (submit :uri "/submit") (pid answer)
   (if (myid)
       (progn
-        (upsert pid answer)
+        (upsert (myid) pid answer)
         (redirect "/users"))
       (redirect "/login")))
 
