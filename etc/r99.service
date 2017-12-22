@@ -1,0 +1,16 @@
+[Unit]
+Description = r99 traning
+After = postgresql
+
+[Service]
+WorkingDirectory = /srv/r99
+Environment = R99_USER = user1
+Environment = R99_PASS = pass1
+ExecStart = /srv/r99/r99
+Restart = always
+TimeoutSec = 300
+Type = simple
+User = hkim
+
+[Install]
+WantedBy = multi-user.target
