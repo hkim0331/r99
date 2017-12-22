@@ -147,11 +147,12 @@
     (if (null answer) nil
         (getf answer :|answer|))))
 
+;; display myid?
 (defun other-answers (pid)
   (let ((q
           (format
            nil
-           "select answer from answers where not (myid='~a') and pid='~a'"
+           "select myid, answer from answers where not (myid='~a') and pid='~a'"
            *myid* pid)))
     (query q)))
 
@@ -160,11 +161,17 @@
          (others (other-answers pid)))
     (page (:h2 "answers " (str pid))
           (:h3 "your answer")
-          (:pre (:code (str my)))
+          (:form :method "post" :action "/update-answer"
+                 (:input :type "hidden" :name "pid" :value pid)
+                 (:textarea :name "answer"
+                            :cols 50 :rows 6 (str my))
+                 (:br)
+                 (:input :type "submit" :value "update"))
           (:h3 "other answers")
           (loop for row = (dbi:fetch others)
              while row
-             do (format t "<pre>~a</pre>"
+             do (format t "<p>~a:<pre>~a</pre></p>"
+                        (getf row :|myid|)
                         (getf row :|answer|))))))
 
 (define-easy-handler (auth :uri "/auth") (myid pass)
@@ -198,6 +205,9 @@
               *myid*
               pid)))
     (not (null (dbi:fetch (query sql))))))
+
+(define-easy-handler (update-answer :uri "/update-answer") (pid answer)
+  (update pid answer))
 
 (defun update (pid answer)
   (let ((sql (format
