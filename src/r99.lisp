@@ -118,7 +118,8 @@
                 do (format t
                            "<p>~A | ~A</p>"
                            (getf row :|myid|)
-                           (stars (getf row :|count(id)|)))))))
+                           ;; mysql/postgres で戻りが違う。
+                           (stars (getf row :|count|)))))))
 
 (defvar *problems* (dbi:fetch-all
                     (query "select num, detail from problems")))
@@ -200,9 +201,8 @@
 (defun update (pid answer)
   (let ((sql (format
               nil
-              "update answers set answer='~a', update_at='~a' where myid='~a' and pid='~a'"
+              "update answers set answer='~a', update_at=now() where myid='~a' and pid='~a'"
               answer
-              (now)
               *myid*
               pid)))
     (query sql)
@@ -212,7 +212,7 @@
   (let ((sql (format
               nil
               "insert into answers (myid, pid, answer, update_at)
-  values ('~a','~a', '~a', 'timestamp::text')"
+  values ('~a','~a', '~a', now())"
               *myid*
               pid
               answer)))
