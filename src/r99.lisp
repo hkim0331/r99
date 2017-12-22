@@ -154,7 +154,8 @@
   (let ((q
           (format
            nil
-           "select myid, answer from answers where not (myid='~a') and pid='~a'"
+           "select myid, answer from answers where not (myid='~a') and
+pid='~a' limit 5"
            (myid) pid)))
     (query q)))
 
@@ -166,7 +167,7 @@
           (:form :method "post" :action "/update-answer"
                  (:input :type "hidden" :name "pid" :value pid)
                  (:textarea :name "answer"
-                            :cols 50 :rows 6 (str my))
+                            :cols 50 :rows 6 (str (espace my)))
                  (:br)
                  (:input :type "submit" :value "update"))
           (:h3 "other answers")
@@ -174,7 +175,7 @@
              while row
              do (format t "<p>~a:<pre>~a</pre></p>"
                         (getf row :|myid|)
-                        (getf row :|answer|))))))
+                        (espace (getf row :|answer|)))))))
 
 (define-easy-handler (auth :uri "/auth") (id pass)
   (if (or (myid)
@@ -238,6 +239,9 @@
   (if (exist? pid)
       (update myid pid answer)
       (insert myid pid answer)))
+
+(defun espace (string)
+  (regex-replace-all "<" string "&lt;"))
 
 (define-easy-handler (submit :uri "/submit") (pid answer)
   (if (myid)
