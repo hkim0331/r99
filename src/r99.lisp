@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :hunchentoot :cl-ppcre))
 (in-package :r99)
 
-(defvar *version* "0.2.2")
+(defvar *version* "0.3")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -17,8 +17,6 @@
         #+mkcl (mkcl:getenv name)
         #+sbcl (sb-ext:posix-getenv name)
         default)))
-
-
 
 (defvar *db* "r99")
 (defvar *host* (or (getenv "R99_HOST") "localhost"))
@@ -130,14 +128,14 @@
 (define-easy-handler (problems :uri "/problems") ()
   (let ((results (query "select num, detail from problems")))
     (page (:h2 "problems")
-	  (:p "番号をクリックして回答提出")
-	  (loop for row = (dbi:fetch results)
-	     while row
-	     do (format t
-			"<p><a href='/answer?pid=~a'>~a</a>, ~a</p>~%"
-			(getf row :|num|)
-			(getf row :|num|)
-			(getf row :|detail|))))))
+    (:p "番号をクリックして回答提出")
+    (loop for row = (dbi:fetch results)
+       while row
+       do (format t
+      "<p><a href='/answer?pid=~a'>~a</a>, ~a</p>~%"
+      (getf row :|num|)
+      (getf row :|num|)
+      (getf row :|detail|))))))
 
 (defun my-answer (pid)
   (let* ((q
