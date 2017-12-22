@@ -176,7 +176,7 @@ num='~a' order by update_at desc limit 5"
       (:form :method "post" :action "/update-answer"
              (:input :type "hidden" :name "num" :value num)
              (:textarea :name "answer"
-                        :cols 50 :rows 10 (str (escape my)))
+                        :cols 50 (str (escape my)))
              (:br)
              (:input :type "submit" :value "update"))
       (:br)
