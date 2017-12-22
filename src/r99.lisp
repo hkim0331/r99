@@ -2,13 +2,7 @@
   (:use :cl :cl-dbi :cl-who :hunchentoot :cl-ppcre))
 (in-package :r99)
 
-(defvar *version* "0.2.2")
-
-(setf sb-impl::*default-external-format* :utf-8)
-(setf sb-alien::*default-c-string-external-format* :utf-8)
-(setq hunchentoot:*hunchentoot-default-external-format*
-      (flex:make-external-format :utf-8 :eol-style :lf))
-(setq hunchentoot:*default-content-type* "text/html; charset=utf-8")
+(defvar *version* "0.3")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -24,15 +18,13 @@
         #+sbcl (sb-ext:posix-getenv name)
         default)))
 
-(defvar *host* (or (getenv "R99_HOST") "localhost"))
-(defvar *user* (or (getenv "R99_USER") "user"))
-(defvar *password* (or (getenv "R99_PASS") "pass"))
 (defvar *db* "r99")
-
-(defvar *server* nil)
+(defvar *host* (or (getenv "R99_HOST") "localhost"))
 (defvar *http-port* 3030)
-
 (defvar *myid* nil)
+(defvar *password* (or (getenv "R99_PASS") "pass1"))
+(defvar *server* nil)
+(defvar *user* (or (getenv "R99_USER") "user1"))
 
 (defun query (sql)
   (dbi:with-connection
@@ -124,23 +116,26 @@
                 do (format t
                            "<p>~A | ~A</p>"
                            (getf row :|myid|)
-                           (stars (getf row :|count(id)|)))))))
+                           ;; mysql/postgres で戻りが違う。
+                           (stars (getf row :|count|)))))))
 
 (defvar *problems* (dbi:fetch-all
                     (query "select num, detail from problems")))
 
+(define-easy-handler (index-alias :uri "/") ()
+  (redirect "/problems"))
+
 (define-easy-handler (problems :uri "/problems") ()
-  (page (:h2 "problems")
-        (:p "番号をクリックして回答提出")
-        (let* ((sql "select num, detail from problems")
-               (results (query sql)))
-          (loop for row = (dbi:fetch results)
-             while row
-             do (format t
-                        "<p><a href='/answer?pid=~a'>~a</a>, ~a</p>~%"
-                        (getf row :|num|)
-                        (getf row :|num|)
-                        (getf row :|detail|))))))
+  (let ((results (query "select num, detail from problems")))
+    (page (:h2 "problems")
+    (:p "番号をクリックして回答提出")
+    (loop for row = (dbi:fetch results)
+       while row
+       do (format t
+      "<p><a href='/answer?pid=~a'>~a</a>, ~a</p>~%"
+      (getf row :|num|)
+      (getf row :|num|)
+      (getf row :|detail|))))))
 
 (defun my-answer (pid)
   (let* ((q
@@ -207,9 +202,8 @@
 (defun update (pid answer)
   (let ((sql (format
               nil
-              "update answers set answer='~a', update_at='~a' where myid='~a' and pid='~a'"
+              "update answers set answer='~a', update_at=now() where myid='~a' and pid='~a'"
               answer
-              (now)
               *myid*
               pid)))
     (query sql)
@@ -219,11 +213,10 @@
   (let ((sql (format
               nil
               "insert into answers (myid, pid, answer, update_at)
-  values ('~a','~a', '~a', '~a')"
+  values ('~a','~a', '~a', now())"
               *myid*
               pid
-              answer
-              (now))))
+              answer)))
     (query sql)
     (redirect "/users")))
 
@@ -281,6 +274,7 @@
                               :port port
                               :document-root #p "tmp"))
   (start *server*)
+;;  (query "set names utf8")
   (format t "r99-~a started at ~d.~%" *version* port))
 
 (defun stop-server ()

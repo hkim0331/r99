@@ -1,8 +1,8 @@
 DB=r99
-USER=user
+USER=user1
 
 create:
-	mysql -u ${USER} -p ${DB} < create-all.sql
+	psql -h localhost -U ${USER} -W ${DB} < create-all.pg
 
 drop:
 	mysql -u ${USER} -p ${DB} < drop-all.sql
