@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :hunchentoot :cl-ppcre))
 (in-package :r99)
 
-(defvar *version* "0.5")
+(defvar *version* "0.5.1")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -108,10 +108,16 @@
 
 (define-easy-handler (users :uri "/users") ()
   (page
-    (:h2 "number of answers")
-    (let* ((sql "select myid, count(id) from answers group by myid
-  order by myid")
-           (results (query sql)))
+    (:h2 "誰が何問解いたか？")
+    (let* ((recent
+            (dbi:fetch (query "select myid, num, update_at::text from answers order by update_at desc limit 1")))
+           (results
+            (query "select myid, count(id) from answers group by myid
+  order by myid")))
+      (htm (:p (format t "myid ~a answered to question ~a at ~a."
+                       (getf recent :|myid|)
+                       (getf recent :|num|)
+                       (getf recent :|update_at|))))
       (loop for row = (dbi:fetch results)
          while row
          do (format t
@@ -149,7 +155,6 @@
     (if (null answer) nil
         (getf answer :|answer|))))
 
-;; display myid?
 (defun other-answers (num)
   (let ((q
           (format
@@ -291,16 +296,15 @@ num='~a' order by update_at desc limit 5"
     (getf ret :|password|)))
 
 (define-easy-handler (passwd :uri "/passwd") (myid old new1 new2)
-  (page
-    (:h2 "change password")
-    (if (string= (my-password myid) old)
-        (if (string= new1 new2)
-            (let ((q (format nil "update users set password='~a' where
-  myid='~a'" new1 myid)))
-              (query q)
-              (htm  (:p "パスワードを変更しました。")))
-            (htm (:p "パスワードが一致しません。")))
-        (htm (:p "現在のパスワードが一致しません")))))
+  (let ((status "パスワードを変更しました。"))
+    (page
+      (:h2 "change password")
+      (if (string= (my-password myid) old)
+          (if (string= new1 new2)
+              (query (format nil "update users set password='~a' where myid='~a'" new1 myid))
+              (setf status "パスワードが一致しません。"))
+          (setf status "現在のパスワードが一致しません"))
+      (:p (str status)))))
 
 (define-easy-handler (status :uri "/status") ()
   (if (myid)
@@ -311,6 +315,7 @@ num='~a' order by update_at desc limit 5"
                (htm (:a :href (format nil "/answer?num=~a" n)
                         :class (if (find n sv) "found" "not-found")
                         (str n))))
+          (:hr)
           (:h3 "change password")
           (:form :method "post" :action "/passwd"
                  (:p "myid")
@@ -324,7 +329,8 @@ num='~a' order by update_at desc limit 5"
                  (:p (:input :type "password" :name "new2"))
                  (:input :type "submit" :value "change"))))
       (redirect "/login")))
-;;;
+
+;;; start page
 (setf (html-mode) :html5)
 
 (defun publish-static-content ()
@@ -344,7 +350,6 @@ num='~a' order by update_at desc limit 5"
                               :port port
                               :document-root #p "tmp"))
   (start *server*)
-;;  (query "set names utf8")
   (format t "r99-~a started at ~d.~%" *version* port))
 
 (defun stop-server ()
