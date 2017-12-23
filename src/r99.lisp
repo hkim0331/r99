@@ -121,7 +121,7 @@
       (loop for row = (dbi:fetch results)
          while row
          do (format t
-                    "<p>~A | ~A</p>"
+                    "<pre>~A | ~A</pre>"
                     (getf row :|myid|)
                     ;; mysql/postgres で戻りが違う。
                     (stars (getf row :|count|)))))))
