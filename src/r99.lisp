@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :hunchentoot :cl-ppcre))
 (in-package :r99)
 
-(defvar *version* "0.4.2")
+(defvar *version* "0.4.4")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -66,6 +66,8 @@
      (:a :href "/problems" "problems")
      " | "
      (:a :href "/users" "answers")
+     " | "
+     (:a :href "/status" "status")
      " | "
      (:a :href "/login" "login")
      " / "
@@ -173,10 +175,10 @@ num='~a' order by update_at desc limit 5"
     (page
       (:p (format t "~a, ~a" num (detail num)))
       (:h3 "your answer")
-      (:form :method "post" :action "/update-answer"
+      (:form :class "answer" :method "post" :action "/update-answer"
              (:input :type "hidden" :name "num" :value num)
              (:textarea :name "answer"
-                        :cols 50 :rows 10 (str (escape my)))
+                        :cols 60 (str (escape my)))
              (:br)
              (:input :type "submit" :value "update"))
       (:br)
@@ -211,7 +213,6 @@ num='~a' order by update_at desc limit 5"
   (set-cookie *myid* :max-age 0)
   (redirect "/problems"))
 
-;;
 (defun exist? (num)
   (let ((sql (format
               nil
@@ -268,7 +269,7 @@ num='~a' order by update_at desc limit 5"
       (:p (str p))
       (:form :method "post" :action "/submit"
              (:input :type "hidden" :name "num" :value num)
-             (:textarea :name "answer" :cols 50 :rows 10 )
+             (:textarea :name "answer" :cols 60 :rows 10 )
              (:br)
              (:input :type "submit")))))
 
@@ -277,6 +278,24 @@ num='~a' order by update_at desc limit 5"
   (if (myid)
       (if (answered? num) (show-answers num)
           (submit-answer num))
+      (redirect "/login")))
+
+(defun solved (myid)
+    (let* ((q (format nil "select num from answers where myid='~a'"
+                      myid))
+           (ret (dbi:fetch-all (query q))))
+      (mapcar (lambda (x) (getf x :|num|)) ret)))
+
+;; under construction
+(define-easy-handler (status :uri "/status") ()
+  (if (myid)
+      (let ((sv (apply #'vector (solved (myid)))))
+        (page
+          (:h3 "status")
+          (loop for n from 1 to 99 do
+               (htm (:a :href (format nil "/answer?num=~a" n)
+                        :class (if (find n sv) "found" "not-found")
+                        (str n))))))
       (redirect "/login")))
 ;;;
 (setf (html-mode) :html5)

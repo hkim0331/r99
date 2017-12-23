@@ -2,3 +2,14 @@ pre.answer {
     border: 1pt solid gray;
     padding: 5px;
 }
+
+form.answer {
+    font-family: monospace, serif;
+}
+
+a.found {
+    background: red;
+}
+
+a.not-found {
+}

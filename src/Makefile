@@ -13,3 +13,8 @@ install: r99
 	cp static/* /srv/r99/static/
 	sudo systemctl start r99
 
+clean:
+	${RM} r99
+
+reinstall:
+	make clean install
