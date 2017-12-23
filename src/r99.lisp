@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :hunchentoot :cl-ppcre))
 (in-package :r99)
 
-(defvar *version* "0.5.2")
+(defvar *version* "0.5.3")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -133,7 +133,7 @@
   (redirect "/problems"))
 
 (define-easy-handler (problems :uri "/problems") ()
-  (let ((results (query "select num, detail from problems")))
+  (let ((results (query "select num, detail from problems order by num")))
     (page
       (:h2 "problems")
       (:p "番号をクリックして回答提出")
