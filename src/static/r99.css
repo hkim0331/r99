@@ -4,8 +4,7 @@ pre.answer {
 }
 
 form.answer {
-    font-family: monospace;
-    font-size: x-large;
+    font-family: monospace, serif;
 }
 
 a.found {
