@@ -13,3 +13,9 @@ a.found {
 
 a.not-found {
 }
+
+p.mono {
+    font-family: monospace, serif;
+}
+
+
