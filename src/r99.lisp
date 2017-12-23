@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :hunchentoot :cl-ppcre))
 (in-package :r99)
 
-(defvar *version* "0.5.1")
+(defvar *version* "0.5.2")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -179,7 +179,9 @@ num='~a' order by update_at desc limit 5"
       (:form :class "answer" :method "post" :action "/update-answer"
              (:input :type "hidden" :name "num" :value num)
              (:textarea :name "answer"
-                        :cols 60 (str (escape my)))
+                        :cols 60
+                        :rows (+ 1 (count #\return my :test #'equal))
+                        (str (escape my)))
              (:br)
              (:input :type "submit" :value "update"))
       (:br)
