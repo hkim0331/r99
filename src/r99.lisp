@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :hunchentoot :cl-ppcre))
 (in-package :r99)
 
-(defvar *version* "0.4.4")
+(defvar *version* "0.5")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -36,15 +36,11 @@
             :database-name *db*)
     (dbi:execute (dbi:prepare conn sql))))
 
-;;postgres
-(defun now ()
-  (second
-   (dbi:fetch (query "select now()::text"))))
-
 (defun password (myid)
-  (let ((sql (format nil
-                     "select password from users where myid='~a'"
-                     myid)))
+  (let ((sql (format
+              nil
+              "select password from users where myid='~a'"
+              myid)))
     (second (dbi:fetch (query sql)))))
 
 (defun answered? (num)
@@ -286,7 +282,26 @@ num='~a' order by update_at desc limit 5"
            (ret (dbi:fetch-all (query q))))
       (mapcar (lambda (x) (getf x :|num|)) ret)))
 
-;; under construction
+
+;;; status
+(defun my-password (myid)
+  (let* ((q (format
+             nil "select password from users where myid='~a'" myid))
+         (ret (dbi:fetch (query q))))
+    (getf ret :|password|)))
+
+(define-easy-handler (passwd :uri "/passwd") (myid old new1 new2)
+  (page
+    (:h2 "change password")
+    (if (string= (my-password myid) old)
+        (if (string= new1 new2)
+            (let ((q (format nil "update users set password='~a' where
+  myid='~a'" new1 myid)))
+              (query q)
+              (htm  (:p "パスワードを変更しました。")))
+            (htm (:p "パスワードが一致しません。")))
+        (htm (:p "現在のパスワードが一致しません")))))
+
 (define-easy-handler (status :uri "/status") ()
   (if (myid)
       (let ((sv (apply #'vector (solved (myid)))))
@@ -295,7 +310,19 @@ num='~a' order by update_at desc limit 5"
           (loop for n from 1 to 99 do
                (htm (:a :href (format nil "/answer?num=~a" n)
                         :class (if (find n sv) "found" "not-found")
-                        (str n))))))
+                        (str n))))
+          (:h3 "change password")
+          (:form :method "post" :action "/passwd"
+                 (:p "myid")
+                 (:p (:input :type "text" :name "myid" :value (str (myid))
+                             :disable "disable"))
+                 (:p "old password")
+                 (:p (:input :type "password" :name "old"))
+                 (:p "new password")
+                 (:p (:input :type "password" :name "new1"))
+                 (:p "new password again (same one)")
+                 (:p (:input :type "password" :name "new2"))
+                 (:input :type "submit" :value "change"))))
       (redirect "/login")))
 ;;;
 (setf (html-mode) :html5)
