@@ -3,11 +3,13 @@
 |#
 
 (defsystem "r99"
-  :version "0.4.2"
+  :version "0.5.4"
   :author "Hiroshi Kimura"
   :license ""
   :depends-on ("cl-dbi"
                "cl-who"
+               "cl-fad"
+               "cl-ppcre"
                "hunchentoot")
   :components ((:module "src"
                 :components
