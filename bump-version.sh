@@ -1,6 +1,5 @@
 #!/bin/sh
 # -*- mode: Shell-script; coding: utf-8; -*-
-# update 2017-03-19.
 
 if [ $# -ne 1 ]; then
     echo usage: $0 VERSION
@@ -9,9 +8,7 @@ else
     VERSION=$1
 fi
 
-TODAY=`date +%F`
-
-# linux's sed is gnu sed, macos not.
+# linux's sed is gnu sed, macOS not.
 if [ -e /usr/local/bin/gsed ]; then
     SED=/usr/local/bin/gsed
 else
@@ -22,6 +19,7 @@ if [ -z ${SED} ]; then
     exit
 fi
 
+# FIXME: leading two blank chars disappear.
 ${SED} -i.bak "/  :version/ c\
   :version \"${VERSION}\"" ./r99.asd
 
