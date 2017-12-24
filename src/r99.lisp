@@ -291,7 +291,7 @@ num='~a' order by update_at desc limit 5"
       (:p (str p))
       (:form :method "post" :action "/submit"
              (:input :type "hidden" :name "num" :value num)
-             (:textarea :name "answer" :cols 60 :rows 10 )
+             (:textarea :name "answer" :cols 60 :rows 10)
              (:br)
              (:input :type "submit")))))
 
@@ -330,17 +330,17 @@ num='~a' order by update_at desc limit 5"
   (if (myid)
       (let ((sv (apply #'vector (solved (myid)))))
         (page
-          (:h3 "status")
+          (:h3 "自分の回答状況")
           (loop for n from 1 to 99 do
                (htm (:a :href (format nil "/answer?num=~a" n)
                         :class (if (find n sv) "found" "not-found")
                         (str n))))
           (:hr)
-          (:h3 "change password")
+          (:h3 "パスワード変更")
           (:form :method "post" :action "/passwd"
-                 (:p "myid")
+                 (:p "myid (変更不可)")
                  (:p (:input :type "text" :name "myid" :value (str (myid))
-                             :disable "disable"))
+                             :readonly "readonly"))
                  (:p "old password")
                  (:p (:input :type "password" :name "old"))
                  (:p "new password")
