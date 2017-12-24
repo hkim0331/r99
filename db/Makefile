@@ -9,3 +9,9 @@ drop:
 
 seed:
 	ruby seed.rb
+
+# backup:
+# 	pg_dump r99 > backup.sql
+
+# restore:
+# 	psql r99 < backup.sql

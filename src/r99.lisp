@@ -1,8 +1,8 @@
 (defpackage r99
-  (:use :cl :cl-dbi :cl-who :hunchentoot :cl-ppcre))
+  (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.5.3")
+(defvar *version* "0.6.0")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -225,7 +225,11 @@ num='~a' order by update_at desc limit 5"
     (not (null (dbi:fetch (query sql))))))
 
 (define-easy-handler (update-answer :uri "/update-answer") (num answer)
-  (update (myid)  num answer))
+  (if (check answer)
+      (update (myid) num answer)
+      (page
+        (:h3 "error")
+        (:p "ビルドできねーよ。"))))
 
 (defun update (myid num answer)
   (let ((sql (format
@@ -248,20 +252,35 @@ num='~a' order by update_at desc limit 5"
     (query sql)
     (redirect "/users")))
 
-
-(defun upsert (myid num answer)
-  (if (exist? num)
-      (update myid num answer)
-      (insert myid num answer)))
+;; (defun upsert (myid num answer)
+;;   (if (exist? num)
+;;       (update myid num answer)
+;;       (insert myid num answer)))
 
 (defun escape (string)
   (regex-replace-all "<" string "&lt;"))
 
+;; check syntax only.
+(defun check (answer)
+  (let* ((cl-fad:*default-template* "temp%.c")
+         (pathname (with-output-to-temporary-file (f)
+                     (write-string answer f)))
+         (ret (sb-ext:run-program
+               "/usr/bin/cc"
+               `("-fsyntax-only" ,(namestring pathname)))))
+    (delete-file pathname)
+    (= 0 (sb-ext:process-exit-code ret))))
+
 (define-easy-handler (submit :uri "/submit") (num answer)
   (if (myid)
-      (progn
-        (upsert (myid) num answer)
-        (redirect "/users"))
+      (if (check answer)
+          (progn
+            ;; was (upsert (myid) num answer)
+            (insert (myid) num answer)
+            (redirect "/users"))
+          (page
+           (:h3 "error")
+           (:p "ビルドできません")))
       (redirect "/login")))
 
 (defun submit-answer (num)
@@ -275,7 +294,6 @@ num='~a' order by update_at desc limit 5"
              (:textarea :name "answer" :cols 60 :rows 10 )
              (:br)
              (:input :type "submit")))))
-
 
 (define-easy-handler (answer :uri "/answer") (num)
   (if (myid)
