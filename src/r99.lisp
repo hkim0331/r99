@@ -252,20 +252,16 @@ num='~a' order by update_at desc limit 5"
     (query sql)
     (redirect "/users")))
 
-;; (defun upsert (myid num answer)
-;;   (if (exist? num)
-;;       (update myid num answer)
-;;       (insert myid num answer)))
 
 (defun escape (string)
   (regex-replace-all "<" string "&lt;"))
 
-;; check syntax only.
-;; bugfix: need #include <stdio.h>
 (defun check (answer)
   (let* ((cl-fad:*default-template* "temp%.c")
          (pathname (with-output-to-temporary-file (f)
                      (write-string "#include <stdio.h>" f)
+                     (write-char #\Return f)
+                     (write-string "#include <stdlib.h>" f)
                      (write-char #\Return f)
                      (write-string answer f)))
          (ret (sb-ext:run-program
@@ -278,7 +274,6 @@ num='~a' order by update_at desc limit 5"
   (if (myid)
       (if (check answer)
           (progn
-            ;; was (upsert (myid) num answer)
             (insert (myid) num answer)
             (redirect "/users"))
           (page
