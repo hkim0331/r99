@@ -261,9 +261,12 @@ num='~a' order by update_at desc limit 5"
   (regex-replace-all "<" string "&lt;"))
 
 ;; check syntax only.
+;; bugfix: need #include <stdio.h>
 (defun check (answer)
   (let* ((cl-fad:*default-template* "temp%.c")
          (pathname (with-output-to-temporary-file (f)
+                     (write-string "#include <stdio.h>" f)
+                     (write-char #\Return f)
                      (write-string answer f)))
          (ret (sb-ext:run-program
                "/usr/bin/cc"
