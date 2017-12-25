@@ -110,10 +110,12 @@
   (page
     (:h2 "誰が何問解いたか？")
     (let* ((recent
-            (dbi:fetch (query "select myid, num, update_at::text from answers order by update_at desc limit 1")))
+            (dbi:fetch
+             (query "select myid, num, update_at::text from answers
+ order by update_at desc limit 1")))
            (results
             (query "select myid, count(id) from answers group by myid
-  order by myid")))
+ order by myid")))
       (htm (:p (format t "myid ~a answered to question ~a at ~a."
                        (getf recent :|myid|)
                        (getf recent :|num|)
@@ -159,8 +161,8 @@
   (let ((q
           (format
            nil
-           "select myid, answer from answers where not (myid='~a') and
-num='~a' order by update_at desc limit 5"
+           "select myid, answer from answers
+ where not (myid='~a') and num='~a' order by update_at desc limit 5"
            (myid) num)))
     (query q)))
 
@@ -201,7 +203,6 @@ num='~a' order by update_at desc limit 5"
         (redirect "/problems"))
       (redirect "/login")))
 
-;;FIXME: need private login/logout functions
 (define-easy-handler (login :uri "/login") ()
   (page
     (:h2 "LOGIN")
@@ -234,7 +235,8 @@ num='~a' order by update_at desc limit 5"
 (defun update (myid num answer)
   (let ((sql (format
               nil
-              "update answers set answer='~a', update_at=now() where myid='~a' and num='~a'"
+              "update answers set answer='~a', update_at=now()
+ where myid='~a' and num='~a'"
               answer
               myid
               num)))
@@ -348,7 +350,6 @@ num='~a' order by update_at desc limit 5"
                  (:input :type "submit" :value "change"))))
       (redirect "/login")))
 
-;;; start page
 (setf (html-mode) :html5)
 
 (defun publish-static-content ()
