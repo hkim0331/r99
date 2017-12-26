@@ -289,11 +289,13 @@
       (redirect "/login")))
 
 (defun submit-answer (num)
-  (let* ((q (format nil "select detail from problems where id='~a'" num))
-         (p (second (dbi:fetch (query q)))))
+  (let* ((q (format nil "select num, detail from problems where num='~a'" num))
+         (ret (dbi:fetch (query q)))
+         (num (fgetf ret :|num|))
+         (d (getf ret :|detail|)))
     (page
-      (:h2 "submit your answer to")
-      (:p (str p))
+      (:h2 "submit your answer to" (str num))
+      (:p (str d))
       (:form :method "post" :action "/submit"
              (:input :type "hidden" :name "num" :value num)
              (:textarea :name "answer" :cols 60 :rows 10)
