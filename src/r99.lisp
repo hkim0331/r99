@@ -108,14 +108,18 @@
 
 (define-easy-handler (users :uri "/users") ()
   (page
-    (:h2 "誰が何問解いたか？")
+    (:h2 "誰が何問解いた？")
     (let* ((recent
             (dbi:fetch
              (query "select myid, num, update_at::text from answers
  order by update_at desc limit 1")))
            (results
-            (query "select myid, count(id) from answers group by myid
- order by myid")))
+            (query "select users.myid, users.midterm, count(answer)
+ from users
+ inner join answers
+ on users.myid=answers.myid
+ group by users.myid, users.midterm
+ order by users.myid")))
       (htm (:p (format t "myid ~a answered to question ~a at ~a."
                        (getf recent :|myid|)
                        (getf recent :|num|)
@@ -123,8 +127,9 @@
       (loop for row = (dbi:fetch results)
          while row
          do (format t
-                    "<pre>~A | ~A</pre>"
+                    "<pre>~A (~2d) ~A</pre>"
                     (getf row :|myid|)
+                    (getf row :|midterm|)
                     ;; mysql/postgres で戻りが違う。
                     (stars (getf row :|count|)))))))
 

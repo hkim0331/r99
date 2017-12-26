@@ -1,17 +1,24 @@
 DB=r99
 USER=user1
+PSQL=psql -h localhost -U ${USER} -W ${DB}
 
 create:
-	psql -h localhost -U ${USER} -W ${DB} < create-all.postgres
+	${PSQL} < create-all.postgres
 
 drop:
-	psql -h localhost -U ${USER} -W ${DB} < drop-all.postgres
+	${PSQL} < drop-all.postgres
+
+migrate:
+	${PSQL} < migrations/01-rename-pid-num.sql
+	${PSQL} < migrations/02-add-midterm.sql	
 
 seed:
 	ruby seed.rb
 
-# backup:
-# 	pg_dump r99 > backup.sql
+backup:
+	pg_dump r99 > backup.sql
 
-# restore:
-# 	psql r99 < backup.sql
+# before restore, must drop database r99.
+# if dropped, vanish grant.
+restore:
+	psql r99 < backup.sql
