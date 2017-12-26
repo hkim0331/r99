@@ -20,7 +20,7 @@ if [ -z ${SED} ]; then
 fi
 
 # FIXME: leading two blank chars disappear.
-${SED} -i.bak "/  :version/ c\
+${SED} -i.bak "/^\s*:version/ c\
   :version \"${VERSION}\"" ./r99.asd
 
 ${SED} -i.bak "/(defvar \*version\*/ c\

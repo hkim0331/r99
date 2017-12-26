@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.6.0")
+(defvar *version* "0.6.4")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -108,12 +108,18 @@
 
 (define-easy-handler (users :uri "/users") ()
   (page
-    (:h2 "誰が何問解いたか？")
+    (:h2 "誰が何問解いた？")
     (let* ((recent
-            (dbi:fetch (query "select myid, num, update_at::text from answers order by update_at desc limit 1")))
+            (dbi:fetch
+             (query "select myid, num, update_at::text from answers
+ order by update_at desc limit 1")))
            (results
-            (query "select myid, count(id) from answers group by myid
-  order by myid")))
+            (query "select users.myid, users.midterm, count(answer)
+ from users
+ inner join answers
+ on users.myid=answers.myid
+ group by users.myid, users.midterm
+ order by users.myid")))
       (htm (:p (format t "myid ~a answered to question ~a at ~a."
                        (getf recent :|myid|)
                        (getf recent :|num|)
@@ -121,8 +127,9 @@
       (loop for row = (dbi:fetch results)
          while row
          do (format t
-                    "<pre>~A | ~A</pre>"
+                    "<pre>~A (~2d) ~A</pre>"
                     (getf row :|myid|)
+                    (getf row :|midterm|)
                     ;; mysql/postgres で戻りが違う。
                     (stars (getf row :|count|)))))))
 
@@ -159,8 +166,8 @@
   (let ((q
           (format
            nil
-           "select myid, answer from answers where not (myid='~a') and
-num='~a' order by update_at desc limit 5"
+           "select myid, answer from answers
+ where not (myid='~a') and num='~a' order by update_at desc limit 5"
            (myid) num)))
     (query q)))
 
@@ -201,7 +208,6 @@ num='~a' order by update_at desc limit 5"
         (redirect "/problems"))
       (redirect "/login")))
 
-;;FIXME: need private login/logout functions
 (define-easy-handler (login :uri "/login") ()
   (page
     (:h2 "LOGIN")
@@ -234,7 +240,8 @@ num='~a' order by update_at desc limit 5"
 (defun update (myid num answer)
   (let ((sql (format
               nil
-              "update answers set answer='~a', update_at=now() where myid='~a' and num='~a'"
+              "update answers set answer='~a', update_at=now()
+ where myid='~a' and num='~a'"
               answer
               myid
               num)))
@@ -252,18 +259,17 @@ num='~a' order by update_at desc limit 5"
     (query sql)
     (redirect "/users")))
 
-;; (defun upsert (myid num answer)
-;;   (if (exist? num)
-;;       (update myid num answer)
-;;       (insert myid num answer)))
 
 (defun escape (string)
   (regex-replace-all "<" string "&lt;"))
 
-;; check syntax only.
 (defun check (answer)
   (let* ((cl-fad:*default-template* "temp%.c")
          (pathname (with-output-to-temporary-file (f)
+                     (write-string "#include <stdio.h>" f)
+                     (write-char #\Return f)
+                     (write-string "#include <stdlib.h>" f)
+                     (write-char #\Return f)
                      (write-string answer f)))
          (ret (sb-ext:run-program
                "/usr/bin/cc"
@@ -275,7 +281,6 @@ num='~a' order by update_at desc limit 5"
   (if (myid)
       (if (check answer)
           (progn
-            ;; was (upsert (myid) num answer)
             (insert (myid) num answer)
             (redirect "/users"))
           (page
@@ -284,14 +289,16 @@ num='~a' order by update_at desc limit 5"
       (redirect "/login")))
 
 (defun submit-answer (num)
-  (let* ((q (format nil "select detail from problems where id='~a'" num))
-         (p (second (dbi:fetch (query q)))))
+  (let* ((q (format nil "select num, detail from problems where num='~a'" num))
+         (ret (dbi:fetch (query q)))
+         (num (getf ret :|num|))
+         (d (getf ret :|detail|)))
     (page
-      (:h2 "submit your answer to")
-      (:p (str p))
+      (:h2 "submit your answer to " (str num))
+      (:p (str d))
       (:form :method "post" :action "/submit"
              (:input :type "hidden" :name "num" :value num)
-             (:textarea :name "answer" :cols 60 :rows 10 )
+             (:textarea :name "answer" :cols 60 :rows 10)
              (:br)
              (:input :type "submit")))))
 
@@ -330,17 +337,17 @@ num='~a' order by update_at desc limit 5"
   (if (myid)
       (let ((sv (apply #'vector (solved (myid)))))
         (page
-          (:h3 "status")
+          (:h3 "自分の回答状況")
           (loop for n from 1 to 99 do
                (htm (:a :href (format nil "/answer?num=~a" n)
                         :class (if (find n sv) "found" "not-found")
                         (str n))))
           (:hr)
-          (:h3 "change password")
+          (:h3 "パスワード変更")
           (:form :method "post" :action "/passwd"
-                 (:p "myid")
+                 (:p "myid (変更不可)")
                  (:p (:input :type "text" :name "myid" :value (str (myid))
-                             :disable "disable"))
+                             :readonly "readonly"))
                  (:p "old password")
                  (:p (:input :type "password" :name "old"))
                  (:p "new password")
@@ -350,7 +357,6 @@ num='~a' order by update_at desc limit 5"
                  (:input :type "submit" :value "change"))))
       (redirect "/login")))
 
-;;; start page
 (setf (html-mode) :html5)
 
 (defun publish-static-content ()
