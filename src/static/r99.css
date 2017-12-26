@@ -8,7 +8,8 @@ form.answer {
 }
 
 a.found {
-    background: red;
+    background: blue;
+    color: white;
 }
 
 a.not-found {
