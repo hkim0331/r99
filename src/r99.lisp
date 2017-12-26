@@ -291,7 +291,7 @@
 (defun submit-answer (num)
   (let* ((q (format nil "select num, detail from problems where num='~a'" num))
          (ret (dbi:fetch (query q)))
-         (num (fgetf ret :|num|))
+         (num (getf ret :|num|))
          (d (getf ret :|detail|)))
     (page
       (:h2 "submit your answer to" (str num))
