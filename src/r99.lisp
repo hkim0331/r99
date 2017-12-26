@@ -1,8 +1,8 @@
 (defpackage r99
-  (:use :cl :cl-dbi :cl-who :hunchentoot :cl-ppcre))
+  (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.3")
+(defvar *version* "0.6.3")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -36,23 +36,19 @@
             :database-name *db*)
     (dbi:execute (dbi:prepare conn sql))))
 
-;;postgres
-(defun now ()
-  (second
-   (dbi:fetch (query "select now()::text"))))
-
 (defun password (myid)
-  (let ((sql (format nil
-                     "select password from users where myid='~a'"
-                     myid)))
-    (second (dbi:fetch (query sql)))))
-
-(defun answered? (pid)
   (let ((sql (format
               nil
-              "select id from answers where myid='~a' and pid='~a'"
+              "select password from users where myid='~a'"
+              myid)))
+    (second (dbi:fetch (query sql)))))
+
+(defun answered? (num)
+  (let ((sql (format
+              nil
+              "select id from answers where myid='~a' and num='~a'"
               (myid)
-              pid)))
+              num)))
     (dbi:fetch (query sql))))
 
 (defun myid ()
@@ -66,6 +62,8 @@
      (:a :href "/problems" "problems")
      " | "
      (:a :href "/users" "answers")
+     " | "
+     (:a :href "/status" "status")
      " | "
      (:a :href "/login" "login")
      " / "
@@ -109,16 +107,26 @@
   (stars-aux n ""))
 
 (define-easy-handler (users :uri "/users") ()
-  (page (:h2 "number of answers")
-        (let* ((sql "select myid, count(id) from answers group by myid")
-               (results (query sql)))
-          (loop for row = (dbi:fetch results)
-                while row
-                do (format t
-                           "<p>~A | ~A</p>"
-                           (getf row :|myid|)
-                           ;; mysql/postgres で戻りが違う。
-                           (stars (getf row :|count|)))))))
+  (page
+    (:h2 "誰が何問解いたか？")
+    (let* ((recent
+            (dbi:fetch
+             (query "select myid, num, update_at::text from answers
+ order by update_at desc limit 1")))
+           (results
+            (query "select myid, count(id) from answers group by myid
+ order by myid")))
+      (htm (:p (format t "myid ~a answered to question ~a at ~a."
+                       (getf recent :|myid|)
+                       (getf recent :|num|)
+                       (getf recent :|update_at|))))
+      (loop for row = (dbi:fetch results)
+         while row
+         do (format t
+                    "<pre>~A | ~A</pre>"
+                    (getf row :|myid|)
+                    ;; mysql/postgres で戻りが違う。
+                    (stars (getf row :|count|)))))))
 
 (defvar *problems* (dbi:fetch-all
                     (query "select num, detail from problems")))
@@ -127,53 +135,64 @@
   (redirect "/problems"))
 
 (define-easy-handler (problems :uri "/problems") ()
-  (let ((results (query "select num, detail from problems")))
-    (page (:h2 "problems")
-    (:p "番号をクリックして回答提出")
-    (loop for row = (dbi:fetch results)
-       while row
-       do (format t
-      "<p><a href='/answer?pid=~a'>~a</a>, ~a</p>~%"
-      (getf row :|num|)
-      (getf row :|num|)
-      (getf row :|detail|))))))
+  (let ((results (query "select num, detail from problems order by num")))
+    (page
+      (:h2 "problems")
+      (:p "番号をクリックして回答提出")
+      (loop for row = (dbi:fetch results)
+         while row
+         do (format t
+                    "<p><a href='/answer?num=~a'>~a</a>, ~a</p>~%"
+                    (getf row :|num|)
+                    (getf row :|num|)
+                    (getf row :|detail|))))))
 
-(defun my-answer (pid)
+(defun my-answer (num)
   (let* ((q
           (format
            nil
-           "select answer from answers where myid='~a' and pid='~a'"
-           (myid) pid))
+           "select answer from answers where myid='~a' and num='~a'"
+           (myid) num))
          (answer (dbi:fetch (query q))))
     (if (null answer) nil
         (getf answer :|answer|))))
 
-;; display myid?
-(defun other-answers (pid)
+(defun other-answers (num)
   (let ((q
           (format
            nil
-           "select myid, answer from answers where not (myid='~a') and pid='~a'"
-           (myid) pid)))
+           "select myid, answer from answers
+ where not (myid='~a') and num='~a' order by update_at desc limit 5"
+           (myid) num)))
     (query q)))
 
-(defun show-answers (pid)
-  (let* ((my (my-answer pid) )
-         (others (other-answers pid)))
-    (page (:h2 "answers " (str pid))
-          (:h3 "your answer")
-          (:form :method "post" :action "/update-answer"
-                 (:input :type "hidden" :name "pid" :value pid)
-                 (:textarea :name "answer"
-                            :cols 50 :rows 6 (str my))
-                 (:br)
-                 (:input :type "submit" :value "update"))
-          (:h3 "other answers")
-          (loop for row = (dbi:fetch others)
-             while row
-             do (format t "<p>~a:<pre>~a</pre></p>"
-                        (getf row :|myid|)
-                        (getf row :|answer|))))))
+(defun detail (num)
+  (let* ((q (format nil "select detail from problems where num='~a'" num))
+         (ret (dbi:fetch (query q))))
+    (unless (null ret)
+      (getf ret :|detail|))))
+
+(defun show-answers (num)
+  (let* ((my (my-answer num))
+         (others (other-answers num)))
+    (page
+      (:p (format t "~a, ~a" num (detail num)))
+      (:h3 "your answer")
+      (:form :class "answer" :method "post" :action "/update-answer"
+             (:input :type "hidden" :name "num" :value num)
+             (:textarea :name "answer"
+                        :cols 60
+                        :rows (+ 1 (count #\return my :test #'equal))
+                        (str (escape my)))
+             (:br)
+             (:input :type "submit" :value "update"))
+      (:br)
+      (:h3 "others")
+      (loop for row = (dbi:fetch others)
+         while row
+         do (format t "<p>~a:<pre class='answer'><code>~a</code></pre></p>"
+                    (getf row :|myid|)
+                    (escape (getf row :|answer|)))))))
 
 (define-easy-handler (auth :uri "/auth") (id pass)
   (if (or (myid)
@@ -184,7 +203,6 @@
         (redirect "/problems"))
       (redirect "/login")))
 
-;;FIXME: need private login/logout functions
 (define-easy-handler (login :uri "/login") ()
   (page
     (:h2 "LOGIN")
@@ -199,73 +217,139 @@
   (set-cookie *myid* :max-age 0)
   (redirect "/problems"))
 
-(defun exist? (pid)
+(defun exist? (num)
   (let ((sql (format
               nil
-              "select id from answers where myid='~a' and pid='~a'"
+              "select id from answers where myid='~a' and num='~a'"
               (myid)
-              pid)))
+              num)))
     (not (null (dbi:fetch (query sql))))))
 
-(define-easy-handler (update-answer :uri "/update-answer") (pid answer)
-  (update pid answer))
+(define-easy-handler (update-answer :uri "/update-answer") (num answer)
+  (if (check answer)
+      (update (myid) num answer)
+      (page
+        (:h3 "error")
+        (:p "ビルドできねーよ。"))))
 
-(defun update (pid answer)
+(defun update (myid num answer)
   (let ((sql (format
               nil
-              "update answers set answer='~a', update_at=now() where myid='~a' and pid='~a'"
+              "update answers set answer='~a', update_at=now()
+ where myid='~a' and num='~a'"
               answer
-              (myid)
-              pid)))
+              myid
+              num)))
     (query sql)
     (redirect "/users")))
 
-(defun insert (pid answer)
+(defun insert (myid num answer)
   (let ((sql (format
               nil
-              "insert into answers (myid, pid, answer, update_at)
+              "insert into answers (myid, num, answer, update_at)
   values ('~a','~a', '~a', now())"
-              (myid)
-              pid
+              myid
+              num
               answer)))
     (query sql)
     (redirect "/users")))
 
-(defun escape-back-slash (s)
-  (identity s))
 
-(defun upsert (pid answer)
-  (let ((answer2 (escape-back-slash answer))
-        )
-    (if (exist? pid)
-        (update pid answer2)
-        (insert pid answer2))))
+(defun escape (string)
+  (regex-replace-all "<" string "&lt;"))
 
-(define-easy-handler (submit :uri "/submit") (pid answer)
+(defun check (answer)
+  (let* ((cl-fad:*default-template* "temp%.c")
+         (pathname (with-output-to-temporary-file (f)
+                     (write-string "#include <stdio.h>" f)
+                     (write-char #\Return f)
+                     (write-string "#include <stdlib.h>" f)
+                     (write-char #\Return f)
+                     (write-string answer f)))
+         (ret (sb-ext:run-program
+               "/usr/bin/cc"
+               `("-fsyntax-only" ,(namestring pathname)))))
+    (delete-file pathname)
+    (= 0 (sb-ext:process-exit-code ret))))
+
+(define-easy-handler (submit :uri "/submit") (num answer)
   (if (myid)
-      (progn
-        (upsert pid answer)
-        (redirect "/users"))
+      (if (check answer)
+          (progn
+            (insert (myid) num answer)
+            (redirect "/users"))
+          (page
+           (:h3 "error")
+           (:p "ビルドできません")))
       (redirect "/login")))
 
-(defun submit-answer (pid)
-  (let* ((q (format nil "select detail from problems where id='~a'" pid))
+(defun submit-answer (num)
+  (let* ((q (format nil "select detail from problems where id='~a'" num))
          (p (second (dbi:fetch (query q)))))
-    (page (:h2 "submit your answer to")
-          (:p (str p))
-          (:form :method "post" :action "/submit"
-                 (:input :type "hidden" :name "pid" :value pid)
-                 (:textarea :name "answer" :rows 10 :cols 50)
-                 (:br)
-                 (:input :type "submit")))))
+    (page
+      (:h2 "submit your answer to")
+      (:p (str p))
+      (:form :method "post" :action "/submit"
+             (:input :type "hidden" :name "num" :value num)
+             (:textarea :name "answer" :cols 60 :rows 10)
+             (:br)
+             (:input :type "submit")))))
 
-
-(define-easy-handler (answer :uri "/answer") (pid)
+(define-easy-handler (answer :uri "/answer") (num)
   (if (myid)
-      (if (answered? pid) (show-answers pid)
-          (submit-answer pid))
+      (if (answered? num) (show-answers num)
+          (submit-answer num))
       (redirect "/login")))
-;;;
+
+(defun solved (myid)
+    (let* ((q (format nil "select num from answers where myid='~a'"
+                      myid))
+           (ret (dbi:fetch-all (query q))))
+      (mapcar (lambda (x) (getf x :|num|)) ret)))
+
+
+;;; status
+(defun my-password (myid)
+  (let* ((q (format
+             nil "select password from users where myid='~a'" myid))
+         (ret (dbi:fetch (query q))))
+    (getf ret :|password|)))
+
+(define-easy-handler (passwd :uri "/passwd") (myid old new1 new2)
+  (let ((status "パスワードを変更しました。"))
+    (page
+      (:h2 "change password")
+      (if (string= (my-password myid) old)
+          (if (string= new1 new2)
+              (query (format nil "update users set password='~a' where myid='~a'" new1 myid))
+              (setf status "パスワードが一致しません。"))
+          (setf status "現在のパスワードが一致しません"))
+      (:p (str status)))))
+
+(define-easy-handler (status :uri "/status") ()
+  (if (myid)
+      (let ((sv (apply #'vector (solved (myid)))))
+        (page
+          (:h3 "自分の回答状況")
+          (loop for n from 1 to 99 do
+               (htm (:a :href (format nil "/answer?num=~a" n)
+                        :class (if (find n sv) "found" "not-found")
+                        (str n))))
+          (:hr)
+          (:h3 "パスワード変更")
+          (:form :method "post" :action "/passwd"
+                 (:p "myid (変更不可)")
+                 (:p (:input :type "text" :name "myid" :value (str (myid))
+                             :readonly "readonly"))
+                 (:p "old password")
+                 (:p (:input :type "password" :name "old"))
+                 (:p "new password")
+                 (:p (:input :type "password" :name "new1"))
+                 (:p "new password again (same one)")
+                 (:p (:input :type "password" :name "new2"))
+                 (:input :type "submit" :value "change"))))
+      (redirect "/login")))
+
 (setf (html-mode) :html5)
 
 (defun publish-static-content ()
@@ -285,7 +369,6 @@
                               :port port
                               :document-root #p "tmp"))
   (start *server*)
-;;  (query "set names utf8")
   (format t "r99-~a started at ~d.~%" *version* port))
 
 (defun stop-server ()
