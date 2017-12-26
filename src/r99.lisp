@@ -294,7 +294,7 @@
          (num (getf ret :|num|))
          (d (getf ret :|detail|)))
     (page
-      (:h2 "submit your answer to" (str num))
+      (:h2 "submit your answer to " (str num))
       (:p (str d))
       (:form :method "post" :action "/submit"
              (:input :type "hidden" :name "num" :value num)
