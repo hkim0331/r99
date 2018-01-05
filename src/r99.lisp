@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.6.6")
+(defvar *version* "0.6.7")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -127,11 +127,12 @@
       (loop for row = (dbi:fetch results)
          while row
          do (format t
-                    "<pre>~A (~2d) ~A</pre>"
+                    "<pre>~A (~2d) ~A~d</pre>"
                     (getf row :|myid|)
                     (getf row :|midterm|)
                     ;; mysql/postgres で戻りが違う。
-                    (stars (getf row :|count|)))))))
+                    (stars (getf row :|count|))
+                    (getf row :|count|))))))
 
 (defvar *problems* (dbi:fetch-all
                     (query "select num, detail from problems")))
