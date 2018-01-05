@@ -239,17 +239,17 @@
 
 ;; answer から ' をエスケープしないとな。
 ;; 本来はプリペアドステートメント使って処理するべき。
-(defun escape-null (answer)
-  (regex-replace-all "'\0'" answer "NULL"))
+(defun escape-apos (answer)
+  (regex-replace-all "'" answer "&apos;"))
 
 (defun update (myid num answer)
   (let ((sql (format
               nil
               "update answers set answer='~a', update_at=now()
  where myid='~a' and num='~a'"
-              answer
+              (escape-apos answer)
               myid
-              (escape-null num))))
+              num)))
     (query sql)
     (redirect "/users")))
 
@@ -260,7 +260,7 @@
   values ('~a','~a', '~a', now())"
               myid
               num
-              (escape-null answer))))
+              (escape-apos answer))))
     (query sql)
     (redirect "/users")))
 
