@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.6.7")
+(defvar *version* "0.6.8")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -109,7 +109,8 @@
 (define-easy-handler (users :uri "/users") ()
   (page
     (:h2 "誰が何問解いた？")
-    (let* ((recent
+    (let* ((n 0)
+           (recent
             (dbi:fetch
              (query "select myid, num, update_at::text from answers
  order by update_at desc limit 1")))
@@ -120,8 +121,9 @@
  on users.myid=answers.myid
  group by users.myid, users.midterm
  order by users.myid")))
-      (htm (:p (format t "myid ~a answered to question ~a at ~a."
+      (htm (:p (format t "myid ~a answered to question <a href='/answer?num=~a'>~a</a> at ~a."
                        (getf recent :|myid|)
+                       (getf recent :|num|)
                        (getf recent :|num|)
                        (getf recent :|update_at|))))
       (loop for row = (dbi:fetch results)
@@ -132,7 +134,9 @@
                     (getf row :|midterm|)
                     ;; mysql/postgres で戻りが違う。
                     (stars (getf row :|count|))
-                    (getf row :|count|))))))
+                    (getf row :|count|))
+           (incf n))
+      (htm (:p "全受講生 242 人、回答者は" (str n) "人。")))))
 
 (defvar *problems* (dbi:fetch-all
                     (query "select num, detail from problems")))
