@@ -237,6 +237,11 @@
         (:h3 "error")
         (:p "ビルドできねーよ。"))))
 
+;; answer から ' をエスケープしないとな。
+;; 本来はプリペアドステートメント使って処理するべき。
+(defun escape-null (answer)
+  (regex-replace-all "'\0'" answer "NULL"))
+
 (defun update (myid num answer)
   (let ((sql (format
               nil
@@ -244,7 +249,7 @@
  where myid='~a' and num='~a'"
               answer
               myid
-              num)))
+              (escape-null num))))
     (query sql)
     (redirect "/users")))
 
@@ -255,7 +260,7 @@
   values ('~a','~a', '~a', now())"
               myid
               num
-              answer)))
+              (escape-null answer))))
     (query sql)
     (redirect "/users")))
 
