@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.6.4")
+(defvar *version* "0.6.7")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -127,11 +127,12 @@
       (loop for row = (dbi:fetch results)
          while row
          do (format t
-                    "<pre>~A (~2d) ~A</pre>"
+                    "<pre>~A (~2d) ~A~d</pre>"
                     (getf row :|myid|)
                     (getf row :|midterm|)
                     ;; mysql/postgres で戻りが違う。
-                    (stars (getf row :|count|)))))))
+                    (stars (getf row :|count|))
+                    (getf row :|count|))))))
 
 (defvar *problems* (dbi:fetch-all
                     (query "select num, detail from problems")))
@@ -237,12 +238,17 @@
         (:h3 "error")
         (:p "ビルドできねーよ。"))))
 
+;; answer から ' をエスケープしないとな。
+;; 本来はプリペアドステートメント使って処理するべき。
+(defun escape-apos (answer)
+  (regex-replace-all "'" answer "&apos;"))
+
 (defun update (myid num answer)
   (let ((sql (format
               nil
               "update answers set answer='~a', update_at=now()
  where myid='~a' and num='~a'"
-              answer
+              (escape-apos answer)
               myid
               num)))
     (query sql)
@@ -255,7 +261,7 @@
   values ('~a','~a', '~a', now())"
               myid
               num
-              answer)))
+              (escape-apos answer))))
     (query sql)
     (redirect "/users")))
 
