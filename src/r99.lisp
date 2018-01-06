@@ -136,7 +136,7 @@
                     (stars (getf row :|count|))
                     (getf row :|count|))
            (incf n))
-      (htm (:p "全受講生 242 人、回答者は" (str n) "人。")))))
+      (htm (:p "全受講生 242 人、回答者は " (str n) " 人。")))))
 
 (defvar *problems* (dbi:fetch-all
                     (query "select num, detail from problems")))
