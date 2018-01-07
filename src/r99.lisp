@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.6.8")
+(defvar *version* "0.6.9")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -120,23 +120,33 @@
  inner join answers
  on users.myid=answers.myid
  group by users.myid, users.midterm
- order by users.myid")))
+ order by users.myid"))
+           (working-users
+             (mapcar (lambda (x) (getf x :|myid|))
+                     (dbi:fetch-all
+                      (query  "select distinct(myid) from answers
+ where now() - update_at < '2 days'")))))
       (htm (:p (format t "myid ~a answered to question <a href='/answer?num=~a'>~a</a> at ~a."
                        (getf recent :|myid|)
                        (getf recent :|num|)
                        (getf recent :|num|)
-                       (getf recent :|update_at|))))
+                       (getf recent :|update_at|)))
+           (:p (format t "<span class='yes'>赤</span>は過去48時間以内にアップデートがあった受講生を示す。")))
       (loop for row = (dbi:fetch results)
-         while row
-         do (format t
-                    "<pre>~A (~2d) ~A~d</pre>"
-                    (getf row :|myid|)
-                    (getf row :|midterm|)
-                    ;; mysql/postgres で戻りが違う。
-                    (stars (getf row :|count|))
-                    (getf row :|count|))
-           (incf n))
-      (htm (:p "全受講生 242 人、回答者は " (str n) " 人。")))))
+            while row
+            do
+               (let* ((myid (getf row :|myid|))
+                      (working (if (member myid working-users) "yes" "no")))
+                 (format t
+                         "<pre><span class=~a>~A</span> (~2d) ~A~d</pre>"
+                         working
+                         myid
+                         (getf row :|midterm|)
+                         ;; mysql/postgres で戻りが違う。
+                         (stars (getf row :|count|))
+                         (getf row :|count|)))
+               (incf n))
+      (htm (:p "全受講生 242 人、一題以上回答者 " (str n) " 人（うち二人は教員）。")))))
 
 (defvar *problems* (dbi:fetch-all
                     (query "select num, detail from problems")))
