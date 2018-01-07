@@ -43,7 +43,7 @@
               nil
               "select password from users where myid='~a'"
               myid)))
-    (second (dbi:fetch (quoery sql)))))
+    (second (dbi:fetch (query sql)))))
 
 (defun answered? (num)
   (let ((sql (format
@@ -396,8 +396,9 @@
             ((< 20 sc)
               (htm (:p (:img :src "dog.png") "ペースはつかんだ。")))
             ((< 0 sc)
-             (htm (:p (:img :src "fuji.jpeg") "一歩ずつやるしか。")))
-            (t nil))
+             (htm (:p (:img :src "fuji.jpeg") "一歩ずつやる。")))
+            (t
+             (htm (:p (:img :src "fight.png") "がんばらねば。"))))
 
           (:hr)
           (:h3 "自分回答をダウンロード")
@@ -428,7 +429,6 @@
          "/r99.css" "static/r99.css") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
          "/r99.html" "static/r99.html") *dispatch-table*)
-
   (push (create-static-file-dispatcher-and-handler
          "/fuji.jpeg" "static/fuji.jpeg") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
@@ -437,6 +437,8 @@
          "/kame.png" "static/kame.png") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
          "/dog.png" "static/dog.png") *dispatch-table*)
+  (push (create-static-file-dispatcher-and-handler
+         "/fight.jpeg" "static/fight.jpeg") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
          "/sakura.jpg" "static/sakura.jpg") *dispatch-table*))
 
