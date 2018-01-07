@@ -378,16 +378,26 @@
 
 (define-easy-handler (status :uri "/status") ()
   (if (myid)
-      (let ((sv (apply #'vector (solved (myid)))))
+      (let* ((sv (apply #'vector (solved (myid))))
+             (sc (length sv)))
         (page
           (:h3 "自分の回答状況")
           (loop for n from 1 to 99 do
                (htm (:a :href (format nil "/answer?num=~a" n)
                         :class (if (find n sv) "found" "not-found")
                         (str n))))
-          
-          (when (= 99 (length sv))
-            (htm (:p (:img :src "sakura.jpg") " 完走おめでとう！")))
+          (cond
+            ((= 99 sc)
+             (htm (:p (:img :src "sakura.jpg") " 完走おめでとう！")))
+            ((< 80 sc)
+             (htm (:p (:img :src "kame.png") "もうちょっとでゴール。")))
+            ((< 60 sc)
+             (htm (:p (:img :src "panda.png") "だいぶがんばってるぞ。")))
+            ((< 20 sc)
+              (htm (:p (:img :src "dog.png") "ペースはつかんだ。")))
+            ((< 0 sc)
+             (htm (:p (:img :src "fuji.jpeg") "一歩ずつやるしか。")))
+            (t nil))
 
           (:hr)
           (:h3 "自分回答をダウンロード")
@@ -418,6 +428,15 @@
          "/r99.css" "static/r99.css") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
          "/r99.html" "static/r99.html") *dispatch-table*)
+
+  (push (create-static-file-dispatcher-and-handler
+         "/fuji.jpeg" "static/fuji.jpeg") *dispatch-table*)
+  (push (create-static-file-dispatcher-and-handler
+         "/panda.png" "static/panda.png") *dispatch-table*)
+  (push (create-static-file-dispatcher-and-handler
+         "/kame.png" "static/kame.png") *dispatch-table*)
+  (push (create-static-file-dispatcher-and-handler
+         "/dog.png" "static/dog.png") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
          "/sakura.jpg" "static/sakura.jpg") *dispatch-table*))
 
