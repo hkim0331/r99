@@ -10,7 +10,7 @@ drop:
 
 migrate:
 	${PSQL} < migrations/01-rename-pid-num.sql
-	${PSQL} < migrations/02-add-midterm.sql	
+	${PSQL} < migrations/02-add-midterm.sql
 
 seed:
 	ruby seed.rb
@@ -20,5 +20,9 @@ backup:
 
 # before restore, must drop database r99.
 # if dropped, vanish grant.
+# is this right?
 restore:
-	psql r99 < backup.sql
+	${PSQL} < drop-tables.postgres
+	${PSQL} < backups/2018-01-07.sql
+
+

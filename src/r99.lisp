@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.6.8")
+(defvar *version* "0.7.1")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -41,7 +41,7 @@
               nil
               "select password from users where myid='~a'"
               myid)))
-    (second (dbi:fetch (query sql)))))
+    (second (dbi:fetch (quoery sql)))))
 
 (defun answered? (num)
   (let ((sql (format
@@ -120,23 +120,34 @@
  inner join answers
  on users.myid=answers.myid
  group by users.myid, users.midterm
- order by users.myid")))
+ order by users.myid"))
+           (working-users
+             (mapcar (lambda (x) (getf x :|myid|))
+                     (dbi:fetch-all
+                      (query  "select distinct(myid) from answers
+ where now() - update_at < '48 hours'")))))
       (htm (:p (format t "myid ~a answered to question <a href='/answer?num=~a'>~a</a> at ~a."
                        (getf recent :|myid|)
                        (getf recent :|num|)
                        (getf recent :|num|)
-                       (getf recent :|update_at|))))
+                       (getf recent :|update_at|)))
+           (:p (format t "<span class='yes'>赤</span>は過去48時間以内にアップデートがあった受講生を示す。"))
+           (:hr))
       (loop for row = (dbi:fetch results)
-         while row
-         do (format t
-                    "<pre>~A (~2d) ~A~d</pre>"
-                    (getf row :|myid|)
-                    (getf row :|midterm|)
-                    ;; mysql/postgres で戻りが違う。
-                    (stars (getf row :|count|))
-                    (getf row :|count|))
-           (incf n))
-      (htm (:p "全受講生 242 人、回答者は" (str n) "人。")))))
+            while row
+            do
+               (let* ((myid (getf row :|myid|))
+                      (working (if (find myid working-users) "yes" "no")))
+                 (format t
+                         "<pre><span class=~a>~A</span> (~2d) ~A~d</pre>"
+                         working
+                         myid
+                         (getf row :|midterm|)
+                         ;; mysql/postgres で戻りが違う。
+                         (stars (getf row :|count|))
+                         (getf row :|count|)))
+               (incf n))
+      (htm (:p "全受講生 242 人、一題以上回答者 " (str n) " 人（うち二人は教員）。")))))
 
 (defvar *problems* (dbi:fetch-all
                     (query "select num, detail from problems")))
@@ -343,6 +354,24 @@
           (setf status "現在のパスワードが一致しません"))
       (:p (str status)))))
 
+(define-easy-handler (download :uri "/download") ()
+  (if (myid)
+      (let ((ret
+              (query
+               (format
+                nil
+                "select num, answer from answers
+ where myid='~a' order by num" (myid)))))
+        (page
+          (loop for row = (dbi:fetch ret)
+                while row
+                do
+                   (htm
+                    (:pre "//" (str (getf row :|num|)))
+                    (:pre (str (escape (getf row :|answer|))))))
+          ))
+      (redirect "/login")))
+
 (define-easy-handler (status :uri "/status") ()
   (if (myid)
       (let ((sv (apply #'vector (solved (myid)))))
@@ -352,6 +381,11 @@
                (htm (:a :href (format nil "/answer?num=~a" n)
                         :class (if (find n sv) "found" "not-found")
                         (str n))))
+          (when (= 99 (length sv))
+            (htm (:p (:img :src "sakura.jpg") " 完走おめでとう！")))
+          (:hr)
+          (:h3 "自分回答をダウンロード")
+          (:p (:a :href "/download" "ダウンロード"))
           (:hr)
           (:h3 "パスワード変更")
           (:form :method "post" :action "/passwd"
@@ -377,7 +411,9 @@
   (push (create-static-file-dispatcher-and-handler
          "/r99.css" "static/r99.css") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
-         "/r99.html" "static/r99.html") *dispatch-table*))
+         "/r99.html" "static/r99.html") *dispatch-table*)
+  (push (create-static-file-dispatcher-and-handler
+         "/sakura.jpg" "static/sakura.jpg") *dispatch-table*))
 
 (defun start-server (&optional (port *http-port*))
   (publish-static-content)
