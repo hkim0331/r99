@@ -24,7 +24,6 @@
 (defvar *password* (or (getenv "R99_PASS") "pass1"))
 (defvar *server* nil)
 (defvar *user* (or (getenv "R99_USER") "user1"))
-
 (defvar *myid* "r99");; cookie name
 
 (defun query (sql)
@@ -35,6 +34,9 @@
             :password *password*
             :database-name *db*)
     (dbi:execute (dbi:prepare conn sql))))
+
+(defvar *problems* (dbi:fetch-all
+                    (query "select num, detail from problems")))
 
 (defun password (myid)
   (let ((sql (format
@@ -131,7 +133,9 @@
                        (getf recent :|num|)
                        (getf recent :|num|)
                        (getf recent :|update_at|)))
-           (:p (format t "<span class='yes'>赤</span>は過去48時間以内にアップデートがあった受講生を示す。"))
+           (:p (format
+                t
+                "<span class='yes'>赤</span>は過去 48 時間以内にアップデートがあった受講生を示す。"))
            (:hr))
       (loop for row = (dbi:fetch results)
             while row
@@ -149,9 +153,6 @@
                (incf n))
       (htm (:p "全受講生 242 人、一題以上回答者 " (str n) " 人（うち二人は教員）。")))))
 
-(defvar *problems* (dbi:fetch-all
-                    (query "select num, detail from problems")))
-
 (define-easy-handler (index-alias :uri "/") ()
   (redirect "/problems"))
 
@@ -159,7 +160,7 @@
   (let ((results (query "select num, detail from problems order by num")))
     (page
       (:h2 "problems")
-      (:p "番号をクリックして回答提出")
+      (:p "番号をクリックして回答提出。ビルドできない回答は受け取らないよ。")
       (loop for row = (dbi:fetch results)
          while row
          do (format t
@@ -280,7 +281,6 @@
     (query sql)
     (redirect "/users")))
 
-
 (defun escape (string)
   (regex-replace-all "<" string "&lt;"))
 
@@ -317,6 +317,10 @@
     (page
       (:h2 "submit your answer to " (str num))
       (:p (str d))
+      (:ul (:li "ビルドできない回答は受け取らない。")
+           (:li "回答を受け取ってもそれが正解とは限らない。")
+           (:li "他の受講生の回答と自分の回答をよく見比べること。
+  hkimura の回答も混ざっています。"))
       (:form :method "post" :action "/submit"
              (:input :type "hidden" :name "num" :value num)
              (:textarea :name "answer" :cols 60 :rows 10)
@@ -381,8 +385,10 @@
                (htm (:a :href (format nil "/answer?num=~a" n)
                         :class (if (find n sv) "found" "not-found")
                         (str n))))
+          
           (when (= 99 (length sv))
             (htm (:p (:img :src "sakura.jpg") " 完走おめでとう！")))
+
           (:hr)
           (:h3 "自分回答をダウンロード")
           (:p (:a :href "/download" "ダウンロード"))
