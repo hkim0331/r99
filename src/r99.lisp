@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.7.2")
+(defvar *version* "0.7.4")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -390,15 +390,15 @@
             ((= 99 sc)
              (htm (:p (:img :src "sakura.png") " 完走おめでとう！")))
             ((< 80 sc)
-             (htm (:p (:img :src "kame.png") "もうちょっとでゴール。")))
+             (htm (:p (:img :src "kame.png") " ゴールはもうちょっと。")))
             ((< 60 sc)
-             (htm (:p (:img :src "panda.png") "だいぶがんばってるぞ。")))
+             (htm (:p (:img :src "panda.png") " だいぶがんばってるぞ。")))
             ((< 20 sc)
-              (htm (:p (:img :src "dog.png") "ペースはつかんだ。")))
+              (htm (:p (:img :src "dog.png") " ペースはつかんだ。")))
             ((< 0 sc)
-             (htm (:p (:img :src "fuji.png") "一歩ずつやる。")))
+             (htm (:p (:img :src "fuji.png") " 一歩ずつやる。")))
             (t
-             (htm (:p (:img :src "fight.png") "がんばらねば。"))))
+             (htm (:p (:img :src "fight.png") " がんばらねーと。"))))
 
           (:hr)
           (:h3 "自分回答をダウンロード")
