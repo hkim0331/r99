@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.7.0")
+(defvar *version* "0.7.1")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -41,7 +41,7 @@
               nil
               "select password from users where myid='~a'"
               myid)))
-    (second (dbi:fetch (query sql)))))
+    (second (dbi:fetch (quoery sql)))))
 
 (defun answered? (num)
   (let ((sql (format
@@ -354,6 +354,24 @@
           (setf status "現在のパスワードが一致しません"))
       (:p (str status)))))
 
+(define-easy-handler (download :uri "/download") ()
+  (if (myid)
+      (let ((ret
+              (query
+               (format
+                nil
+                "select num, answer from answers
+ where myid='~a' order by num" (myid)))))
+        (page
+          (loop for row = (dbi:fetch ret)
+                while row
+                do
+                   (htm
+                    (:pre "//" (str (getf row :|num|)))
+                    (:pre (str (escape (getf row :|answer|))))))
+          ))
+      (redirect "/login")))
+
 (define-easy-handler (status :uri "/status") ()
   (if (myid)
       (let ((sv (apply #'vector (solved (myid)))))
@@ -365,6 +383,9 @@
                         (str n))))
           (when (= 99 (length sv))
             (htm (:p (:img :src "sakura.jpg") " 完走おめでとう！")))
+          (:hr)
+          (:h3 "自分回答をダウンロード")
+          (:p (:a :href "/download" "ダウンロード"))
           (:hr)
           (:h3 "パスワード変更")
           (:form :method "post" :action "/passwd"
