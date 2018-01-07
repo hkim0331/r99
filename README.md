@@ -22,3 +22,15 @@ group by users.myid, users.sid;
 ## Usage
 
 ## Installation
+
+1. git clone し、
+2.
+
+```sh
+$ git clone git@github.com:hkim0331/r99.git
+```
+$ . production.env
+$ cd src
+$ make reinstall
+```
+
