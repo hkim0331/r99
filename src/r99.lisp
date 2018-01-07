@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.6.9")
+(defvar *version* "0.7.0")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -125,18 +125,19 @@
              (mapcar (lambda (x) (getf x :|myid|))
                      (dbi:fetch-all
                       (query  "select distinct(myid) from answers
- where now() - update_at < '2 days'")))))
+ where now() - update_at < '48 hours'")))))
       (htm (:p (format t "myid ~a answered to question <a href='/answer?num=~a'>~a</a> at ~a."
                        (getf recent :|myid|)
                        (getf recent :|num|)
                        (getf recent :|num|)
                        (getf recent :|update_at|)))
-           (:p (format t "<span class='yes'>赤</span>は過去48時間以内にアップデートがあった受講生を示す。")))
+           (:p (format t "<span class='yes'>赤</span>は過去48時間以内にアップデートがあった受講生を示す。"))
+           (:hr))
       (loop for row = (dbi:fetch results)
             while row
             do
                (let* ((myid (getf row :|myid|))
-                      (working (if (member myid working-users) "yes" "no")))
+                      (working (if (find myid working-users) "yes" "no")))
                  (format t
                          "<pre><span class=~a>~A</span> (~2d) ~A~d</pre>"
                          working
@@ -362,6 +363,8 @@
                (htm (:a :href (format nil "/answer?num=~a" n)
                         :class (if (find n sv) "found" "not-found")
                         (str n))))
+          (when (= 99 (length sv))
+            (htm (:p (:img :src "sakura.jpg") " 完走おめでとう！")))
           (:hr)
           (:h3 "パスワード変更")
           (:form :method "post" :action "/passwd"
@@ -387,7 +390,9 @@
   (push (create-static-file-dispatcher-and-handler
          "/r99.css" "static/r99.css") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
-         "/r99.html" "static/r99.html") *dispatch-table*))
+         "/r99.html" "static/r99.html") *dispatch-table*)
+  (push (create-static-file-dispatcher-and-handler
+         "/sakura.jpg" "static/sakura.jpg") *dispatch-table*))
 
 (defun start-server (&optional (port *http-port*))
   (publish-static-content)
