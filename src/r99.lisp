@@ -427,10 +427,10 @@
          "/favicon.ico" "static/favicon.ico") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
          "/r99.css" "static/r99.css") *dispatch-table*)
+
+  ;; loop or macro?
   (push (create-static-file-dispatcher-and-handler
-         "/r99.html" "static/r99.html") *dispatch-table*)
-  (push (create-static-file-dispatcher-and-handler
-         "/fuji.jpeg" "static/fuji.jpeg") *dispatch-table*)
+         "/fuji.png" "static/fuji.png") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
          "/panda.png" "static/panda.png") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
@@ -438,9 +438,9 @@
   (push (create-static-file-dispatcher-and-handler
          "/dog.png" "static/dog.png") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
-         "/fight.jpeg" "static/fight.jpeg") *dispatch-table*)
+         "/fight.png" "static/fight.png") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
-         "/sakura.jpg" "static/sakura.jpg") *dispatch-table*))
+         "/sakura.png" "static/sakura.png") *dispatch-table*))
 
 (defun start-server (&optional (port *http-port*))
   (publish-static-content)
