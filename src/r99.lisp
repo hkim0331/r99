@@ -388,7 +388,7 @@
                         (str n))))
           (cond
             ((= 99 sc)
-             (htm (:p (:img :src "sakura.jpg") " 完走おめでとう！")))
+             (htm (:p (:img :src "sakura.png") " 完走おめでとう！")))
             ((< 80 sc)
              (htm (:p (:img :src "kame.png") "もうちょっとでゴール。")))
             ((< 60 sc)
@@ -396,7 +396,7 @@
             ((< 20 sc)
               (htm (:p (:img :src "dog.png") "ペースはつかんだ。")))
             ((< 0 sc)
-             (htm (:p (:img :src "fuji.jpeg") "一歩ずつやる。")))
+             (htm (:p (:img :src "fuji.png") "一歩ずつやる。")))
             (t
              (htm (:p (:img :src "fight.png") "がんばらねば。"))))
 
