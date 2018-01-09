@@ -10,6 +10,6 @@ now = Time.now()
 problems = DB[:problems]
 File.foreach(ARGV[0], encoding: "utf-8") do |line|
   next if line =~ /^\s*$/
-  num, problem = line.chomp.split(',')
+  num, problem = line.chomp.split(',', 2)
   problems.insert(num: num, detail: problem.strip, update_at: now)
 end

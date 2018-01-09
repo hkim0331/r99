@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.6.3")
+(defvar *version* "0.7.4")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -24,7 +24,6 @@
 (defvar *password* (or (getenv "R99_PASS") "pass1"))
 (defvar *server* nil)
 (defvar *user* (or (getenv "R99_USER") "user1"))
-
 (defvar *myid* "r99");; cookie name
 
 (defun query (sql)
@@ -35,6 +34,9 @@
             :password *password*
             :database-name *db*)
     (dbi:execute (dbi:prepare conn sql))))
+
+(defvar *problems* (dbi:fetch-all
+                    (query "select num, detail from problems")))
 
 (defun password (myid)
   (let ((sql (format
@@ -109,7 +111,8 @@
 (define-easy-handler (users :uri "/users") ()
   (page
     (:h2 "誰が何問解いた？")
-    (let* ((recent
+    (let* ((n 0)
+           (recent
             (dbi:fetch
              (query "select myid, num, update_at::text from answers
  order by update_at desc limit 1")))
@@ -119,22 +122,36 @@
  inner join answers
  on users.myid=answers.myid
  group by users.myid, users.midterm
- order by users.myid")))
-      (htm (:p (format t "myid ~a answered to question ~a at ~a."
+ order by users.myid"))
+           (working-users
+             (mapcar (lambda (x) (getf x :|myid|))
+                     (dbi:fetch-all
+                      (query  "select distinct(myid) from answers
+ where now() - update_at < '48 hours'")))))
+      (htm (:p (format t "myid ~a answered to question <a href='/answer?num=~a'>~a</a> at ~a."
                        (getf recent :|myid|)
                        (getf recent :|num|)
-                       (getf recent :|update_at|))))
+                       (getf recent :|num|)
+                       (getf recent :|update_at|)))
+           (:p (format
+                t
+                "<span class='yes'>赤</span>は過去 48 時間以内にアップデートがあった受講生を示す。"))
+           (:hr))
       (loop for row = (dbi:fetch results)
-         while row
-         do (format t
-                    "<pre>~A (~2d) ~A</pre>"
-                    (getf row :|myid|)
-                    (getf row :|midterm|)
-                    ;; mysql/postgres で戻りが違う。
-                    (stars (getf row :|count|)))))))
-
-(defvar *problems* (dbi:fetch-all
-                    (query "select num, detail from problems")))
+            while row
+            do
+               (let* ((myid (getf row :|myid|))
+                      (working (if (find myid working-users) "yes" "no")))
+                 (format t
+                         "<pre><span class=~a>~A</span> (~2d) ~A~d</pre>"
+                         working
+                         myid
+                         (getf row :|midterm|)
+                         ;; mysql/postgres で戻りが違う。
+                         (stars (getf row :|count|))
+                         (getf row :|count|)))
+               (incf n))
+      (htm (:p "全受講生 242 人、一題以上回答者 " (str n) " 人（うち二人は教員）。")))))
 
 (define-easy-handler (index-alias :uri "/") ()
   (redirect "/problems"))
@@ -143,7 +160,7 @@
   (let ((results (query "select num, detail from problems order by num")))
     (page
       (:h2 "problems")
-      (:p "番号をクリックして回答提出")
+      (:p "番号をクリックして回答提出。ビルドできない回答は受け取らないよ。")
       (loop for row = (dbi:fetch results)
          while row
          do (format t
@@ -237,12 +254,17 @@
         (:h3 "error")
         (:p "ビルドできねーよ。"))))
 
+;; answer から ' をエスケープしないとな。
+;; 本来はプリペアドステートメント使って処理するべき。
+(defun escape-apos (answer)
+  (regex-replace-all "'" answer "&apos;"))
+
 (defun update (myid num answer)
   (let ((sql (format
               nil
               "update answers set answer='~a', update_at=now()
  where myid='~a' and num='~a'"
-              answer
+              (escape-apos answer)
               myid
               num)))
     (query sql)
@@ -255,10 +277,9 @@
   values ('~a','~a', '~a', now())"
               myid
               num
-              answer)))
+              (escape-apos answer))))
     (query sql)
     (redirect "/users")))
-
 
 (defun escape (string)
   (regex-replace-all "<" string "&lt;"))
@@ -289,11 +310,17 @@
       (redirect "/login")))
 
 (defun submit-answer (num)
-  (let* ((q (format nil "select detail from problems where id='~a'" num))
-         (p (second (dbi:fetch (query q)))))
+  (let* ((q (format nil "select num, detail from problems where num='~a'" num))
+         (ret (dbi:fetch (query q)))
+         (num (getf ret :|num|))
+         (d (getf ret :|detail|)))
     (page
-      (:h2 "submit your answer to")
-      (:p (str p))
+      (:h2 "submit your answer to " (str num))
+      (:p (str d))
+      (:ul (:li "ビルドできない回答は受け取らない。")
+           (:li "回答を受け取ってもそれが正解とは限らない。")
+           (:li "他の受講生の回答と自分の回答をよく見比べること。
+  hkimura の回答も混ざっています。"))
       (:form :method "post" :action "/submit"
              (:input :type "hidden" :name "num" :value num)
              (:textarea :name "answer" :cols 60 :rows 10)
@@ -331,15 +358,51 @@
           (setf status "現在のパスワードが一致しません"))
       (:p (str status)))))
 
+(define-easy-handler (download :uri "/download") ()
+  (if (myid)
+      (let ((ret
+              (query
+               (format
+                nil
+                "select num, answer from answers
+ where myid='~a' order by num" (myid)))))
+        (page
+          (loop for row = (dbi:fetch ret)
+                while row
+                do
+                   (htm
+                    (:pre "//" (str (getf row :|num|)))
+                    (:pre (str (escape (getf row :|answer|))))))
+          ))
+      (redirect "/login")))
+
 (define-easy-handler (status :uri "/status") ()
   (if (myid)
-      (let ((sv (apply #'vector (solved (myid)))))
+      (let* ((sv (apply #'vector (solved (myid))))
+             (sc (length sv)))
         (page
           (:h3 "自分の回答状況")
           (loop for n from 1 to 99 do
                (htm (:a :href (format nil "/answer?num=~a" n)
                         :class (if (find n sv) "found" "not-found")
                         (str n))))
+          (cond
+            ((= 99 sc)
+             (htm (:p (:img :src "sakura.png") " 完走おめでとう！")))
+            ((< 80 sc)
+             (htm (:p (:img :src "kame.png") " ゴールはもうちょっと。")))
+            ((< 60 sc)
+             (htm (:p (:img :src "panda.png") " だいぶがんばってるぞ。")))
+            ((< 20 sc)
+              (htm (:p (:img :src "dog.png") " ペースはつかんだ。")))
+            ((< 0 sc)
+             (htm (:p (:img :src "fuji.png") " 一歩ずつやる。")))
+            (t
+             (htm (:p (:img :src "fight.png") " がんばらねーと。"))))
+
+          (:hr)
+          (:h3 "自分回答をダウンロード")
+          (:p (:a :href "/download" "ダウンロード"))
           (:hr)
           (:h3 "パスワード変更")
           (:form :method "post" :action "/passwd"
@@ -364,8 +427,20 @@
          "/favicon.ico" "static/favicon.ico") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
          "/r99.css" "static/r99.css") *dispatch-table*)
+
+  ;; loop or macro?
   (push (create-static-file-dispatcher-and-handler
-         "/r99.html" "static/r99.html") *dispatch-table*))
+         "/fuji.png" "static/fuji.png") *dispatch-table*)
+  (push (create-static-file-dispatcher-and-handler
+         "/panda.png" "static/panda.png") *dispatch-table*)
+  (push (create-static-file-dispatcher-and-handler
+         "/kame.png" "static/kame.png") *dispatch-table*)
+  (push (create-static-file-dispatcher-and-handler
+         "/dog.png" "static/dog.png") *dispatch-table*)
+  (push (create-static-file-dispatcher-and-handler
+         "/fight.png" "static/fight.png") *dispatch-table*)
+  (push (create-static-file-dispatcher-and-handler
+         "/sakura.png" "static/sakura.png") *dispatch-table*))
 
 (defun start-server (&optional (port *http-port*))
   (publish-static-content)

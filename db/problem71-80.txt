@@ -1,0 +1,19 @@
+71, n よりも大きい完全数はなにか？を求める関数 int next_perfect(int n). next_perfect(28) はきっと 496 だ。
+
+72, n 以上 m 未満の奇数の和を求める関数 int sum_odds(int n, int m). sum_odds(100, 200) は 7500 を返す。
+
+73, n 未満の素数の和を求める関数 int sum_primes_under(int n). sum_primes_under(1000) は 76127 のはず。
+
+74, n 以上 m 未満の素数の和を求める関数 int sum_primes_between(int n, int m).
+
+75, 関数 int factorial(int n) を定義せよ。factorial(5) は 5! をリターンする。0! は 1 だよ。 一般に factoria(n) = n * factorial(n-1).
+
+76, factorial(0), factorial(1), factorial(2)... と次々に計算していき、factorial(n) < 0 となる最初の n を求める関数 int factorial_overflow(void)。 C 言語ではこういうことが起こる。int が有限だからね。
+
+77, 関数 int fibo(int n) を定義せよ。fibo(0)=0, fibo(1)=1, fibo(2)=2 で、 一般にfibo(n) = fibo(n-1) + fibo(n-2).
+
+78, fibo(n) が最初に 1,000 を超える n はいくらかを求める関数 int fibo_over1000(void). 答えはきっと 17 だ。
+
+79, fibo(n) が最初に m を超える n を返す関数 int fibo_over(int m).
+
+80, n 以上 m 未満となるフィボナッチ数の総和を返す関数 int sum_of_fibo_between(int n, int m).

@@ -8,7 +8,8 @@ form.answer {
 }
 
 a.found {
-    background: red;
+    background: #3399ff;
+    color: white;
 }
 
 a.not-found {
@@ -18,4 +19,7 @@ p.mono {
     font-family: monospace, serif;
 }
 
+span.yes {
+    color: red;
+}
 
