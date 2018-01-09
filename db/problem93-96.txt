@@ -1,0 +1,8 @@
+93, 文字列 s1 を全て大文字にして文字列s2にコピーする関数 toUpper(char s1[], char s2[]).
+
+94, 文字列 s1 を整数に変換して返す関数 int str_to_int(char s1[]). str_to_int("314")の戻り値は 214 になる。
+
+95, 整数 n を文字列 s[] に変換する関数 void int_to_str(int n, char s[]). int_to_int(1023, s) の呼び出しによって 文字列 "1023" が s にコピーされる。
+
+96, 文字列 s1[] を逆にした文字列 s2[] を作る関数 void str_reverse(char s1[], char s2[]).
+
