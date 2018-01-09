@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.7.4")
+(defvar *version* "0.7.5")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
