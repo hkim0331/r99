@@ -168,16 +168,21 @@
                     (getf row :|num|)
                     (getf row :|num|)
                     (getf row :|detail|))))))
-
-(defun my-answer (num)
+(defun r99-answer (myid num)
   (let* ((q
           (format
            nil
            "select answer from answers where myid='~a' and num='~a'"
-           (myid) num))
+           myid num))
          (answer (dbi:fetch (query q))))
     (if (null answer) nil
         (getf answer :|answer|))))
+
+(defun my-answer (num)
+  (r99-answer (myid) num))
+
+(defun hkimura-answer (num)
+  (r99-answer 8000 num))
 
 (defun other-answers (num)
   (let ((q
@@ -196,7 +201,8 @@
 
 (defun show-answers (num)
   (let* ((my (my-answer num))
-         (others (other-answers num)))
+         (others (other-answers num))
+         (hkimura (hkimura-answer num)))
     (page
       (:p (format t "~a, ~a" num (detail num)))
       (:h3 "your answer")
@@ -214,7 +220,9 @@
          while row
          do (format t "<p>~a:<pre class='answer'><code>~a</code></pre></p>"
                     (getf row :|myid|)
-                    (escape (getf row :|answer|)))))))
+                    (escape (getf row :|answer|))))
+      (format t "<p>8000:<pre class='answer'><code>~a</code></pre></p>"
+              (escape hkimura)))))
 
 (define-easy-handler (auth :uri "/auth") (id pass)
   (if (or (myid)
@@ -372,8 +380,8 @@
                 do
                    (htm
                     (:pre "//" (str (getf row :|num|)))
-                    (:pre (str (escape (getf row :|answer|))))))
-          ))
+                    (:pre (str (escape (getf row :|answer|))))))))
+
       (redirect "/login")))
 
 (define-easy-handler (status :uri "/status") ()
@@ -394,7 +402,7 @@
             ((< 60 sc)
              (htm (:p (:img :src "panda.png") " だいぶがんばってるぞ。")))
             ((< 20 sc)
-              (htm (:p (:img :src "dog.png") " ペースはつかんだ。")))
+             (htm (:p (:img :src "dog.png") " ペースはつかんだ。")))
             ((< 0 sc)
              (htm (:p (:img :src "fuji.png") " 一歩ずつやる。")))
             (t
