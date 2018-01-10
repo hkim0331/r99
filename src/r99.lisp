@@ -240,7 +240,7 @@
       (:h3 "others")
       (loop for row = (dbi:fetch others)
          while row
-         do (format t "~a:<pre class='answer'><code>~a</code></pre>"
+         do (format t "<b>~a:</b><pre class='answer'><code>~a</code></pre>"
                     (getf row :|myid|)
                     (escape (getf row :|answer|))))
       (format t "nakadouzono:<pre class='answer'><code>~a</code></pre>"
