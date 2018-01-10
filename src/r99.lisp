@@ -56,6 +56,29 @@
 (defun myid ()
   (cookie-in *myid*))
 
+(defun escape (string)
+  (regex-replace-all "<" string "&lt;"))
+
+;; answer から ' をエスケープしないとな。
+;; 本来はプリペアドステートメント使って処理するべき。
+(defun escape-apos (answer)
+  (regex-replace-all "'" answer "&apos;"))
+
+(defun check (answer)
+  (let* ((cl-fad:*default-template* "temp%.c")
+         (pathname (with-output-to-temporary-file (f)
+                     (write-string "#include <stdio.h>" f)
+                     (write-char #\Return f)
+                     (write-string "#include <stdlib.h>" f)
+                     (write-char #\Return f)
+                     (write-string answer f)))
+         (ret (sb-ext:run-program
+               "/usr/bin/cc"
+               `("-fsyntax-only" ,(namestring pathname)))))
+    (delete-file pathname)
+    (= 0 (sb-ext:process-exit-code ret))))
+
+
 (defmacro navi ()
   '(htm
     (:p
@@ -263,11 +286,6 @@
         (:h3 "error")
         (:p "ビルドできねーよ。"))))
 
-;; answer から ' をエスケープしないとな。
-;; 本来はプリペアドステートメント使って処理するべき。
-(defun escape-apos (answer)
-  (regex-replace-all "'" answer "&apos;"))
-
 (defun update (myid num answer)
   (let ((sql (format
               nil
@@ -289,23 +307,6 @@
               (escape-apos answer))))
     (query sql)
     (redirect "/users")))
-
-(defun escape (string)
-  (regex-replace-all "<" string "&lt;"))
-
-(defun check (answer)
-  (let* ((cl-fad:*default-template* "temp%.c")
-         (pathname (with-output-to-temporary-file (f)
-                     (write-string "#include <stdio.h>" f)
-                     (write-char #\Return f)
-                     (write-string "#include <stdlib.h>" f)
-                     (write-char #\Return f)
-                     (write-string answer f)))
-         (ret (sb-ext:run-program
-               "/usr/bin/cc"
-               `("-fsyntax-only" ,(namestring pathname)))))
-    (delete-file pathname)
-    (= 0 (sb-ext:process-exit-code ret))))
 
 (define-easy-handler (submit :uri "/submit") (num answer)
   (if (myid)
