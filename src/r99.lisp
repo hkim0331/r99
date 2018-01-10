@@ -192,6 +192,12 @@
                     (getf row :|num|)
                     (getf row :|detail|))))))
 
+(defun detail (num)
+  (let* ((q (format nil "select detail from problems where num='~a'" num))
+         (ret (dbi:fetch (query q))))
+    (unless (null ret)
+      (getf ret :|detail|))))
+
 (defun r99-answer (myid num)
   (let* ((q
           (format
@@ -202,29 +208,19 @@
     (if (null answer) nil
         (getf answer :|answer|))))
 
-(defun my-answer (num)
-  (r99-answer (myid) num))
+;; (defun my-answer (num)
+;;   (r99-answer (myid) num))
 
-(defun other-answers (num)
-  (let ((q
-          (format
-           nil
-           "select myid, answer from answers
+(defun r99-other-answers (num)
+  (query (format
+          nil
+          "select myid, answer from answers
  where not (myid='~a') and num='~a' order by update_at desc limit 5"
-           (myid) num)))
-    (query q)))
-
-(defun detail (num)
-  (let* ((q (format nil "select detail from problems where num='~a'" num))
-         (ret (dbi:fetch (query q))))
-    (unless (null ret)
-      (getf ret :|detail|))))
+          (myid) num)))
 
 (defun show-answers (num)
-  (let* ((my (my-answer num))
-         (others (other-answers num))
-         (hkimura (r99-answer 8000 num))
-         (nakadou (r99-answer 8001 num)))
+  (let ((my-answer (r99-answer (myid) num))
+        (other-answers (r99-other-answers num)))
     (page
       (:p (format t "~a, ~a" num (detail num)))
       (:h3 "your answer")
@@ -232,21 +228,21 @@
              (:input :type "hidden" :name "num" :value num)
              (:textarea :name "answer"
                         :cols 60
-                        :rows (+ 1 (count #\return my :test #'equal))
-                        (str (escape my)))
+                        :rows (+ 1 (count #\return my-answer :test #'equal))
+                        (str (escape my-answer)))
              (:br)
              (:input :type "submit" :value "update"))
       (:br)
       (:h3 "others")
-      (loop for row = (dbi:fetch others)
+      (loop for row = (dbi:fetch other-answers)
          while row
          do (format t "<b>~a:</b><pre class='answer'><code>~a</code></pre>"
                     (getf row :|myid|)
                     (escape (getf row :|answer|))))
-      (format t "nakadouzono:<pre class='answer'><code>~a</code></pre>"
-              (escape nakadou))
-      (format t "hkimura:<pre class='answer'><code>~a</code></pre>"
-              (escape hkimura)))))
+      (format t "<b>nakadouzono:</b><pre class='answer'><code>~a</code></pre>"
+              (escape (r99-answer 8001 num)))
+      (format t "<b>hkimura:</b><pre class='answer'><code>~a</code></pre>"
+              (escape (r99-answer 8000 num))))))
 
 (defun exist? (num)
   (let ((sql (format
