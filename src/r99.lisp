@@ -215,7 +215,10 @@
   (query (format
           nil
           "select myid, answer from answers
- where not (myid='~a') and num='~a' order by update_at desc limit 5"
+ where not (myid='~a') and not (myid=8000) and not (myid=8001)
+ and num='~a'
+ order by update_at desc
+ limit 5"
           (myid) num)))
 
 (defun show-answers (num)
