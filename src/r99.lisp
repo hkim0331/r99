@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.7.4")
+(defvar *version* "0.7.5")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -151,7 +151,7 @@
                          (stars (getf row :|count|))
                          (getf row :|count|)))
                (incf n))
-      (htm (:p "全受講生 242 人、一題以上回答者 " (str n) " 人（うち二人は教員）。")))))
+      (htm (:p "全受講生 242 人、一題以上回答者 " (str n) " 人。")))))
 
 (define-easy-handler (index-alias :uri "/") ()
   (redirect "/problems"))
@@ -181,6 +181,7 @@
 (defun my-answer (num)
   (r99-answer (myid) num))
 
+;; hkimura's myid == 8000
 (defun hkimura-answer (num)
   (r99-answer 8000 num))
 
@@ -221,7 +222,7 @@
          do (format t "<p>~a:<pre class='answer'><code>~a</code></pre></p>"
                     (getf row :|myid|)
                     (escape (getf row :|answer|))))
-      (format t "<p>8000:<pre class='answer'><code>~a</code></pre></p>"
+      (format t "<p>hkimura:<pre class='answer'><code>~a</code></pre></p>"
               (escape hkimura)))))
 
 (define-easy-handler (auth :uri "/auth") (id pass)
