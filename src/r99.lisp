@@ -239,13 +239,19 @@
       (:h3 "others")
       (loop for row = (dbi:fetch other-answers)
          while row
-         do (format t "<b>~a:</b><pre class='answer'><code>~a</code></pre>"
-                    (getf row :|myid|)
-                    (escape (getf row :|answer|))))
-      (format t "<b>nakadouzono:</b><pre class='answer'><code>~a</code></pre>"
-              (escape (r99-answer 8001 num)))
-      (format t "<b>hkimura:</b><pre class='answer'><code>~a</code></pre>"
-              (escape (r99-answer 8000 num))))))
+         do (format
+             t
+             "<b>~a:</b><pre class='answer'><code>~a</code></pre><hr>"
+             (getf row :|myid|)
+             (escape (getf row :|answer|))))
+      (format
+       t
+       "<b>nakadouzono:</b><pre class='answer'><code>~a</code></pre><hr>"
+       (escape (r99-answer 8001 num)))
+      (format
+       t
+       "<b>hkimura:</b><pre class='answer'><code>~a</code></pre>"
+       (escape (r99-answer 8000 num))))))
 
 (defun exist? (num)
   (let ((sql (format
