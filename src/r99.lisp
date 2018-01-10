@@ -45,6 +45,9 @@
               myid)))
     (second (dbi:fetch (query sql)))))
 
+(defun myid ()
+  (cookie-in *myid*))
+
 (defun answered? (num)
   (let ((sql (format
               nil
@@ -52,9 +55,6 @@
               (myid)
               num)))
     (dbi:fetch (query sql))))
-
-(defun myid ()
-  (cookie-in *myid*))
 
 (defun escape (string)
   (regex-replace-all "<" string "&lt;"))
@@ -248,29 +248,6 @@
       (format t "hkimura:<pre class='answer'><code>~a</code></pre>"
               (escape hkimura)))))
 
-(define-easy-handler (auth :uri "/auth") (id pass)
-  (if (or (myid)
-          (and (not (null id)) (not (null pass))
-               (string= (password  id) pass)))
-      (progn
-        (set-cookie *myid* :value id :max-age 86400)
-        (redirect "/problems"))
-      (redirect "/login")))
-
-(define-easy-handler (login :uri "/login") ()
-  (page
-    (:h2 "LOGIN")
-    (:form :method "post" :action "/auth"
-           (:p "myid")
-           (:p (:input :type "text" :name "id"))
-           (:p "password")
-           (:p (:input :type "password" :name "pass"))
-           (:p (:input :type "submit" :value "login")))))
-
-(define-easy-handler (logout :uri "/logout") ()
-  (set-cookie *myid* :max-age 0)
-  (redirect "/problems"))
-
 (defun exist? (num)
   (let ((sql (format
               nil
@@ -279,12 +256,6 @@
               num)))
     (not (null (dbi:fetch (query sql))))))
 
-(define-easy-handler (update-answer :uri "/update-answer") (num answer)
-  (if (check answer)
-      (update (myid) num answer)
-      (page
-        (:h3 "error")
-        (:p "ビルドできねーよ。"))))
 
 (defun update (myid num answer)
   (let ((sql (format
@@ -308,17 +279,6 @@
     (query sql)
     (redirect "/users")))
 
-(define-easy-handler (submit :uri "/submit") (num answer)
-  (if (myid)
-      (if (check answer)
-          (progn
-            (insert (myid) num answer)
-            (redirect "/users"))
-          (page
-           (:h3 "error")
-           (:p "ビルドできません")))
-      (redirect "/login")))
-
 (defun submit-answer (num)
   (let* ((q (format nil "select num, detail from problems where num='~a'" num))
          (ret (dbi:fetch (query q)))
@@ -336,18 +296,11 @@
              (:br)
              (:input :type "submit")))))
 
-(define-easy-handler (answer :uri "/answer") (num)
-  (if (myid)
-      (if (answered? num) (show-answers num)
-          (submit-answer num))
-      (redirect "/login")))
-
 (defun solved (myid)
     (let* ((q (format nil "select num from answers where myid='~a'"
                       myid))
            (ret (dbi:fetch-all (query q))))
       (mapcar (lambda (x) (getf x :|num|)) ret)))
-
 
 ;;; status
 (defun my-password (myid)
@@ -355,6 +308,53 @@
              nil "select password from users where myid='~a'" myid))
          (ret (dbi:fetch (query q))))
     (getf ret :|password|)))
+
+(define-easy-handler (auth :uri "/auth") (id pass)
+  (if (or (myid)
+          (and (not (null id)) (not (null pass))
+               (string= (password  id) pass)))
+      (progn
+        (set-cookie *myid* :value id :max-age 86400)
+        (redirect "/problems"))
+      (redirect "/login")))
+
+(define-easy-handler (login :uri "/login") ()
+  (page
+    (:h2 "LOGIN")
+    (:form :method "post" :action "/auth"
+           (:p "myid")
+           (:p (:input :type "text" :name "id"))
+           (:p "password")
+           (:p (:input :type "password" :name "pass"))
+           (:p (:input :type "submit" :value "login")))))
+
+(define-easy-handler (logout :uri "/logout") ()
+  (set-cookie *myid* :max-age 0)
+  (redirect "/problems"))
+
+(define-easy-handler (update-answer :uri "/update-answer") (num answer)
+  (if (check answer)
+      (update (myid) num answer)
+      (page
+        (:h3 "error")
+        (:p "ビルドできねーよ。"))))
+
+(define-easy-handler (submit :uri "/submit") (num answer)
+  (if (myid)
+      (if (check answer)
+          (progn
+            (insert (myid) num answer)
+            (redirect "/users"))
+          (page
+           (:h3 "error")
+           (:p "ビルドできません")))
+      (redirect "/login")))
+
+(define-easy-handler (answer :uri "/answer") (num)
+  (if (myid)
+      (if (answered? num) (show-answers num)
+          (submit-answer num))
+      (redirect "/login")))
 
 (define-easy-handler (passwd :uri "/passwd") (myid old new1 new2)
   (let ((status "パスワードを変更しました。"))
