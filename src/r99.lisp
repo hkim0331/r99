@@ -381,13 +381,18 @@
                 "select num, answer from answers
  where myid='~a' order by num" (myid)))))
         (page
+          (:pre "#include &lt;stdio.h>
+#include &lt;stdlib.h>")
           (loop for row = (dbi:fetch ret)
                 while row
                 do
                    (htm
                     (:pre "//" (str (getf row :|num|)))
-                    (:pre (str (escape (getf row :|answer|))))))))
-
+                    (:pre (str (escape (getf row :|answer|))))))
+          (:pre "int main(void) {
+    // 定義した関数の呼び出しをここに。
+    return 0;
+}")))
       (redirect "/login")))
 
 (define-easy-handler (status :uri "/status") ()
