@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.7.7")
+(defvar *version* "0.7.8")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -397,11 +397,15 @@
 
 (define-easy-handler (status :uri "/status") ()
   (if (myid)
-      (let* ((sv (apply #'vector (solved (myid))))
+      (let* ((num-max
+              (getf
+               (dbi:fetch (query "select max(num) from problems"))
+               :|max|))
+             (sv (apply #'vector (solved (myid))))
              (sc (length sv)))
         (page
           (:h3 "自分の回答状況")
-          (loop for n from 1 to 99 do
+          (loop for n from 1 to num-max do
                (htm (:a :href (format nil "/answer?num=~a" n)
                         :class (if (find n sv) "found" "not-found")
                         (str n))))
@@ -412,6 +416,8 @@
              (htm (:p (:img :src "kame.png") " ゴールはもうちょっと。")))
             ((< 60 sc)
              (htm (:p (:img :src "panda.png") " だいぶがんばってるぞ。")))
+            ((< 40 sc)
+             (htm (:p (:img :src "cat2.png") " その調子。")))
             ((< 20 sc)
              (htm (:p (:img :src "dog.png") " ペースはつかんだ。")))
             ((< 0 sc)
