@@ -463,6 +463,8 @@
   (push (create-static-file-dispatcher-and-handler
          "/dog.png" "static/dog.png") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
+         "/cat2.png" "static/cat2.png") *dispatch-table*)
+  (push (create-static-file-dispatcher-and-handler
          "/fight.png" "static/fight.png") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
          "/sakura.png" "static/sakura.png") *dispatch-table*))
