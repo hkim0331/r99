@@ -410,7 +410,7 @@
                         :class (if (find n sv) "found" "not-found")
                         (str n))))
           (cond
-            ((= 99 sc)
+            ((<= 99 sc)
              (htm (:p (:img :src "sakura.png") " 完走おめでとう！")))
             ((< 80 sc)
              (htm (:p (:img :src "kame.png") " ゴールはもうちょっと。")))
