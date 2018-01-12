@@ -107,9 +107,8 @@
         :content "width=device-width, initial-scale=1.0")
        (:link
         :rel "stylesheet"
-        :href "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css"
-        :integrity "sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb"
-        :crossorigin "anonymous")
+        :href "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css"
+        :integrity "sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" :crossorigin "anonymous")
        (:title "R99")
        (:link :type "text/css" :rel "stylesheet" :href "/r99.css"))
       (:body
@@ -192,6 +191,41 @@
                     (getf row :|num|)
                     (getf row :|detail|))))))
 
+(defparameter abc
+  (getf
+    (dbi:fetch
+      (query (format nil "select answer from answers where id='~a'" 1079)))
+    :|answer|))
+
+(define-easy-handler (add-comment :uri "/add-comment") (id comment)
+  (let ((answer
+          (getf
+           (dbi:fetch
+            (query (format nil "select answer from answers where id='~a'" id)))
+           :|answer|)
+         (answer2 (format nil "~a~%/* ~a,~%~a~%*/" answer (myid) comment))))
+    (query (format
+            nil
+            "update answers set answer='~a' where id='~a'"
+            answer2
+            id))
+    (redirect "/problems")))
+
+(define-easy-handler (comment :uri "/comment") (id)
+  (let ((answer
+         (getf
+            (dbi:fetch
+              (query (format nil "select answer from answers where id='~a'" id)))
+            :|answer|)))
+    (page
+     (:h2 "please your warm comment to:")
+     (:pre (str (escape answer)))
+     (:form :methopd "post" :action "/add-comment"
+       (:input :type "hidden" :name "id" :value id)
+       (:textarea :rows 5 :cols 50 :name "comment")
+       (:br)
+       (:input :type "submit" :value "comment")))))
+
 (defun detail (num)
   (let* ((q (format nil "select detail from problems where num='~a'" num))
          (ret (dbi:fetch (query q))))
@@ -214,7 +248,7 @@
 (defun r99-other-answers (num)
   (query (format
           nil
-          "select myid, answer from answers
+          "select id, myid, answer from answers
  where not (myid='~a') and not (myid=8000) and not (myid=8001)
  and num='~a'
  order by update_at desc
@@ -241,8 +275,10 @@
          while row
          do (format
              t
-             "<b>~a:</b><pre class='answer'><code>~a</code></pre><hr>"
+             "<b>~a</b>
+<a href='/comment?id=~a'> comment</a><pre class='answer'><code>~a</code></pre><hr>"
              (getf row :|myid|)
+             (getf row :|id|)
              (escape (getf row :|answer|))))
       (format
        t
