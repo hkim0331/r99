@@ -9,3 +9,4 @@
 /src/r99
 /db/sid-uid-myid-jname.txt
 !/db/migrations/*.sql
+develop.fish
