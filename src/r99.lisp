@@ -191,19 +191,13 @@
                     (getf row :|num|)
                     (getf row :|detail|))))))
 
-(defparameter abc
-  (getf
-    (dbi:fetch
-      (query (format nil "select answer from answers where id='~a'" 1079)))
-    :|answer|))
-
 (define-easy-handler (add-comment :uri "/add-comment") (id comment)
-  (let ((answer
+  (let* ((answer
           (getf
            (dbi:fetch
             (query (format nil "select answer from answers where id='~a'" id)))
-           :|answer|)
-         (answer2 (format nil "~a~%/* ~a,~%~a~%*/" answer (myid) comment))))
+           :|answer|))
+         (answer2 (format nil "~a~%/* ~a,~%~a~%*/" answer (myid) comment)))
     (query (format
             nil
             "update answers set answer='~a' where id='~a'"
