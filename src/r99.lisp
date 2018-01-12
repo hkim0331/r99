@@ -248,7 +248,7 @@ order by update_at desc limit 1" myid))
 (defun r99-other-answers (num)
   (query (format
           nil
-          "select id, myid, answer, update_at from answers
+          "select id, myid, answer, update_at::text from answers
  where not (myid='~a') and not (myid='8000') and not (myid='8001')
  and num='~a'
  order by update_at desc
