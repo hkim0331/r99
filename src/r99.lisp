@@ -130,6 +130,13 @@
 (defun stars (n)
   (stars-aux n ""))
 
+(define-easy-handler (last-answer :uri "/last") (myid)
+  (let* ((q (format nil "select num from answers where myid='~a'
+order by update_at desc limit 1" myid))
+         (ret (dbi:fetch (query q)))
+         (num (getf ret :|num|)))
+    (redirect (format nil "/answer?num=~a" num))))
+
 (define-easy-handler (users :uri "/users") ()
   (page
     (:h2 "誰が何問解いた？")
@@ -165,12 +172,13 @@
                (let* ((myid (getf row :|myid|))
                       (working (if (find myid working-users) "yes" "no")))
                  (format t
-                         "<pre><span class=~a>~A</span> (~2d) ~A~d</pre>"
+                         "<pre><span class=~a>~A</span> (~2d) ~A<a href='/last?myid=~d'>~d</a></pre>"
                          working
                          myid
                          (getf row :|midterm|)
                          ;; mysql/postgres で戻りが違う。
                          (stars (getf row :|count|))
+                         myid
                          (getf row :|count|)))
                (incf n))
       (htm (:p "全受講生 242 人、一題以上回答者 " (str n) " 人。")))))
