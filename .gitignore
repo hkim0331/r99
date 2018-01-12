@@ -10,3 +10,5 @@
 /db/sid-uid-myid-jname.txt
 !/db/migrations/*.sql
 develop.fish
+develop.env
+production.env
