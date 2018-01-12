@@ -191,20 +191,17 @@
                     (getf row :|num|)
                     (getf row :|detail|))))))
 
-;;FIXME: リダイレクト先がよくない。
 (define-easy-handler (add-comment :uri "/add-comment") (id comment)
-  (let* ((answer
-          (getf
-           (dbi:fetch
-            (query (format nil "select answer from answers where id='~a'" id)))
-           :|answer|))
-         (answer2 (format nil "~a~%/* ~a,~%~a~%*/" answer (myid) comment)))
+  (let* ((a (dbi:fetch
+             (query (format nil "select num, answer from answers where id='~a'" id))))
+         (answer1 (getf a :|answer|))
+         (answer2 (format nil "~a~%/* ~a,~%~a~%*/" answer1 (myid) comment)))
     (query (format
             nil
             "update answers set answer='~a' where id='~a'"
             answer2
             id))
-    (redirect "/problems")))
+    (redirect (format nil "/answer?num=~a" (getf a :|num|)))))
 
 (define-easy-handler (comment :uri "/comment") (id)
   (let ((answer
@@ -380,7 +377,7 @@
       (if (check answer)
           (progn
             (insert (myid) num answer)
-            (redirect "/users"))
+            (redirect "/status"))
           (page
            (:h3 "error")
            (:p "ビルドできません")))
