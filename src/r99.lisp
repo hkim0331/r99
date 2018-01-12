@@ -191,6 +191,7 @@
                     (getf row :|num|)
                     (getf row :|detail|))))))
 
+;;FIXME: リダイレクト先がよくない。
 (define-easy-handler (add-comment :uri "/add-comment") (id comment)
   (let* ((answer
           (getf
