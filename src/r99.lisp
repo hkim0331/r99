@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.7.8")
+(defvar *version* "0.8.0")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -191,19 +191,14 @@
                     (getf row :|num|)
                     (getf row :|detail|))))))
 
-(defparameter abc
-  (getf
-    (dbi:fetch
-      (query (format nil "select answer from answers where id='~a'" 1079)))
-    :|answer|))
-
+;;FIXME: リダイレクト先がよくない。
 (define-easy-handler (add-comment :uri "/add-comment") (id comment)
-  (let ((answer
+  (let* ((answer
           (getf
            (dbi:fetch
             (query (format nil "select answer from answers where id='~a'" id)))
-           :|answer|)
-         (answer2 (format nil "~a~%/* ~a,~%~a~%*/" answer (myid) comment))))
+           :|answer|))
+         (answer2 (format nil "~a~%/* ~a,~%~a~%*/" answer (myid) comment)))
     (query (format
             nil
             "update answers set answer='~a' where id='~a'"
