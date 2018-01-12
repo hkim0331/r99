@@ -248,8 +248,7 @@ order by update_at desc limit 1" myid))
 (defun r99-other-answers (num)
   (query (format
           nil
-          "select id, myid, answer,
- to_char(update_at,'mm/dd HH:MM') from answers
+          "select id, myid, answer, update_at from answers
  where not (myid='~a') and not (myid='8000') and not (myid='8001')
  and num='~a'
  order by update_at desc
@@ -280,7 +279,7 @@ order by update_at desc limit 1" myid))
 at ~a,
 <a href='/comment?id=~a'> comment</a><pre class='answer'><code>~a</code></pre><hr>"
              (getf row :|myid|)
-             (getf row :|to_char|)
+             (getf row :|update_at|)
              (getf row :|id|)
              (escape (getf row :|answer|))))
       (format
