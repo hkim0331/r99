@@ -248,13 +248,14 @@ order by update_at desc limit 1" myid))
 (defun r99-other-answers (num)
   (query (format
           nil
-          "select id, myid, answer from answers
- where not (myid='~a') and not (myid=8000) and not (myid=8001)
+          "select id, myid, answer,
+ to_char(update_at,'mm/dd HH:MM') from answers
+ where not (myid='~a') and not (myid='8000') and not (myid='8001')
  and num='~a'
  order by update_at desc
- limit 5"
-          (myid) num)))
+ limit 5" (myid) num)))
 
+;;fixme: 日付を表示
 (defun show-answers (num)
   (let ((my-answer (r99-answer (myid) num))
         (other-answers (r99-other-answers num)))
@@ -276,8 +277,10 @@ order by update_at desc limit 1" myid))
          do (format
              t
              "<b>~a</b>
+at ~a,
 <a href='/comment?id=~a'> comment</a><pre class='answer'><code>~a</code></pre><hr>"
              (getf row :|myid|)
+             (getf row :|to_char|)
              (getf row :|id|)
              (escape (getf row :|answer|))))
       (format
