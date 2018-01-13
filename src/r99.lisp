@@ -332,7 +332,8 @@ at ~a,
       (:p (str d))
       (:ul (:li "ビルドできない回答は受け取らない。")
            (:li "回答を受け取ってもそれが正解とは限らない。")
-           (:li "他の受講生の回答と自分の回答をよく見比べること。"))
+           (:li "他の受講生の回答と自分の回答をよく見比べること。")
+           (:li "hkimura の間違い見つけられたら加点だ。"))
       (:form :method "post" :action "/submit"
              (:input :type "hidden" :name "num" :value num)
              (:textarea :name "answer" :cols 60 :rows 10)
