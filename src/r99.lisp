@@ -141,6 +141,9 @@ order by update_at desc limit 1" myid))
   (page
     (:h2 "誰が何問解いた？")
     (let* ((n 0)
+           (all (getf
+                 (dbi:fetch (query "select count(*) from answers"))
+                 :|count|))
            (recent
             (dbi:fetch
              (query "select myid, num, update_at::text from answers
@@ -181,7 +184,8 @@ order by update_at desc limit 1" myid))
                          myid
                          (getf row :|count|)))
                (incf n))
-      (htm (:p "全受講生 242 人、一題以上回答者 " (str n) " 人。")))))
+      (htm (:p "受講生 242(+2) 人、一題以上回答者 " (str n) " 人、
+回答数 " (str all) "")))))
 
 (define-easy-handler (index-alias :uri "/") ()
   (redirect "/problems"))
