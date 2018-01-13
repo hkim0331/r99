@@ -179,7 +179,6 @@ order by update_at desc limit 1" myid))
                          working
                          myid
                          (getf row :|midterm|)
-                         ;; mysql/postgres で戻りが違う。
                          (stars (getf row :|count|))
                          myid
                          (getf row :|count|)))
@@ -438,6 +437,17 @@ at ~a,
 }")))
       (redirect "/login")))
 
+(defun ranking (id)
+  (let* ((q "select distinct myid, count(myid) from answers
+ group by myid order by count(myid) desc")
+         (ret (query q))
+         (n -1))
+    (loop for row = (dbi:fetch ret)
+       while (and row (not (= (parse-integer id) (getf row :|myid|))))
+       do
+         (incf n))
+    n))
+
 (define-easy-handler (status :uri "/status") ()
   (if (myid)
       (let* ((num-max
@@ -469,6 +479,11 @@ at ~a,
              (htm (:p (:img :src "fight.png") " がんばらねーと。"))))
 
           (:hr)
+          (:h3 "ランキング")
+          (:p "myid: " (str (myid)))
+          (:p "回答数: " (str sc))
+          (:p "Ranking: " (str (ranking (myid))) " / 242")
+          (:hr)
           (:h3 "自分回答をダウンロード")
           (:p (:a :href "/download" "ダウンロード"))
           (:hr)
@@ -495,7 +510,6 @@ at ~a,
          "/favicon.ico" "static/favicon.ico") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
          "/r99.css" "static/r99.css") *dispatch-table*)
-
   ;; loop or macro?
   (push (create-static-file-dispatcher-and-handler
          "/fuji.png" "static/fuji.png") *dispatch-table*)
