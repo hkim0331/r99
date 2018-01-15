@@ -35,14 +35,14 @@ int even(int n) {
 }
 
 #define sq(x) (x)*(x)
+
 int power(int n, int m) {
-  if (m==0) {
-    return 1;
-  } else if (even(m)) { //p 13
-    return sq(power(n, m/2));
-  } else {
-    return n * power(n, m-1);
+  int ret=1;
+
+  while (m>0) {
+    ret *= n;
   }
+  return ret;
 }
 
 int prime_under(int n) {
