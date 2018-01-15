@@ -210,7 +210,8 @@ order by update_at desc limit 1" myid))
   (let* ((a (dbi:fetch
              (query (format nil "select num, answer from answers where id='~a'" id))))
          (answer1 (getf a :|answer|))
-         (answer2 (format nil "~a~%/* ~a,~%~a~%*/" answer1 (myid) comment)))
+         (answer2 (format nil "~a~%/* ~a,~%~a~%*/" answer1 (myid)
+                          (escape comment))))
     (query (format
             nil
             "update answers set answer='~a' where id='~a'"
