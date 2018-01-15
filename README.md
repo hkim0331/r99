@@ -53,6 +53,10 @@ group by users.myid, users.sid;
 3030/tcp で hunchentoot が立ち上がる。
 nginx のリバースプロキシ等でつないでやる。
 
+## BUG
+
+* 日付フォーマット。勉強不足。
+
 ## author
 
 hiroshi . kimura . 0331 @ gmail . com
@@ -61,3 +65,5 @@ hiroshi . kimura . 0331 @ gmail . com
 
 free.
 
+---
+hiroshi . kimura . 0331 @ gmail . com

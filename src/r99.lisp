@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.7.8")
+(defvar *version* "0.8.6")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -107,9 +107,8 @@
         :content "width=device-width, initial-scale=1.0")
        (:link
         :rel "stylesheet"
-        :href "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css"
-        :integrity "sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb"
-        :crossorigin "anonymous")
+        :href "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css"
+        :integrity "sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" :crossorigin "anonymous")
        (:title "R99")
        (:link :type "text/css" :rel "stylesheet" :href "/r99.css"))
       (:body
@@ -131,10 +130,20 @@
 (defun stars (n)
   (stars-aux n ""))
 
+(define-easy-handler (last-answer :uri "/last") (myid)
+  (let* ((q (format nil "select num from answers where myid='~a'
+order by update_at desc limit 1" myid))
+         (ret (dbi:fetch (query q)))
+         (num (getf ret :|num|)))
+    (redirect (format nil "/answer?num=~a" num))))
+
 (define-easy-handler (users :uri "/users") ()
   (page
     (:h2 "誰が何問解いた？")
     (let* ((n 0)
+           (all (getf
+                 (dbi:fetch (query "select count(*) from answers"))
+                 :|count|))
            (recent
             (dbi:fetch
              (query "select myid, num, update_at::text from answers
@@ -166,15 +175,16 @@
                (let* ((myid (getf row :|myid|))
                       (working (if (find myid working-users) "yes" "no")))
                  (format t
-                         "<pre><span class=~a>~A</span> (~2d) ~A~d</pre>"
+                         "<pre><span class=~a>~A</span> (~2d) ~A<a href='/last?myid=~d'>~d</a></pre>"
                          working
                          myid
                          (getf row :|midterm|)
-                         ;; mysql/postgres で戻りが違う。
                          (stars (getf row :|count|))
+                         myid
                          (getf row :|count|)))
                (incf n))
-      (htm (:p "全受講生 242 人、一題以上回答者 " (str n) " 人。")))))
+      (htm (:p "受講生 242(+2) 人、一題以上回答者 " (str n) " 人、
+回答数 " (str all) "")))))
 
 (define-easy-handler (index-alias :uri "/") ()
   (redirect "/problems"))
@@ -191,6 +201,33 @@
                     (getf row :|num|)
                     (getf row :|num|)
                     (getf row :|detail|))))))
+
+(define-easy-handler (add-comment :uri "/add-comment") (id comment)
+  (let* ((a (dbi:fetch
+             (query (format nil "select num, answer from answers where id='~a'" id))))
+         (answer1 (getf a :|answer|))
+         (answer2 (format nil "~a~%/* ~a,~%~a~%*/" answer1 (myid) comment)))
+    (query (format
+            nil
+            "update answers set answer='~a' where id='~a'"
+            answer2
+            id))
+    (redirect (format nil "/answer?num=~a" (getf a :|num|)))))
+
+(define-easy-handler (comment :uri "/comment") (id)
+  (let ((answer
+         (getf
+            (dbi:fetch
+              (query (format nil "select answer from answers where id='~a'" id)))
+            :|answer|)))
+    (page
+     (:h2 "please your warm comment to:")
+     (:pre (str (escape answer)))
+     (:form :methopd "post" :action "/add-comment"
+       (:input :type "hidden" :name "id" :value id)
+       (:textarea :rows 5 :cols 50 :name "comment")
+       (:br)
+       (:input :type "submit" :value "comment")))))
 
 (defun detail (num)
   (let* ((q (format nil "select detail from problems where num='~a'" num))
@@ -214,13 +251,13 @@
 (defun r99-other-answers (num)
   (query (format
           nil
-          "select myid, answer from answers
- where not (myid='~a') and not (myid=8000) and not (myid=8001)
+          "select id, myid, answer, update_at::text from answers
+ where not (myid='~a') and not (myid='8000') and not (myid='8001')
  and num='~a'
  order by update_at desc
- limit 5"
-          (myid) num)))
+ limit 5" (myid) num)))
 
+;;fixme: 日付を表示
 (defun show-answers (num)
   (let ((my-answer (r99-answer (myid) num))
         (other-answers (r99-other-answers num)))
@@ -241,8 +278,12 @@
          while row
          do (format
              t
-             "<b>~a:</b><pre class='answer'><code>~a</code></pre><hr>"
+             "<b>~a</b>
+at ~a,
+<a href='/comment?id=~a'> comment</a><pre class='answer'><code>~a</code></pre><hr>"
              (getf row :|myid|)
+             (getf row :|update_at|)
+             (getf row :|id|)
              (escape (getf row :|answer|))))
       (format
        t
@@ -294,7 +335,8 @@
       (:p (str d))
       (:ul (:li "ビルドできない回答は受け取らない。")
            (:li "回答を受け取ってもそれが正解とは限らない。")
-           (:li "他の受講生の回答と自分の回答をよく見比べること。"))
+           (:li "他の受講生の回答と自分の回答をよく見比べること。")
+           (:li "hkimura の間違い見つけられたら加点だ。"))
       (:form :method "post" :action "/submit"
              (:input :type "hidden" :name "num" :value num)
              (:textarea :name "answer" :cols 60 :rows 10)
@@ -349,7 +391,7 @@
       (if (check answer)
           (progn
             (insert (myid) num answer)
-            (redirect "/users"))
+            (redirect "/status"))
           (page
            (:h3 "error")
            (:p "ビルドできません")))
@@ -395,6 +437,17 @@
 }")))
       (redirect "/login")))
 
+(defun ranking (id)
+  (let* ((q "select distinct myid, count(myid) from answers
+ group by myid order by count(myid) desc")
+         (ret (query q))
+         (n -1))
+    (loop for row = (dbi:fetch ret)
+       while (and row (not (= (parse-integer id) (getf row :|myid|))))
+       do
+         (incf n))
+    n))
+
 (define-easy-handler (status :uri "/status") ()
   (if (myid)
       (let* ((num-max
@@ -426,6 +479,11 @@
              (htm (:p (:img :src "fight.png") " がんばらねーと。"))))
 
           (:hr)
+          (:h3 "ランキング")
+          (:p "myid: " (str (myid)))
+          (:p "回答数: " (str sc))
+          (:p "Ranking: " (str (ranking (myid))) " / 242")
+          (:hr)
           (:h3 "自分回答をダウンロード")
           (:p (:a :href "/download" "ダウンロード"))
           (:hr)
@@ -452,7 +510,6 @@
          "/favicon.ico" "static/favicon.ico") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
          "/r99.css" "static/r99.css") *dispatch-table*)
-
   ;; loop or macro?
   (push (create-static-file-dispatcher-and-handler
          "/fuji.png" "static/fuji.png") *dispatch-table*)
