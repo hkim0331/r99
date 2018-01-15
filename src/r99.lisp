@@ -455,9 +455,22 @@ at ~a,
                (dbi:fetch (query "select max(num) from problems"))
                :|max|))
              (sv (apply #'vector (solved (myid))))
-             (sc (length sv)))
+             (sc (length sv))
+             (jname
+              (getf
+               (dbi:fetch
+                (query
+                 (format nil "select jname from users where myid='~a'"
+                         (myid))))
+               :|jname|))
+             (last-runner
+              (getf
+               (dbi:fetch
+                (query "select count(distinct myid) from answers"))
+               :|count|)))
         (page
-          (:h3 "自分の回答状況")
+          (:h3 "回答状況")
+          (:p "クリックして問題・回答にジャンプ。")
           (loop for n from 1 to num-max do
                (htm (:a :href (format nil "/answer?num=~a" n)
                         :class (if (find n sv) "found" "not-found")
@@ -480,9 +493,11 @@ at ~a,
 
           (:hr)
           (:h3 "ランキング")
-          (:p "myid: " (str (myid)))
-          (:p "回答数: " (str sc))
-          (:p "Ranking: " (str (ranking (myid))) " / 242")
+          (:ul
+           (:li "氏名: " (str jname))
+           (:li "回答数: " (str sc))
+           (:li "ランキング: " (str (ranking (myid))) "位 / 242 人"
+               " (最終ランナーは " (str (+ 1 last-runner)) "位と表示されます)"))
           (:hr)
           (:h3 "自分回答をダウンロード")
           (:p (:a :href "/download" "ダウンロード"))
