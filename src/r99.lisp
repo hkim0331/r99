@@ -211,7 +211,7 @@ order by update_at desc limit 1" myid))
              (query (format nil "select num, answer from answers where id='~a'" id))))
          (answer1 (getf a :|answer|))
          (answer2 (format nil "~a~%/* ~a,~%~a~%*/" answer1 (myid)
-                          (escape comment))))
+                          (escape-apos comment))))
     (query (format
             nil
             "update answers set answer='~a' where id='~a'"
@@ -249,9 +249,6 @@ order by update_at desc limit 1" myid))
          (answer (dbi:fetch (query q))))
     (if (null answer) nil
         (getf answer :|answer|))))
-
-;; (defun my-answer (num)
-;;   (r99-answer (myid) num))
 
 (defun r99-other-answers (num)
   (query (format
@@ -502,7 +499,7 @@ at ~a,
            (:li "氏名: " (str jname))
            (:li "回答数: " (str sc))
            (:li "ランキング: " (str (ranking (myid))) "位 / 242 人"
-               " (最終ランナーは " (str (+ 1 last-runner)) "位と表示されます)"))
+               " (最終ランナーは " (str (- last-runner 1)) "位と表示されます)"))
           (:hr)
           (:h3 "自分回答をダウンロード")
           (:p (:a :href "/download" "ダウンロード"))
