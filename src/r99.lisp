@@ -61,8 +61,12 @@
 
 ;; answer から ' をエスケープしないとな。
 ;; 本来はプリペアドステートメント使って処理するべき。
+;; bugfix: 0.8.8
 (defun escape-apos (answer)
-  (regex-replace-all "'" answer "&apos;"))
+  (regex-replace-all
+   "\""
+   (regex-replace-all "'" answer "&apos;")
+   "&quot;"))
 
 (defun check (answer)
   (let* ((cl-fad:*default-template* "temp%.c")
