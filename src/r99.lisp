@@ -477,7 +477,7 @@ at ~a,
                         (str n))))
           (cond
             ((<= 99 sc)
-             (htm (:p (:img :src "sakura.png") " 完走おめでとう！")))
+             (htm (:p (:img :src "sakura.png") " 完走おめでとう！100番以降もやってみよう。")))
             ((< 80 sc)
              (htm (:p (:img :src "kame.png") " ゴールはもうちょっと。")))
             ((< 60 sc)
