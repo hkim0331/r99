@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.8.7")
+(defvar *version* "0.8.9")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -61,8 +61,13 @@
 
 ;; answer から ' をエスケープしないとな。
 ;; 本来はプリペアドステートメント使って処理するべき。
+;; bugfix: 0.8.8
 (defun escape-apos (answer)
-  (regex-replace-all "'" answer "&apos;"))
+  (regex-replace-all
+   "\\?"
+   (regex-replace-all
+    "\""
+    (regex-replace-all "'" answer "&apos;") "&quot;") "？"))
 
 (defun check (answer)
   (let* ((cl-fad:*default-template* "temp%.c")
@@ -205,13 +210,16 @@ order by update_at desc limit 1" myid))
 (define-easy-handler (add-comment :uri "/add-comment") (id comment)
   (let* ((a (dbi:fetch
              (query (format nil "select num, answer from answers where id='~a'" id))))
-         (answer1 (getf a :|answer|))
-         (answer2 (format nil "~a~%/* comment from ~a,~%~a~%*/" answer1 (myid) comment)))
-    (query (format
-            nil
-            "update answers set answer='~a' where id='~a'"
-            answer2
-            id))
+         (answer (getf a :|answer|))
+         (update-answer (format nil "~a~%/* comment from ~a,~%~a~%*/"
+                          answer (myid) (escape-apos comment)))
+         (q (format
+                 nil
+                 "update answers set answer='~a' where id='~a'"
+                 update-answer
+                 id)))
+    ;;FIXME: dbi:fetch is correct?
+    (dbi:fetch (query q))
     (redirect (format nil "/answer?num=~a" (getf a :|num|)))))
 
 (defun detail (num)
@@ -242,9 +250,6 @@ order by update_at desc limit 1" myid))
          (answer (dbi:fetch (query q))))
     (if (null answer) nil
         (getf answer :|answer|))))
-
-;; (defun my-answer (num)
-;;   (r99-answer (myid) num))
 
 (defun r99-other-answers (num)
   (query (format
@@ -495,7 +500,7 @@ at ~a,
            (:li "氏名: " (str jname))
            (:li "回答数: " (str sc))
            (:li "ランキング: " (str (ranking (myid))) "位 / 242 人"
-               " (最終ランナーは " (str (+ 1 last-runner)) "位と表示されます)"))
+               " (最終ランナーは " (str (- last-runner 1)) "位と表示されます)"))
           (:hr)
           (:h3 "自分回答をダウンロード")
           (:p (:a :href "/download" "ダウンロード"))
