@@ -206,7 +206,7 @@ order by update_at desc limit 1" myid))
   (let* ((a (dbi:fetch
              (query (format nil "select num, answer from answers where id='~a'" id))))
          (answer1 (getf a :|answer|))
-         (answer2 (format nil "~a~%/* ~a,~%~a~%*/" answer1 (myid) comment)))
+         (answer2 (format nil "~a~%/* comment from ~a,~%~a~%*/" answer1 (myid) comment)))
     (query (format
             nil
             "update answers set answer='~a' where id='~a'"
@@ -214,26 +214,24 @@ order by update_at desc limit 1" myid))
             id))
     (redirect (format nil "/answer?num=~a" (getf a :|num|)))))
 
-(define-easy-handler (comment :uri "/comment") (id)
-  (let ((answer
-         (getf
-            (dbi:fetch
-              (query (format nil "select answer from answers where id='~a'" id)))
-            :|answer|)))
-    (page
-     (:h2 "please your warm comment to:")
-     (:pre (str (escape answer)))
-     (:form :methopd "post" :action "/add-comment"
-       (:input :type "hidden" :name "id" :value id)
-       (:textarea :rows 5 :cols 50 :name "comment")
-       (:br)
-       (:input :type "submit" :value "comment")))))
-
 (defun detail (num)
   (let* ((q (format nil "select detail from problems where num='~a'" num))
          (ret (dbi:fetch (query q))))
     (unless (null ret)
       (getf ret :|detail|))))
+
+(define-easy-handler (comment :uri "/comment") (id)
+  (let ((ret (dbi:fetch
+             (query (format nil "select num, answer from answers where id='~a'" id)))))
+    (page
+      (:h2 "Comment")
+      (:p (str (detail (getf ret :|num|))))
+      (:pre (str (escape (getf ret :|answer|))))
+      (:form :methopd "post" :action "/add-comment"
+             (:input :type "hidden" :name "id" :value id)
+             (:textarea :rows 5 :cols 50 :name "comment" :placeholder "warm comment please.")
+             (:p (:input :type "submit" :value "comment")
+                 " (your comment is displayed with your myid)")))))
 
 (defun r99-answer (myid num)
   (let* ((q

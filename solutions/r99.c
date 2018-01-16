@@ -129,7 +129,7 @@ int divide(int x, int y) {
 void divisors_p(int n) {
   int i;
 
-  for (i=1; i<n; i++) {
+  for (i=1; i<=n; i++) {
     if (divide(n,i)) {
       printf("%i ",i);
     }
@@ -142,7 +142,7 @@ int sum_of_divisors(int n) {
   int i;
   int sum = 0;
 
-  for (i=1; i<n; i++) {
+  for (i=1; i<=n; i++) {
     if (divide(n,i)) {
       sum += i;
     }
@@ -151,7 +151,7 @@ int sum_of_divisors(int n) {
 }
 
 int is_perfect(int n) {
-  return n == sum_of_divisors(n);
+  return n == sum_of_divisors(n)-n;
 }
 
 int is_prime(int n) {
@@ -723,11 +723,9 @@ void str_copy(char s1[], char s2[]) {
 }
 
 void str_append(char s1[], char s2[]) {
-  int i,j;
+  int i = str_len(s1);
+  int j;
 
-  for (i=0; s1[i]!='\0'; i++) {
-    ;
-  }
   for (j=0; s2[j]!='\0'; j++) {
     s1[i] = s2[j];
     i++;
@@ -885,9 +883,14 @@ int is_sorted(int b[], int n) {
     return 1;
 }
 int main(void) {
-  int p = 2147483647;
-  printf("%i, %i\n",is_prime(p),is_prime(p-1));
-  printf("%li\n",sum_of_primes());
+  /* int p = 2147483647; */
+  /* printf("%i, %i\n",is_prime(p),is_prime(p-1)); */
+  /* printf("%li\n",sum_of_primes()); */
+  char s1[20]="abcdef";
+  char s2[]="12345";
+  printf("%s %s\n",s1,s2);
+  str_append(s1,s2);
+  printf("%s %s\n",s1,s2);
     /* int a[100]; */
     /* int b[100]; */
 
