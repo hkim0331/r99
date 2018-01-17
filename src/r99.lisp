@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.8.9")
+(defvar *version* "0.8.10")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -236,9 +236,8 @@ order by update_at desc limit 1" myid))
             nil
             "select myid, num, answer from answers where id='~a'" id)))))
     (page
-     (:h2 (format t "Comment to answer ~a from ~a,"
-                  (getf ret :|num|)
-                  (getf ret :|myid|)))
+     (:h2 (format t "Comment to ~a's answer ~a"
+                  (getf ret :|myid|) (getf ret :|num|)))
       (:p (str (detail (getf ret :|num|))))
       (:pre (str (escape (getf ret :|answer|))))
       (:form :methopd "post" :action "/add-comment"
