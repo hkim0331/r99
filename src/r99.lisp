@@ -229,10 +229,16 @@ order by update_at desc limit 1" myid))
       (getf ret :|detail|))))
 
 (define-easy-handler (comment :uri "/comment") (id)
-  (let ((ret (dbi:fetch
-             (query (format nil "select num, answer from answers where id='~a'" id)))))
+  (let ((ret
+         (dbi:fetch
+          (query
+           (format
+            nil
+            "select myid, num, answer from answers where id='~a'" id)))))
     (page
-      (:h2 "Comment")
+     (:h2 (format t "Comment to answer ~a from ~a,"
+                  (getf ret :|num|)
+                  (getf ret :|myid|)))
       (:p (str (detail (getf ret :|num|))))
       (:pre (str (escape (getf ret :|answer|))))
       (:form :methopd "post" :action "/add-comment"
@@ -503,6 +509,7 @@ at ~a,
                " (最終ランナーは " (str (- last-runner 1)) "位と表示されます)"))
           (:hr)
           (:h3 "自分回答をダウンロード")
+          (:p "全回答を問題番号順にコメントも一緒にダウンロードします。")
           (:p (:a :href "/download" "ダウンロード"))
           (:hr)
           (:h3 "パスワード変更")
