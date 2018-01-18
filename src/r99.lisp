@@ -447,9 +447,10 @@ at ~a,
 
 (defun ranking (id)
   (let* ((q "select distinct myid, count(myid) from answers
+ where not (myid='8000') and not (myid='8001')
  group by myid order by count(myid) desc")
          (ret (query q))
-         (n -1))
+         (n 1))
     (loop for row = (dbi:fetch ret)
        while (and row (not (= (parse-integer id) (getf row :|myid|))))
        do
