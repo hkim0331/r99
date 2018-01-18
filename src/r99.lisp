@@ -446,7 +446,7 @@ at ~a,
       (redirect "/login")))
 
 (defun ranking (id)
-  (if (<= 8000 id)
+  (if (<= 8000 (parse-integer id))
       0
       (let* ((q "select distinct myid, count(myid) from answers
  where not (myid='8000') and not (myid='8001')
