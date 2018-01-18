@@ -446,16 +446,18 @@ at ~a,
       (redirect "/login")))
 
 (defun ranking (id)
-  (let* ((q "select distinct myid, count(myid) from answers
+  (if (<= 8000 id)
+      0
+      (let* ((q "select distinct myid, count(myid) from answers
  where not (myid='8000') and not (myid='8001')
  group by myid order by count(myid) desc")
-         (ret (query q))
-         (n 1))
-    (loop for row = (dbi:fetch ret)
-       while (and row (not (= (parse-integer id) (getf row :|myid|))))
-       do
-         (incf n))
-    n))
+             (ret (query q))
+             (n 1))
+        (loop for row = (dbi:fetch ret)
+           while (and row (not (= (parse-integer id) (getf row :|myid|))))
+           do
+             (incf n))
+        n)))
 
 (define-easy-handler (status :uri "/status") ()
   (if (myid)
