@@ -153,7 +153,7 @@ order by update_at desc limit 1" myid))
              (query "select myid, num, update_at::text from answers
  order by update_at desc limit 1")))
            (results
-            (query "select users.myid, users.midterm, count(answer)
+            (query "select users.myid, users.midterm, count(distinct answer)
  from users
  inner join answers
  on users.myid=answers.myid
