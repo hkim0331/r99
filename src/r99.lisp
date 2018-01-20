@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.8.8")
+(defvar *version* "0.8.10")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -64,9 +64,10 @@
 ;; bugfix: 0.8.8
 (defun escape-apos (answer)
   (regex-replace-all
-   "\""
-   (regex-replace-all "'" answer "&apos;")
-   "&quot;"))
+   "\\?"
+   (regex-replace-all
+    "\""
+    (regex-replace-all "'" answer "&apos;") "&quot;") "？"))
 
 (defun check (answer)
   (let* ((cl-fad:*default-template* "temp%.c")
@@ -209,36 +210,41 @@ order by update_at desc limit 1" myid))
 (define-easy-handler (add-comment :uri "/add-comment") (id comment)
   (let* ((a (dbi:fetch
              (query (format nil "select num, answer from answers where id='~a'" id))))
-         (answer1 (getf a :|answer|))
-         (answer2 (format nil "~a~%/* ~a,~%~a~%*/" answer1 (myid)
-                          (escape-apos comment))))
-    (query (format
-            nil
-            "update answers set answer='~a' where id='~a'"
-            answer2
-            id))
+         (answer (getf a :|answer|))
+         (update-answer (format nil "~a~%/* comment from ~a,~%~a~%*/"
+                          answer (myid) (escape-apos comment)))
+         (q (format
+                 nil
+                 "update answers set answer='~a' where id='~a'"
+                 update-answer
+                 id)))
+    ;;FIXME: dbi:fetch is correct?
+    (dbi:fetch (query q))
     (redirect (format nil "/answer?num=~a" (getf a :|num|)))))
-
-(define-easy-handler (comment :uri "/comment") (id)
-  (let ((answer
-         (getf
-            (dbi:fetch
-              (query (format nil "select answer from answers where id='~a'" id)))
-            :|answer|)))
-    (page
-     (:h2 "please your warm comment to:")
-     (:pre (str (escape answer)))
-     (:form :methopd "post" :action "/add-comment"
-       (:input :type "hidden" :name "id" :value id)
-       (:textarea :rows 5 :cols 50 :name "comment")
-       (:br)
-       (:input :type "submit" :value "comment")))))
 
 (defun detail (num)
   (let* ((q (format nil "select detail from problems where num='~a'" num))
          (ret (dbi:fetch (query q))))
     (unless (null ret)
       (getf ret :|detail|))))
+
+(define-easy-handler (comment :uri "/comment") (id)
+  (let ((ret
+         (dbi:fetch
+          (query
+           (format
+            nil
+            "select myid, num, answer from answers where id='~a'" id)))))
+    (page
+     (:h2 (format t "Comment to ~a's answer ~a"
+                  (getf ret :|myid|) (getf ret :|num|)))
+      (:p (str (detail (getf ret :|num|))))
+      (:pre (str (escape (getf ret :|answer|))))
+      (:form :methopd "post" :action "/add-comment"
+             (:input :type "hidden" :name "id" :value id)
+             (:textarea :rows 5 :cols 50 :name "comment" :placeholder "warm comment please.")
+             (:p (:input :type "submit" :value "comment")
+                 " (your comment is displayed with your myid)")))))
 
 (defun r99-answer (myid num)
   (let* ((q
@@ -440,15 +446,18 @@ at ~a,
       (redirect "/login")))
 
 (defun ranking (id)
-  (let* ((q "select distinct myid, count(myid) from answers
+  (if (<= 8000 (parse-integer id))
+      0
+      (let* ((q "select distinct myid, count(myid) from answers
+ where not (myid='8000') and not (myid='8001')
  group by myid order by count(myid) desc")
-         (ret (query q))
-         (n -1))
-    (loop for row = (dbi:fetch ret)
-       while (and row (not (= (parse-integer id) (getf row :|myid|))))
-       do
-         (incf n))
-    n))
+             (ret (query q))
+             (n 1))
+        (loop for row = (dbi:fetch ret)
+           while (and row (not (= (parse-integer id) (getf row :|myid|))))
+           do
+             (incf n))
+        n)))
 
 (define-easy-handler (status :uri "/status") ()
   (if (myid)
@@ -502,6 +511,7 @@ at ~a,
                " (最終ランナーは " (str (- last-runner 1)) "位と表示されます)"))
           (:hr)
           (:h3 "自分回答をダウンロード")
+          (:p "全回答を問題番号順にコメントも一緒にダウンロードします。")
           (:p (:a :href "/download" "ダウンロード"))
           (:hr)
           (:h3 "パスワード変更")
