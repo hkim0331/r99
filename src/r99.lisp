@@ -195,16 +195,22 @@ order by update_at desc limit 1" myid))
   (redirect "/problems"))
 
 (define-easy-handler (problems :uri "/problems") ()
-  (let ((results (query "select num, detail from problems order by num")))
+  (let ((results (query "select num, detail from problems order by
+  num"))
+        (rt2 (query "select answers.num, count(*), problems.detail from answers
+inner join problems on answers.num=problems.num
+group by answers.num, problems.detail
+order by answers.num")))
     (page
       (:h2 "problems")
-      (:p "番号をクリックして回答提出。ビルドできない回答は受け取らないよ。")
-      (loop for row = (dbi:fetch results)
+      (:p "番号をクリックして回答提出。ビルドできない回答は受け取らないよ。(回答数)")
+      (loop for row = (dbi:fetch rt2)
          while row
          do (format t
-                    "<p><a href='/answer?num=~a'>~a</a>, ~a</p>~%"
+                    "<p><a href='/answer?num=~a'>~a</a> (~a) ~a</p>~%"
                     (getf row :|num|)
                     (getf row :|num|)
+                    (getf row :|count|)
                     (getf row :|detail|))))))
 
 (define-easy-handler (add-comment :uri "/add-comment") (id comment)
