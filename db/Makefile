@@ -16,13 +16,20 @@ seed:
 	ruby seed.rb
 
 backup:
-	pg_dump r99 > backup.sql
+	pg_dump -h dbs.melt.kyutech.ac.jp -U ${USER} -W ${DB} > backups/`date +%F`.sql
 
 # before restore, must drop database r99.
 # if dropped, vanish grant.
-# is this right?
+# is this right? -- no.
+# WARNING:  no privileges could be revoked for "public"
+# REVOKE
+# ERROR:  role "postgres" does not exist
+# ERROR:  role "postgres" does not exist
+# WARNING:  no privileges were granted for "public"
+# GRANT
+
 restore:
 	${PSQL} < drop-tables.postgres
-	${PSQL} < backups/2018-01-07.sql
+	${PSQL} < backups/2018-01-26.sql
 
 
