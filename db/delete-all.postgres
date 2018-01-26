@@ -1,0 +1,4 @@
+delete from answers;
+delete from users;
+delete from problems;
+

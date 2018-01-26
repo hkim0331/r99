@@ -142,9 +142,14 @@ order by update_at desc limit 1" myid))
          (num (getf ret :|num|)))
     (redirect (format nil "/answer?num=~a" num))))
 
+;;
+;; answers
+;;
+(define-easy-handler (users-alias :uri "/answers") ()
+  (redirect "/users"))
 (define-easy-handler (users :uri "/users") ()
   (page
-    (:h2 "誰が何問解いた？")
+    (:h2 "誰が何問?")
     (let* ((n 0)
            (all (getf
                  (dbi:fetch (query "select count(*) from answers"))
@@ -172,7 +177,8 @@ order by update_at desc limit 1" myid))
                        (getf recent :|update_at|)))
            (:p (format
                 t
-                "<span class='yes'>赤</span>は過去 48 時間以内にアップデートがあった受講生を示す。"))
+                "<span class='yes'>赤</span>
+は過去 48 時間以内にアップデートがあった受講生。全回答数 ~a。" all))
            (:hr))
       (loop for row = (dbi:fetch results)
             while row
@@ -188,12 +194,13 @@ order by update_at desc limit 1" myid))
                          myid
                          (getf row :|count|)))
                (incf n))
-      (htm (:p "受講生 242(+2) 人、一題以上回答者 " (str n) " 人、
-回答数 " (str all) "")))))
+      (htm (:p "受講生 242(+2) 人、一題以上回答者 " (str n) " 人。")))))
 
+;;
+;; /problems
+;;
 (define-easy-handler (index-alias :uri "/") ()
   (redirect "/problems"))
-
 (define-easy-handler (problems :uri "/problems") ()
   (let ((results (query "select num, detail from problems order by
   num"))
@@ -213,17 +220,20 @@ order by answers.num")))
                     (getf row :|count|)
                     (getf row :|detail|))))))
 
+;;
+;; add-comment
+;;
 (define-easy-handler (add-comment :uri "/add-comment") (id comment)
   (let* ((a (dbi:fetch
              (query (format nil "select num, answer from answers where id='~a'" id))))
          (answer (getf a :|answer|))
          (update-answer (format nil "~a~%/* comment from ~a,~%~a~%*/"
-                          answer (myid) (escape-apos comment)))
+                                answer (myid) (escape-apos comment)))
          (q (format
-                 nil
-                 "update answers set answer='~a' where id='~a'"
-                 update-answer
-                 id)))
+             nil
+             "update answers set answer='~a' where id='~a'"
+             update-answer
+             id)))
     ;;FIXME: dbi:fetch is correct?
     (dbi:fetch (query q))
     (redirect (format nil "/answer?num=~a" (getf a :|num|)))))
@@ -234,6 +244,9 @@ order by answers.num")))
     (unless (null ret)
       (getf ret :|detail|))))
 
+;;
+;; comment
+;;
 (define-easy-handler (comment :uri "/comment") (id)
   (let ((ret
          (dbi:fetch
@@ -242,8 +255,8 @@ order by answers.num")))
             nil
             "select myid, num, answer from answers where id='~a'" id)))))
     (page
-     (:h2 (format t "Comment to ~a's answer ~a"
-                  (getf ret :|myid|) (getf ret :|num|)))
+      (:h2 (format t "Comment to ~a's answer ~a"
+                   (getf ret :|myid|) (getf ret :|num|)))
       (:p (str (detail (getf ret :|num|))))
       (:pre (str (escape (getf ret :|answer|))))
       (:form :methopd "post" :action "/add-comment"
@@ -353,7 +366,8 @@ at ~a,
            (:li "hkimura の間違い見つけられたら加点だ。"))
       (:form :method "post" :action "/submit"
              (:input :type "hidden" :name "num" :value num)
-             (:textarea :name "answer" :cols 60 :rows 10)
+             (:textarea :name "answer" :cols 60 :rows 10
+                        :placeholder "correct indentation したか？")
              (:br)
              (:input :type "submit")))))
 
