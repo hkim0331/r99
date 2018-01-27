@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.8.14")
+(defvar *version* "0.8.15")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -204,16 +204,14 @@ order by update_at desc limit 1" myid))
 (define-easy-handler (index-alias :uri "/") ()
   (redirect "/problems"))
 (define-easy-handler (problems :uri "/problems") ()
-  (let ((results (query "select num, detail from problems order by
-  num"))
-        (rt2 (query "select answers.num, count(*), problems.detail from answers
+  (let ((results (query "select answers.num, count(*), problems.detail from answers
 inner join problems on answers.num=problems.num
 group by answers.num, problems.detail
 order by answers.num")))
     (page
       (:h2 "problems")
       (:p "番号をクリックして回答提出。ビルドできない回答は受け取らないよ。(回答数)")
-      (loop for row = (dbi:fetch rt2)
+      (loop for row = (dbi:fetch results)
          while row
          do (format t
                     "<p><a href='/answer?num=~a'>~a</a> (~a) ~a</p>~%"
@@ -427,14 +425,19 @@ at ~a,
               (:h1 "received your answer to " (str num))
               (when (zerop (mod count 50))
                 (htm (:p (:img :src "happy.png"))
-                     (:p "通算 " (str count) " 番目の回答です。")))
+                     (:p "おめでとう。通算 " (str count) " 番目の回答です。")))
               (:p "さらに R99 にはげみましょう。")
               (:ul
                (:li (:a :href "/status" "自分の回答状況")
                     "のチェックのほか、")
-               (:li (:a :href (format nil  "/answer?num=~d" num)
+               (:li (:a :href (format nil  "/answer?num=~a" num)
                         "他ユーザの回答を見る")
-                    "ことも勉強になるはず。"))))
+                    "ことも勉強になるぞ。")
+               (:li "それとも直接 "
+                    (:a :href (format nil "/answer?num=~a"
+                                      (+ 1 (parse-integer num)))
+                        "次の問題の回答ページ")
+                    "、行く？"))))
           (page
             (:h3 "error")
             (:p "ビルドできません。プログラムにエラーがあるようです。")))
