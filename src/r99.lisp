@@ -423,22 +423,30 @@ at ~a,
           (let* ((ret (insert (myid) num answer))
                  (count (count-answers)))
             (page
-              (:h1 "received your answer to " (str num))
-              (when (zerop (mod count 50))
+             (:h1 "received your answer to " (str num))
+             (cond
+               ((zerop (mod count 500))
+                (htm (:p (:img :src "happiest.png"))
+                     (:p "おめでとう!!! 通算 " (str count) " 番目の回答です。")))
+               ((zerop (mod count 100))
+                (htm (:p (:img :src "happier.png"))
+                     (:p "おめでとう!! 通算 " (str count) " 番目の回答です。")))
+               ((zerop (mod count 10))
                 (htm (:p (:img :src "happy.png"))
-                     (:p "おめでとう。通算 " (str count) " 番目の回答です。")))
-              (:p "さらに R99 にはげみましょう。")
-              (:ul
-               (:li (:a :href "/status" "自分の回答状況")
-                    "のチェックのほか、")
-               (:li (:a :href (format nil  "/answer?num=~a" num)
-                        "他ユーザの回答を見る")
-                    "ことも勉強になるぞ。")
-               (:li "それとも直接 "
-                    (:a :href (format nil "/answer?num=~a"
-                                      (+ 1 (parse-integer num)))
-                        "次の問題の回答ページ")
-                    "、行く？"))))
+                     (:p "おめでとう! 通算 " (str count) " 番目の回答です。")))
+               (t (htm (:p "received."))))
+             (:p "さらに R99 にはげみましょう。")
+             (:ul
+              (:li (:a :href "/status" "自分の回答状況")
+                   "のチェックのほか、")
+              (:li (:a :href (format nil  "/answer?num=~a" num)
+                       "他ユーザの回答を見る")
+                   "ことも勉強になるぞ。")
+              (:li "それとも直接 "
+                   (:a :href (format nil "/answer?num=~a"
+                                     (+ 1 (parse-integer num)))
+                       "次の問題の回答ページ")
+                   "、行く？"))))
           (page
             (:h3 "error")
             (:p "ビルドできません。プログラムにエラーがあるようです。")))
@@ -590,9 +598,13 @@ at ~a,
   (push (create-static-file-dispatcher-and-handler
          "/fight.png" "static/fight.png") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
-           "/sakura.png" "static/sakura.png") *dispatch-table*)
+         "/sakura.png" "static/sakura.png") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
-         "/happy.png" "static/happy.png") *dispatch-table*))
+         "/happy.png" "static/happy.png") *dispatch-table*)
+  (push (create-static-file-dispatcher-and-handler
+         "/happier.png" "static/happier.png") *dispatch-table*)
+  (push (create-static-file-dispatcher-and-handler
+         "/happiest.png" "static/happiest.png") *dispatch-table*))
 
 (defun start-server (&optional (port *http-port*))
   (publish-static-content)
