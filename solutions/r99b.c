@@ -139,9 +139,6 @@ int next_prime(int n) {
   for (; ! is_prime(n); n+=2) {
     ;
   }
-  for (; ! is_prime(n); n+=2) {
-    ;
-  }
   return n;
 }
 
