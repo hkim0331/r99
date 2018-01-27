@@ -369,7 +369,8 @@ at ~a,
              (:input :type "hidden" :name "num" :value num)
              (:textarea :name "answer" :cols 60 :rows 10
                         :placeholder "correct indentation した？
-ケータイで回答もらって貼り付けは期末テストで確実に負けるから。")
+ケータイで回答もらって平常点インチキしても期末テストで確実に負けるから。
+マジ勉した方がいい。")
              (:br)
              (:input :type "submit")))))
 
