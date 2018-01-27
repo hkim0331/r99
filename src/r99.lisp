@@ -142,6 +142,11 @@ order by update_at desc limit 1" myid))
          (num (getf ret :|num|)))
     (redirect (format nil "/answer?num=~a" num))))
 
+
+(defun count-answers ()
+  (getf
+   (dbi:fetch (query "select count(*) from answers"))
+   :|count|))
 ;;
 ;; answers
 ;;
@@ -151,9 +156,6 @@ order by update_at desc limit 1" myid))
   (page
     (:h2 "誰が何問?")
     (let* ((n 0)
-           (all (getf
-                 (dbi:fetch (query "select count(*) from answers"))
-                 :|count|))
            (recent
             (dbi:fetch
              (query "select myid, num, update_at::text from answers
@@ -178,7 +180,7 @@ order by update_at desc limit 1" myid))
            (:p (format
                 t
                 "<span class='yes'>赤</span>
-は過去 48 時間以内にアップデートがあった受講生。全回答数 ~a。" all))
+は過去 48 時間以内にアップデートがあった受講生。全回答数 ~a。"  (count-answers)))
            (:hr))
       (loop for row = (dbi:fetch results)
             while row
@@ -350,7 +352,9 @@ at ~a,
               num
               (escape-apos answer))))
     (query sql)
-    (redirect "/users")))
+    ;;bug
+    ;;(redirect "/users")
+    ))
 
 (defun submit-answer (num)
   (let* ((q (format nil "select num, detail from problems where num='~a'" num))
@@ -367,7 +371,7 @@ at ~a,
              (:input :type "hidden" :name "num" :value num)
              (:textarea :name "answer" :cols 60 :rows 10
                         :placeholder "correct indentation した？
-ケータイで送ってもらった回答貼り付けてたりだと期末テストは確実に負けるぞ。")
+ケータイで回答もらって貼り付けは期末テストで確実に負けるから。")
              (:br)
              (:input :type "submit")))))
 
@@ -412,17 +416,28 @@ at ~a,
       (update (myid) num answer)
       (page
         (:h3 "error")
-        (:p "ビルドできねーよ。"))))
+        (:p "ビルドできなくなった。バグが混入した？"))))
 
 (define-easy-handler (submit :uri "/submit") (num answer)
   (if (myid)
       (if (check answer)
-          (progn
-            (insert (myid) num answer)
-            (redirect "/status"))
+          (let* ((ret (insert (myid) num answer))
+                 (count (count-answers)))
+            (page
+              (:h1 "received your answer to " (str num))
+              (when (zerop (mod count 50))
+                (htm (:p (:img :src "happy.png"))
+                     (:p "通算 " (str count) " 番目の回答です。")))
+              (:p "さらに R99 にはげみましょう。")
+              (:ul
+               (:li (:a :href "/status" "自分の回答状況")
+                    "のチェックのほか、")
+               (:li (:a :href (format nil  "/answer?num=~d" num)
+                        "他ユーザの回答を見る")
+                    "ことも勉強になるはず。"))))
           (page
-           (:h3 "error")
-           (:p "ビルドできません")))
+            (:h3 "error")
+            (:p "ビルドできません。プログラムにエラーがあるようです。")))
       (redirect "/login")))
 
 (define-easy-handler (answer :uri "/answer") (num)
@@ -571,7 +586,9 @@ at ~a,
   (push (create-static-file-dispatcher-and-handler
          "/fight.png" "static/fight.png") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
-         "/sakura.png" "static/sakura.png") *dispatch-table*))
+           "/sakura.png" "static/sakura.png") *dispatch-table*)
+  (push (create-static-file-dispatcher-and-handler
+         "/happy.png" "static/happy.png") *dispatch-table*))
 
 (defun start-server (&optional (port *http-port*))
   (publish-static-content)
