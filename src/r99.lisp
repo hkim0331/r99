@@ -48,6 +48,10 @@
 (defun myid ()
   (cookie-in *myid*))
 
+;; trim datetme
+(defun short (datetime)
+  (subseq datetime 0 19))
+
 (defun answered? (num)
   (let ((sql (format
               nil
@@ -147,6 +151,8 @@ order by update_at desc limit 1" myid))
   (getf
    (dbi:fetch (query "select count(*) from answers"))
    :|count|))
+
+
 ;;
 ;; answers
 ;;
@@ -176,7 +182,7 @@ order by update_at desc limit 1" myid))
                        (getf recent :|myid|)
                        (getf recent :|num|)
                        (getf recent :|num|)
-                       (getf recent :|update_at|)))
+                       (short (getf recent :|update_at|))))
            (:p (format
                 t
                 "<span class='yes'>赤</span>
@@ -309,7 +315,7 @@ order by answers.num")))
 at ~a,
 <a href='/comment?id=~a'> comment</a><pre class='answer'><code>~a</code></pre><hr>"
              (getf row :|myid|)
-             (getf row :|update_at|)
+             (short (getf row :|update_at|))
              (getf row :|id|)
              (escape (getf row :|answer|))))
       (format
