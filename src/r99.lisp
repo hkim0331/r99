@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.8.16")
+(defvar *version* "0.8.17")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -13,7 +13,7 @@
         #+clisp (ext:getenv name)
         #+cmu (unix:unix-getenv name) ; since CMUCL 20b
         #+ecl (si:getenv name)
-        #+gcl (si:getenv name)
+        #+gcl (si:getenv ame)
         #+mkcl (mkcl:getenv name)
         #+sbcl (sb-ext:posix-getenv name)
         default)))
@@ -35,8 +35,8 @@
             :database-name *db*)
     (dbi:execute (dbi:prepare conn sql))))
 
-(defvar *problems* (dbi:fetch-all
-                    (query "select num, detail from problems")))
+;; (defvar *problems* (dbi:fetch-all
+;;                     (query "select num, detail from problems")))
 
 (defun password (myid)
   (let ((sql (format
@@ -210,7 +210,9 @@ order by update_at desc limit 1" myid))
 (define-easy-handler (index-alias :uri "/") ()
   (redirect "/problems"))
 (define-easy-handler (problems :uri "/problems") ()
-  (let ((results (query "select answers.num, count(*), problems.detail from answers
+  (let ((results
+         (query
+          "select answers.num, count(*), problems.detail from answers
 inner join problems on answers.num=problems.num
 group by answers.num, problems.detail
 order by answers.num")))
@@ -355,10 +357,7 @@ at ~a,
               myid
               num
               (escape-apos answer))))
-    (query sql)
-    ;;bug
-    ;;(redirect "/users")
-    ))
+    (query sql)))
 
 (defun submit-answer (num)
   (let* ((q (format nil "select num, detail from problems where num='~a'" num))
@@ -374,7 +373,8 @@ at ~a,
       (:form :method "post" :action "/submit"
              (:input :type "hidden" :name "num" :value num)
              (:textarea :name "answer" :cols 60 :rows 10
-                        :placeholder "correct indentation した？
+                        :placeholder "動作確認、
+correct indentation して、送信するのがルール。
 ケータイで回答もらって平常点インチキしても期末テストで確実に負けるから。
 マジ勉した方がいい。")
              (:br)

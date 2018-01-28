@@ -30,6 +30,6 @@ backup:
 
 restore:
 	${PSQL} < drop-tables.postgres
-	${PSQL} < backups/2018-01-26.sql
+	${PSQL} < backups/2018-01-28.sql
 
 
