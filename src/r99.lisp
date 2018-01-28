@@ -601,7 +601,7 @@ correct indentation して、送信するのがルール。
       (:h2 "Activity")
       (:p (str (myid)) " さんの R99 アクティビティは以下の通り"
           (:br)
-          "毎日ちょっとずつが実力のもと。一度にたくさんはありえるか？")
+          "毎日ちょっとずつが実力のもと。一度にたくさんはどうかな？")
       (:hr)
       (loop for row = (dbi:fetch res)
          while row
