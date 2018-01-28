@@ -55,10 +55,22 @@ nginx のリバースプロキシ等でつないでやる。
 
 ## BUG
 
-* int a[] は見にくい。int a[ ] にしてあげよう。ruby でやるか、lisp で
-  やるか。2018-01-28
 * db/insert-problem.rb しても、回答をつけない問題は /problems に表示さ
   れない。まっとうでもあるが。2018-01-28
+
+* nginx.melt の postgres インタフェースが古いか？
+
+```sh
+hkim@nginx:~/r99/db$ ./fix-brackets.rb
+The PGconn, PGresult, and PGError constants are deprecated, and will be
+removed as of version 1.0.
+
+You should use PG::Connection, PG::Result, and PG::Error instead, respectively.
+
+Called from
+/var/lib/gems/2.3.0/gems/sequel-4.45.0/lib/sequel/adapters/postgres.rb:9:in
+`<top (required)>'
+```
 
 ## author
 
