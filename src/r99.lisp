@@ -541,7 +541,9 @@ correct indentation して、送信するのがルール。
                         :class (if (find n sv) "found" "not-found")
                         (str n))))
           (cond
-            ((<= 99 sc)
+            ((< 99 sc)
+             (htm (:p (:img :src "goku.png") " 期末テストは 100 点以上取れよ！")))
+            ((= 99 sc)
              (htm (:p (:img :src "sakura.png") " 完走おめでとう！100番以降もやってみよう。")))
             ((< 80 sc)
              (htm (:p (:img :src "kame.png") " ゴールはもうちょっと。")))
@@ -599,9 +601,9 @@ correct indentation して、送信するのがルール。
  order by date(update_at) desc" (myid)))))
     (page
       (:h2 "Activity")
-      (:p (str (myid)) " さんの R99 アクティビティは以下の通り"
+      (:p "毎日ちょっとずつが実力のもと。一度にたくさんはどうかな？"
           (:br)
-          "毎日ちょっとずつが実力のもと。一度にたくさんはどうかな？")
+          (str (myid)) " さんの R99 アクティビティは以下の通り")
       (:hr)
       (loop for row = (dbi:fetch res)
          while row
@@ -641,7 +643,9 @@ correct indentation して、送信するのがルール。
   (push (create-static-file-dispatcher-and-handler
          "/happier.png" "static/happier.png") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
-         "/happiest.png" "static/happiest.png") *dispatch-table*))
+           "/happiest.png" "static/happiest.png") *dispatch-table*)
+  (push (create-static-file-dispatcher-and-handler
+         "/goku.png" "static/goku.png") *dispatch-table*))
 
 (defun start-server (&optional (port *http-port*))
   (publish-static-content)
