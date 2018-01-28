@@ -49,7 +49,6 @@
 (defun short (datetime)
   (subseq datetime 0 19))
 
-;;FIXME,(-9 NIL 4 2017 12 22 9 0 0)
 (defun yyyy-mm-dd (iso)
   (let ((ans (multiple-value-list (decode-universal-time iso))))
     (format nil "~4,0d-~2,'0d-~2,'0d" (nth 5 ans) (nth 4 ans) (nth 3 ans))))
@@ -597,12 +596,13 @@ correct indentation して、送信するのがルール。
            "select date(update_at), count(date(update_at))
  from answers where myid='~a'
  group by date(update_at)
- order by date(update_at)" (myid)))))
+ order by date(update_at) desc" (myid)))))
     (page
       (:h2 "Activity")
-      (:p (str (myid)) " さんのアクティビティは以下の通り"
+      (:p (str (myid)) " さんの R99 アクティビティは以下の通り"
           (:br)
           "毎日ちょっとずつが実力のもと。一度にたくさんはありえるか？")
+      (:hr)
       (loop for row = (dbi:fetch res)
          while row
          do
