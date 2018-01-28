@@ -35,9 +35,6 @@
             :database-name *db*)
     (dbi:execute (dbi:prepare conn sql))))
 
-;; (defvar *problems* (dbi:fetch-all
-;;                     (query "select num, detail from problems")))
-
 (defun password (myid)
   (let ((sql (format
               nil
@@ -51,6 +48,11 @@
 ;; trim datetme
 (defun short (datetime)
   (subseq datetime 0 19))
+
+;;FIXME,(-9 NIL 4 2017 12 22 9 0 0)
+(defun yyyy-mm-dd (iso)
+  (let ((ans (multiple-value-list (decode-universal-time iso))))
+    (format nil "~4,0d-~2,'0d-~2,'0d" (nth 5 ans) (nth 4 ans) (nth 3 ans))))
 
 (defun answered? (num)
   (let ((sql (format
@@ -151,7 +153,6 @@ order by update_at desc limit 1" myid))
   (getf
    (dbi:fetch (query "select count(*) from answers"))
    :|count|))
-
 
 ;;
 ;; answers
@@ -535,7 +536,8 @@ correct indentation して、送信するのがルール。
         (page
           (:h3 "回答状況")
           (:p "クリックして問題・回答にジャンプ。")
-          (loop for n from 1 to num-max do
+          (loop for n from 1 to num-max
+             do
                (htm (:a :href (format nil "/answer?num=~a" n)
                         :class (if (find n sv) "found" "not-found")
                         (str n))))
@@ -554,6 +556,9 @@ correct indentation して、送信するのがルール。
              (htm (:p (:img :src "fuji.png") " 一歩ずつやる。")))
             (t
              (htm (:p (:img :src "fight.png") " がんばらねーと。"))))
+          (:hr)
+          (:h3 "アクティビティ")
+          (:p (:a :href "/activity" "その日に何問、解いたか？"))
 
           (:hr)
           (:h3 "ランキング")
@@ -581,6 +586,31 @@ correct indentation して、送信するのがルール。
                  (:input :type "submit" :value "change"))))
       (redirect "/login")))
 
+;;
+;; activity
+;;
+(define-easy-handler (activity :uri "/activity") ()
+  (let ((res
+         (query
+          (format
+           nil
+           "select date(update_at), count(date(update_at))
+ from answers where myid='~a'
+ group by date(update_at)
+ order by date(update_at)" (myid)))))
+    (page
+      (:h2 "Activity")
+      (:p (str (myid)) " さんのアクティビティは以下の通り"
+          (:br)
+          "毎日ちょっとずつが実力のもと。一度にたくさんはありえるか？")
+      (loop for row = (dbi:fetch res)
+         while row
+         do
+           (format t "<p>~a ~a</p>"
+                   (yyyy-mm-dd  (getf row :|date|))
+                   (stars (getf row :|count|))))
+      (:p (:a :href "/status" "status") "に戻る"))))
+
 (setf (html-mode) :html5)
 
 (defun publish-static-content ()
@@ -593,6 +623,7 @@ correct indentation して、送信するのがルール。
   ;; loop or macro?
   (push (create-static-file-dispatcher-and-handler
          "/fuji.png" "static/fuji.png") *dispatch-table*)
+
   (push (create-static-file-dispatcher-and-handler
          "/panda.png" "static/panda.png") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
