@@ -51,7 +51,9 @@
 
 (defun yyyy-mm-dd (iso)
   (let ((ans (multiple-value-list (decode-universal-time iso))))
-    (format nil "~4,0d-~2,'0d-~2,'0d" (nth 5 ans) (nth 4 ans) (nth 3 ans))))
+    (format
+     nil
+     "~4,'0d-~2,'0d-~2,'0d" (nth 5 ans) (nth 4 ans) (nth 3 ans))))
 
 (defun answered? (num)
   (let ((sql (format
