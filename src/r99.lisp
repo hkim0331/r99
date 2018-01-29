@@ -457,15 +457,15 @@ order by answers.num")))
 (define-easy-handler (submit :uri "/submit") (num answer)
   (if (myid)
       (if (check answer)
-          (let* ((ret (insert (myid) num answer))
+          (let* ((dummy (insert (myid) num answer))
                  (count (count-answers)))
             (page
              (:h1 "received your answer to " (str num))
              (cond
-               ((zerop (mod count 500))
+               ((zerop (mod count 100))
                 (htm (:p (:img :src "happiest.png"))
                      (:p "おめでとう!!! 通算 " (str count) " 番目の回答です。")))
-               ((zerop (mod count 100))
+               ((zerop (mod count 50))
                 (htm (:p (:img :src "happier.png"))
                      (:p "おめでとう!! 通算 " (str count) " 番目の回答です。")))
                ((zerop (mod count 10))
@@ -476,12 +476,15 @@ order by answers.num")))
              (:ul
               (:li (:a :href "/status" "自分の回答状況")
                    "のチェックのほか、")
-              (:li (:a :href (format nil  "/answer?num=~a" num)
+              (:li (:a :href (format
+                              nil
+                              "/answer?num=~a" num)
                        "他ユーザの回答を見る")
                    "ことも勉強になるぞ。")
               (:li "それとも直接 "
-                   (:a :href (format nil "/answer?num=~a"
-                                     (+ 1 (parse-integer num)))
+                   (:a :href (format
+                              nil "/answer?num=~a"
+                              (+ 1 (parse-integer num)))
                        "次の問題の回答ページ")
                    "、行く？"))))
           (page
