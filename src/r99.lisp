@@ -205,8 +205,7 @@
                       (working (if (find myid working-users) "yes" "no")))
                  (format
                   t
-                  "<pre><span class=~a>~A</span>
- (~2d) ~A<a href='/last?myid=~d'>~d</a></pre>"
+                  "<pre><span class=~a>~A</span> (~2d) ~A<a href='/last?myid=~d'>~d</a></pre>"
                   working
                   myid
                   (getf row :|midterm|)
