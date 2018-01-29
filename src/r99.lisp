@@ -78,18 +78,20 @@
     (regex-replace-all "'" answer "&apos;") "&quot;") "？"))
 
 (defun check (answer)
-  (let* ((cl-fad:*default-template* "temp%.c")
-         (pathname (with-output-to-temporary-file (f)
-                     (write-string "#include <stdio.h>" f)
-                     (write-char #\Return f)
-                     (write-string "#include <stdlib.h>" f)
-                     (write-char #\Return f)
-                     (write-string answer f)))
-         (ret (sb-ext:run-program
-               "/usr/bin/cc"
-               `("-fsyntax-only" ,(namestring pathname)))))
-    (delete-file pathname)
-    (= 0 (sb-ext:process-exit-code ret))))
+  (and
+   (scan "\\S" answer)
+   (let* ((cl-fad:*default-template* "temp%.c")
+          (pathname (with-output-to-temporary-file (f)
+                      (write-string "#include <stdio.h>" f)
+                      (write-char #\Return f)
+                      (write-string "#include <stdlib.h>" f)
+                      (write-char #\Return f)
+                      (write-string answer f)))
+          (ret (sb-ext:run-program
+                "/usr/bin/cc"
+                `("-fsyntax-only" ,(namestring pathname)))))
+     (delete-file pathname)
+     (= 0 (sb-ext:process-exit-code ret)))))
 
 
 (defmacro navi ()
