@@ -169,6 +169,7 @@
 
 (define-easy-handler (users :uri "/users") ()
   (page
+    (:p (:img :src "/guernica.jpg" :width "100%"))
     (:h2 "誰が何問?")
     (let* ((n 0)
            (recent
@@ -230,6 +231,7 @@ inner join problems on answers.num=problems.num
 group by answers.num, problems.detail
 order by answers.num")))
     (page
+      (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
       (:h2 "problems")
       (:p "番号をクリックして回答提出。ビルドできない回答は受け取らないよ。(回答数)")
       (loop for row = (dbi:fetch results)
@@ -685,9 +687,12 @@ order by answers.num")))
   (push (create-static-file-dispatcher-and-handler
          "/happier.png" "static/happier.png") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
-           "/happiest.png" "static/happiest.png") *dispatch-table*)
+         "/happiest.png" "static/happiest.png") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
-         "/goku.png" "static/goku.png") *dispatch-table*))
+         "/goku.png" "static/goku.png") *dispatch-table*)
+  (push (create-static-file-dispatcher-and-handler
+         "/guernica.jpg" "static/guernica.jpg") *dispatch-table*)
+  (push (create-static-file-dispatcher-and-handler "/a-gift-of-the-sea.jpg" "static/a-gift-of-the-sea.jpg") *dispatch-table*))
 
 (defun start-server (&optional (port *http-port*))
   (publish-static-content)
