@@ -17,13 +17,15 @@
         #+mkcl (mkcl:getenv name)
         #+sbcl (sb-ext:posix-getenv name)
         default)))
-
-(defvar *db* "r99")
+;;
 (defvar *host* (or (getenv "R99_HOST") "localhost"))
-(defvar *http-port* 3030)
-(defvar *password* (or (getenv "R99_PASS") "pass1"))
-(defvar *server* nil)
 (defvar *user* (or (getenv "R99_USER") "user1"))
+(defvar *password* (or (getenv "R99_PASS") "pass1"))
+(defvar *db* "r99")
+;;
+(defvar *server* nil)
+(defvar *http-port* 3030)
+;;
 (defvar *myid* "r99");; cookie name
 
 (defun query (sql)
@@ -42,6 +44,7 @@
               myid)))
     (second (dbi:fetch (query sql)))))
 
+;;
 (defun myid ()
   (cookie-in *myid*))
 
@@ -53,7 +56,8 @@
   (let ((ans (multiple-value-list (decode-universal-time iso))))
     (format
      nil
-     "~4,'0d-~2,'0d-~2,'0d" (nth 5 ans) (nth 4 ans) (nth 3 ans))))
+     "~4,'0d-~2,'0d-~2,'0d"
+     (nth 5 ans) (nth 4 ans) (nth 3 ans))))
 
 (defun answered? (num)
   (let ((sql
