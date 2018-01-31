@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.9.0")
+(defvar *version* "0.9.1")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -51,14 +51,17 @@
 
 (defun yyyy-mm-dd (iso)
   (let ((ans (multiple-value-list (decode-universal-time iso))))
-    (format nil "~4,0d-~2,'0d-~2,'0d" (nth 5 ans) (nth 4 ans) (nth 3 ans))))
+    (format
+     nil
+     "~4,'0d-~2,'0d-~2,'0d" (nth 5 ans) (nth 4 ans) (nth 3 ans))))
 
 (defun answered? (num)
-  (let ((sql (format
-              nil
-              "select id from answers where myid='~a' and num='~a'"
-              (myid)
-              num)))
+  (let ((sql
+         (format
+          nil
+          "select id from answers where myid='~a' and num='~a'"
+          (myid)
+          num)))
     (dbi:fetch (query sql))))
 
 (defun escape (string)
@@ -75,18 +78,20 @@
     (regex-replace-all "'" answer "&apos;") "&quot;") "？"))
 
 (defun check (answer)
-  (let* ((cl-fad:*default-template* "temp%.c")
-         (pathname (with-output-to-temporary-file (f)
-                     (write-string "#include <stdio.h>" f)
-                     (write-char #\Return f)
-                     (write-string "#include <stdlib.h>" f)
-                     (write-char #\Return f)
-                     (write-string answer f)))
-         (ret (sb-ext:run-program
-               "/usr/bin/cc"
-               `("-fsyntax-only" ,(namestring pathname)))))
-    (delete-file pathname)
-    (= 0 (sb-ext:process-exit-code ret))))
+  (and
+   (scan "\\S" answer)
+   (let* ((cl-fad:*default-template* "temp%.c")
+          (pathname (with-output-to-temporary-file (f)
+                      (write-string "#include <stdio.h>" f)
+                      (write-char #\Return f)
+                      (write-string "#include <stdlib.h>" f)
+                      (write-char #\Return f)
+                      (write-string answer f)))
+          (ret (sb-ext:run-program
+                "/usr/bin/cc"
+                `("-fsyntax-only" ,(namestring pathname)))))
+     (delete-file pathname)
+     (= 0 (sb-ext:process-exit-code ret)))))
 
 
 (defmacro navi ()
@@ -141,12 +146,15 @@
   (stars-aux n ""))
 
 (define-easy-handler (last-answer :uri "/last") (myid)
-  (let* ((q (format nil "select num from answers where myid='~a'
-order by update_at desc limit 1" myid))
+  (let* ((q
+          (format
+           nil
+           "select num from answers where myid='~a'
+ order by update_at desc limit 1"
+           myid))
          (ret (dbi:fetch (query q)))
          (num (getf ret :|num|)))
     (redirect (format nil "/answer?num=~a" num))))
-
 
 (defun count-answers ()
   (getf
@@ -158,6 +166,7 @@ order by update_at desc limit 1" myid))
 ;;
 (define-easy-handler (users-alias :uri "/answers") ()
   (redirect "/users"))
+
 (define-easy-handler (users :uri "/users") ()
   (page
     (:h2 "誰が何問?")
@@ -178,32 +187,35 @@ order by update_at desc limit 1" myid))
                      (dbi:fetch-all
                       (query  "select distinct(myid) from answers
  where now() - update_at < '48 hours'")))))
-      (htm (:p (format t "myid ~a answered to question <a href='/answer?num=~a'>~a</a> at ~a."
-                       (getf recent :|myid|)
-                       (getf recent :|num|)
-                       (getf recent :|num|)
-                       (short (getf recent :|update_at|))))
+      (htm (:p (format
+                t
+                "myid ~a answered to question <a href='/answer?num=~a'>~a</a> at ~a."
+                (getf recent :|myid|)
+                (getf recent :|num|)
+                (getf recent :|num|)
+                (short (getf recent :|update_at|))))
            (:p (format
                 t
                 "<span class='yes'>赤</span>
-は過去 48 時間以内にアップデートがあった受講生。全回答数 ~a。"  (count-answers)))
+ は過去 48 時間以内にアップデートがあった受講生。全回答数 ~a。"
+                (count-answers)))
            (:hr))
       (loop for row = (dbi:fetch results)
             while row
             do
                (let* ((myid (getf row :|myid|))
                       (working (if (find myid working-users) "yes" "no")))
-                 (format t
-                         "<pre><span class=~a>~A</span> (~2d) ~A<a href='/last?myid=~d'>~d</a></pre>"
-                         working
-                         myid
-                         (getf row :|midterm|)
-                         (stars (getf row :|count|))
-                         myid
-                         (getf row :|count|)))
-               (incf n))
+                 (format
+                  t
+                  "<pre><span class=~a>~A</span> (~2d) ~A<a href='/last?myid=~d'>~d</a></pre>"
+                  working
+                  myid
+                  (getf row :|midterm|)
+                  (stars (getf row :|count|))
+                  myid
+                  (getf row :|count|)))
+           (incf n))
       (htm (:p "受講生 242(+2) 人、一題以上回答者 " (str n) " 人。")))))
-
 ;;
 ;; /problems
 ;;
@@ -222,33 +234,43 @@ order by answers.num")))
       (:p "番号をクリックして回答提出。ビルドできない回答は受け取らないよ。(回答数)")
       (loop for row = (dbi:fetch results)
          while row
-         do (format t
-                    "<p><a href='/answer?num=~a'>~a</a> (~a) ~a</p>~%"
-                    (getf row :|num|)
-                    (getf row :|num|)
-                    (getf row :|count|)
-                    (getf row :|detail|))))))
+         do (format
+             t
+             "<p><a href='/answer?num=~a'>~a</a> (~a) ~a</p>~%"
+             (getf row :|num|)
+             (getf row :|num|)
+             (getf row :|count|)
+             (getf row :|detail|))))))
 
 ;;
 ;; add-comment
 ;;
 (define-easy-handler (add-comment :uri "/add-comment") (id comment)
   (let* ((a (dbi:fetch
-             (query (format nil "select num, answer from answers where id='~a'" id))))
+             (query (format
+                     nil
+                     "select num, answer from answers where id='~a'"
+                     id))))
          (answer (getf a :|answer|))
-         (update-answer (format nil "~a~%/* comment from ~a,~%~a~%*/"
-                                answer (myid) (escape-apos comment)))
+         (update-answer (format
+                         nil
+                         "~a~%/* comment from ~a,~%~a~%*/"
+                         answer
+                         (myid)
+                         (escape-apos comment)))
          (q (format
              nil
              "update answers set answer='~a' where id='~a'"
              update-answer
              id)))
-    ;;FIXME: dbi:fetch is correct?
     (dbi:fetch (query q))
     (redirect (format nil "/answer?num=~a" (getf a :|num|)))))
 
 (defun detail (num)
-  (let* ((q (format nil "select detail from problems where num='~a'" num))
+  (let* ((q (format
+             nil
+             "select detail from problems where num='~a'"
+             num))
          (ret (dbi:fetch (query q))))
     (unless (null ret)
       (getf ret :|detail|))))
@@ -264,13 +286,16 @@ order by answers.num")))
             nil
             "select myid, num, answer from answers where id='~a'" id)))))
     (page
-      (:h2 (format t "Comment to ~a's answer ~a"
-                   (getf ret :|myid|) (getf ret :|num|)))
+      (:h2 (format
+            t
+            "Comment to ~a's answer ~a"
+            (getf ret :|myid|) (getf ret :|num|)))
       (:p (str (detail (getf ret :|num|))))
       (:pre (str (escape (getf ret :|answer|))))
       (:form :methopd "post" :action "/add-comment"
              (:input :type "hidden" :name "id" :value id)
-             (:textarea :rows 5 :cols 50 :name "comment" :placeholder "warm comment please.")
+             (:textarea :rows 5 :cols 50 :name "comment"
+                        :placeholder "warm comment please.")
              (:p (:input :type "submit" :value "comment")
                  " (your comment is displayed with your myid)")))))
 
@@ -315,8 +340,9 @@ order by answers.num")))
          do (format
              t
              "<b>~a</b>
-at ~a,
-<a href='/comment?id=~a'> comment</a><pre class='answer'><code>~a</code></pre><hr>"
+ at ~a,
+ <a href='/comment?id=~a'> comment</a>
+ <pre class='answer'><code>~a</code></pre><hr>"
              (getf row :|myid|)
              (short (getf row :|update_at|))
              (getf row :|id|)
@@ -338,7 +364,6 @@ at ~a,
               num)))
     (not (null (dbi:fetch (query sql))))))
 
-
 (defun update (myid num answer)
   (let ((sql (format
               nil
@@ -354,14 +379,17 @@ at ~a,
   (let ((sql (format
               nil
               "insert into answers (myid, num, answer, update_at)
-  values ('~a','~a', '~a', now())"
+ values ('~a','~a', '~a', now())"
               myid
               num
               (escape-apos answer))))
     (query sql)))
 
 (defun submit-answer (num)
-  (let* ((q (format nil "select num, detail from problems where num='~a'" num))
+  (let* ((q (format
+             nil
+             "select num, detail from problems where num='~a'"
+             num))
          (ret (dbi:fetch (query q)))
          (num (getf ret :|num|))
          (d (getf ret :|detail|)))
@@ -375,22 +403,26 @@ at ~a,
              (:input :type "hidden" :name "num" :value num)
              (:textarea :name "answer" :cols 60 :rows 10
                         :placeholder "動作確認、
-correct indentation して、送信するのがルール。
-ケータイで回答もらって平常点インチキしても期末テストで確実に負けるから。
-マジ勉した方がいい。")
+ correct indentation して、送信するのがルール。
+ ケータイで回答もらって平常点インチキしても期末テストで確実に負けるから。
+ マジ勉した方がいい。")
              (:br)
              (:input :type "submit")))))
 
 (defun solved (myid)
-    (let* ((q (format nil "select num from answers where myid='~a'"
-                      myid))
-           (ret (dbi:fetch-all (query q))))
-      (mapcar (lambda (x) (getf x :|num|)) ret)))
+  (let* ((q (format
+             nil
+             "select num from answers where myid='~a'"
+             myid))
+         (ret (dbi:fetch-all (query q))))
+    (mapcar (lambda (x) (getf x :|num|)) ret)))
 
 ;;; status
 (defun my-password (myid)
   (let* ((q (format
-             nil "select password from users where myid='~a'" myid))
+             nil
+             "select password from users where myid='~a'"
+             myid))
          (ret (dbi:fetch (query q))))
     (getf ret :|password|)))
 
@@ -422,20 +454,20 @@ correct indentation して、送信するのがルール。
       (update (myid) num answer)
       (page
         (:h3 "error")
-        (:p "ビルドできなくなった。バグが混入した？"))))
+        (:p "ビルドできない。バグ混入？"))))
 
 (define-easy-handler (submit :uri "/submit") (num answer)
   (if (myid)
       (if (check answer)
-          (let* ((ret (insert (myid) num answer))
+          (let* ((dummy (insert (myid) num answer))
                  (count (count-answers)))
             (page
              (:h1 "received your answer to " (str num))
              (cond
-               ((zerop (mod count 500))
+               ((zerop (mod count 100))
                 (htm (:p (:img :src "happiest.png"))
                      (:p "おめでとう!!! 通算 " (str count) " 番目の回答です。")))
-               ((zerop (mod count 100))
+               ((zerop (mod count 50))
                 (htm (:p (:img :src "happier.png"))
                      (:p "おめでとう!! 通算 " (str count) " 番目の回答です。")))
                ((zerop (mod count 10))
@@ -446,17 +478,20 @@ correct indentation して、送信するのがルール。
              (:ul
               (:li (:a :href "/status" "自分の回答状況")
                    "のチェックのほか、")
-              (:li (:a :href (format nil  "/answer?num=~a" num)
+              (:li (:a :href (format
+                              nil
+                              "/answer?num=~a" num)
                        "他ユーザの回答を見る")
                    "ことも勉強になるぞ。")
               (:li "それとも直接 "
-                   (:a :href (format nil "/answer?num=~a"
-                                     (+ 1 (parse-integer num)))
+                   (:a :href (format
+                              nil "/answer?num=~a"
+                              (+ 1 (parse-integer num)))
                        "次の問題の回答ページ")
                    "、行く？"))))
           (page
             (:h3 "error")
-            (:p "ビルドできません。プログラムにエラーがあるようです。")))
+            (:p "ビルドできない。プログラムにエラーがあるぞ。")))
       (redirect "/login")))
 
 (define-easy-handler (answer :uri "/answer") (num)
@@ -471,7 +506,10 @@ correct indentation して、送信するのがルール。
       (:h2 "change password")
       (if (string= (my-password myid) old)
           (if (string= new1 new2)
-              (query (format nil "update users set password='~a' where myid='~a'" new1 myid))
+              (query (format
+                      nil
+                      "update users set password='~a' where myid='~a'"
+                      new1 myid))
               (setf status "パスワードが一致しません。"))
           (setf status "現在のパスワードが一致しません"))
       (:p (str status)))))
@@ -483,7 +521,8 @@ correct indentation して、送信するのがルール。
                (format
                 nil
                 "select num, answer from answers
- where myid='~a' order by num" (myid)))))
+ where myid='~a' order by num"
+                (myid)))))
         (page
           (:pre "#include &lt;stdio.h>
 #include &lt;stdlib.h>")
@@ -525,8 +564,10 @@ correct indentation して、送信するのがルール。
               (getf
                (dbi:fetch
                 (query
-                 (format nil "select jname from users where myid='~a'"
-                         (myid))))
+                 (format
+                  nil
+                  "select jname from users where myid='~a'"
+                  (myid))))
                :|jname|))
              (last-runner
               (getf
@@ -543,7 +584,7 @@ correct indentation して、送信するのがルール。
                         (str n))))
           (cond
             ((< 99 sc)
-             (htm (:p (:img :src "goku.png") " 期末テストは 100 点以上取れよ！")))
+             (htm (:p (:img :src "goku.png") " 期末テストは 100 点取れよ！")))
             ((= 99 sc)
              (htm (:p (:img :src "sakura.png") " 完走おめでとう！100番以降もやってみよう。")))
             ((< 80 sc)
