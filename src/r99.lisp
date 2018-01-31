@@ -209,6 +209,7 @@ order by update_at desc limit 1" myid))
 ;;
 (define-easy-handler (index-alias :uri "/") ()
   (redirect "/problems"))
+
 (define-easy-handler (problems :uri "/problems") ()
   (let ((results
          (query
