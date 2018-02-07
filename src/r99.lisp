@@ -685,7 +685,7 @@ order by answers.num")))
   (push (create-static-file-dispatcher-and-handler
          "/happier.png" "static/happier.png") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
-           "/happiest.png" "static/happiest.png") *dispatch-table*)
+         "/happiest.png" "static/happiest.png") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
          "/goku.png" "static/goku.png") *dispatch-table*))
 
