@@ -337,7 +337,7 @@ order by answers.num")))
              (:input :type "hidden" :name "num" :value num)
              (:textarea :name "answer"
                         :cols 60
-                        :rows (+ 1 (count #\return my-answer :test #'equal))
+                        :rows (+ 1 (count #\linefeed my-answer :test #'equal))
                         (str (escape my-answer)))
              (:br)
              (:input :type "submit" :value "update"))
@@ -613,6 +613,16 @@ order by answers.num")))
       (parse-integer (myid)))))
    :|jname|))
 
+(defun answers-with-comment (id)
+  (mapcar
+   (lambda (x) (getf x :|num|))
+   (dbi:fetch-all
+    (query
+     (format
+      nil
+      "select num from answers where myid='~a' and answer like '%from 8000%' order by num"
+      id)))))
+
 (defun status-sub (sc)
   (cond
     ((< 99 sc)
@@ -632,9 +642,6 @@ order by answers.num")))
     (t
      (list "fight.png" " がんばらねーと。"))))
 
-(defun myid-has-value? ()
-  (parse-int (myid)))
-
 (define-easy-handler (status :uri "/status") ()
   (if (myid)
             (let* ((num-max (get-num-max))
@@ -653,11 +660,15 @@ order by answers.num")))
                (htm (:a :href (format nil "/answer?num=~a" n)
                         :class (if (find n sv) "found" "not-found")
                         (str n))))
+          (:p "コメントがついた回答があります --> " (str (answers-with-comment "7984")))
+          ;; (mapcar
+          ;;  (lambda (x) (htm (:p x)))
+          ;;  (answers-with-comment (myid)))
           (htm (:p (:img :src image) (str message)))
           (:hr)
           (:h3 "アクティビティ")
-          (:p (:a :href "/activity" "activity"))
           (:p "毎日ちょっとずつが実力のもと。一度にたくさんはどうかな？")
+          (:p (:a :href "/activity" "&rArr; activity"))
           (:hr)
           (:h3 "ランキング")
           (:ul
@@ -667,8 +678,8 @@ order by answers.num")))
                " (最終ランナーは " (str (- last-runner 1)) "位と表示されます)"))
           (:hr)
           (:h3 "自分回答をダウンロード")
-          (:p (:a :href "/download" "download"))
           (:p "全回答を問題番号順にコメントも一緒にダウンロードします。")
+          (:p (:a :href "/download" "&rArr; download"))
           (:hr)
           (:h3 "パスワード変更")
           (:form :method "post" :action "/passwd"
