@@ -597,17 +597,19 @@ order by answers.num")))
       id)))
    :|jname|))
 
+(defun get-last ()
+  (getf
+   (dbi:fetch
+    (query "select count(distinct myid) from answers"))
+   :|count|))
+
 (define-easy-handler (status :uri "/status") ()
   (if (myid)
       (let* ((num-max (get-num-max))
              (sv (apply #'vector (solved (myid))))
              (sc (length sv))
              (jname (get-jname (myid)))
-             (last-runner
-              (getf
-               (dbi:fetch
-                (query "select count(distinct myid) from answers"))
-               :|count|))
+             (last-runner (get-last))
              (cheer (cheerup sc))
              (image (first cheer))
              (message (second cheer)))
