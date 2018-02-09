@@ -24,7 +24,7 @@
 (defvar *db* "r99")
 ;;
 (defvar *server* nil)
-(defvar *http-port* 3032)
+(defvar *http-port* 3030)
 ;;
 (defvar *myid* "r99");; cookie name
 
