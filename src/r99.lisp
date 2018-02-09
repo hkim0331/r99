@@ -633,7 +633,6 @@ order by answers.num")))
            (:li "ランキング: " (str (ranking (myid))) "位 / 242 人"
                " (最終ランナーは " (str (- last-runner 1)) "位と表示されます)"))
           (:hr)
-
           (:h3 "自分回答をダウンロード")
           (:p "全回答を問題番号順にコメントも一緒にダウンロードします。")
           (:p (:a :href "/download" "ダウンロード"))
@@ -650,11 +649,11 @@ order by answers.num")))
                  (:p "new password again (same one)")
                  (:p (:input :type "password" :name "new2"))
                  (:input :type "submit" :value "change")))
-        (redirect "/login")
-        ;; (page
-        ;;   (:p "bug. must not  comes here. myid is " (str (myid)))
-        ;;   (if (myid) (htm  (:p "myid is true"))
-        ;;       (htm (:p "myis is false"))))
+        ;;(redirect "/login")
+        (page
+          (:p "bug. must not  comes here. myid is " (str (myid)))
+          (if (myid) (htm  (:p "myid is true"))
+              (htm (:p "myis is false"))))
         )))
 ;;
 ;; activity
