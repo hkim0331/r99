@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.9.5")
+(defvar *version* "0.9.5.1")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -742,7 +742,8 @@ order by answers.num")))
     (loop for i in entities
        do
          (push (create-static-file-dispatcher-and-handler
-                i (format nil "static/~a" i))
+                (format nil "/~a" i)
+                (format nil "static/~a" i))
                *dispatch-table*))))
 
 (defun start-server (&optional (port *http-port*))
