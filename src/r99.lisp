@@ -507,7 +507,7 @@ order by answers.num")))
       (redirect "/login")))
 
 (define-easy-handler (passwd :uri "/passwd") (myid old new1 new2)
-  (let ((status "パスワードを変更しました。"))
+  (let ((stat "パスワードを変更しました。"))
     (page
       (:h2 "change password")
       (if (string= (my-password myid) old)
@@ -516,19 +516,18 @@ order by answers.num")))
                       nil
                       "update users set password='~a' where myid='~a'"
                       new1 myid))
-              (setf status "パスワードが一致しません。"))
-          (setf status "現在のパスワードが一致しません"))
-      (:p (str status)))))
+              (setf stat "パスワードが一致しません。"))
+          (setf stat "現在のパスワードが一致しません"))
+      (:p (str stat)))))
 
 (define-easy-handler (download :uri "/download") ()
   (if (myid)
       (let ((ret
-              (query
-               (format
-                nil
-                "select num, answer from answers
- where myid='~a' order by num"
-                (myid)))))
+             (query
+              (format
+               nil
+               "select num, answer from answers where myid='~a' order by num"
+               (myid)))))
         (page
           (:pre "#include &lt;stdio.h>
 #include &lt;stdlib.h>")
@@ -558,28 +557,61 @@ order by answers.num")))
              (incf n))
         n)))
 
+(defun num-max ()
+  (getf
+   (dbi:fetch (query "select max(num) from problems"))
+   :|max|))
+
+(defun get-jname (id)
+    (getf
+     (dbi:fetch
+      (query
+       (format
+        nil
+        "select jname from users where myid='~a'"
+        id)))
+     :|jname|))
+
+(defun last-runner ()
+  (getf
+   (dbi:fetch
+    (query "select count(distinct myid) from answers"))
+   :|count|))
+
+(defun status-sub (sc)
+  (cond
+    ((< 99 sc)
+     (list "goku.png" " 期末テストは 100 点取れよ！"))
+    ((= 99 sc)
+     (list "sakura.png" " 完走おめでとう！100番以降もやってみよう。"))
+    ((< 80 sc)
+     (list "kame.png" " ゴールはもうちょっと。"))
+    ((< 60 sc)
+     (list "panda.png" " だいぶがんばってるぞ。"))
+    ((< 40 sc)
+     (list "cat2.png" " その調子。"))
+    ((< 20 sc)
+     (list "dog.png" " ペースはつかんだ。"))
+    ((< 0 sc)
+     (list "fuji.png" " 一歩ずつやる。"))
+    (t
+     (list "fight.png" " がんばらねーと。"))))
+
 (define-easy-handler (status :uri "/status") ()
   (if (myid)
-      (let* ((num-max
-              (getf
-               (dbi:fetch (query "select max(num) from problems"))
-               :|max|))
-             (sv (apply #'vector (solved (myid))))
-             (sc (length sv))
-             (jname
-              (getf
-               (dbi:fetch
-                (query
-                 (format
-                  nil
-                  "select jname from users where myid='~a'"
-                  (myid))))
-               :|jname|))
-             (last-runner
-              (getf
-               (dbi:fetch
-                (query "select count(distinct myid) from answers"))
-               :|count|)))
+   (let* ((num-max (num-max))
+          (sv (apply #'vector (solved (myid))))
+          (sc (length sv))
+          (img-comment (status-sub sc))
+          (jname (get-jname (myid)))
+          (last-runner (last-runner))
+          (comments
+           (dbi:fetch-all
+            (query
+             (format
+              nil
+              "select num from answers where myid='~a' and answer
+ like '%from 8000%'" (myid))))))
         (page
           (:h3 "回答状況")
           (:p "クリックして問題・回答にジャンプ。")
@@ -588,27 +620,11 @@ order by answers.num")))
                (htm (:a :href (format nil "/answer?num=~a" n)
                         :class (if (find n sv) "found" "not-found")
                         (str n))))
-          (cond
-            ((< 99 sc)
-             (htm (:p (:img :src "goku.png") " 期末テストは 100 点取れよ！")))
-            ((= 99 sc)
-             (htm (:p (:img :src "sakura.png") " 完走おめでとう！100番以降もやってみよう。")))
-            ((< 80 sc)
-             (htm (:p (:img :src "kame.png") " ゴールはもうちょっと。")))
-            ((< 60 sc)
-             (htm (:p (:img :src "panda.png") " だいぶがんばってるぞ。")))
-            ((< 40 sc)
-             (htm (:p (:img :src "cat2.png") " その調子。")))
-            ((< 20 sc)
-             (htm (:p (:img :src "dog.png") " ペースはつかんだ。")))
-            ((< 0 sc)
-             (htm (:p (:img :src "fuji.png") " 一歩ずつやる。")))
-            (t
-             (htm (:p (:img :src "fight.png") " がんばらねーと。"))))
+          (:p "comments " (str comments))
           (:hr)
           (:h3 "アクティビティ")
           (:p (:a :href "/activity" "その日に何問、解いたか？"))
-
+          (:p "毎日ちょっとずつが実力のもと。一度にたくさんはどうかな？")
           (:hr)
           (:h3 "ランキング")
           (:ul
@@ -617,6 +633,7 @@ order by answers.num")))
            (:li "ランキング: " (str (ranking (myid))) "位 / 242 人"
                " (最終ランナーは " (str (- last-runner 1)) "位と表示されます)"))
           (:hr)
+
           (:h3 "自分回答をダウンロード")
           (:p "全回答を問題番号順にコメントも一緒にダウンロードします。")
           (:p (:a :href "/download" "ダウンロード"))
@@ -632,9 +649,13 @@ order by answers.num")))
                  (:p (:input :type "password" :name "new1"))
                  (:p "new password again (same one)")
                  (:p (:input :type "password" :name "new2"))
-                 (:input :type "submit" :value "change"))))
-      (redirect "/login")))
-
+                 (:input :type "submit" :value "change")))
+        (redirect "/login")
+        ;; (page
+        ;;   (:p "bug. must not  comes here. myid is " (str (myid)))
+        ;;   (if (myid) (htm  (:p "myid is true"))
+        ;;       (htm (:p "myis is false"))))
+        )))
 ;;
 ;; activity
 ;;
@@ -648,10 +669,7 @@ order by answers.num")))
  group by date(update_at)
  order by date(update_at) desc" (myid)))))
     (page
-      (:h2 "Activity")
-      (:p "毎日ちょっとずつが実力のもと。一度にたくさんはどうかな？"
-          (:br)
-          (str (myid)) " さんの R99 アクティビティは以下の通り")
+      (:h2 (str (myid)) " さんの R99 アクティビティは以下です")
       (:hr)
       (loop for row = (dbi:fetch res)
          while row
