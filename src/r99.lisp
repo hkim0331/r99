@@ -708,42 +708,31 @@ order by answers.num")))
 
 (setf (html-mode) :html5)
 
-;; dry
+;; dry!
 (defun publish-static-content ()
-  
-  (push (create-static-file-dispatcher-and-handler
-         "/robots.txt" "static/robots.txt") *dispatch-table*)
-  (push (create-static-file-dispatcher-and-handler
-         "/favicon.ico" "static/favicon.ico") *dispatch-table*)
-  (push (create-static-file-dispatcher-and-handler
-         "/r99.css" "static/r99.css") *dispatch-table*)
-  ;; loop or macro?
-  (push (create-static-file-dispatcher-and-handler
-         "/fuji.png" "static/fuji.png") *dispatch-table*)
-
-  (push (create-static-file-dispatcher-and-handler
-         "/panda.png" "static/panda.png") *dispatch-table*)
-  (push (create-static-file-dispatcher-and-handler
-         "/kame.png" "static/kame.png") *dispatch-table*)
-  (push (create-static-file-dispatcher-and-handler
-         "/dog.png" "static/dog.png") *dispatch-table*)
-  (push (create-static-file-dispatcher-and-handler
-         "/cat2.png" "static/cat2.png") *dispatch-table*)
-  (push (create-static-file-dispatcher-and-handler
-         "/fight.png" "static/fight.png") *dispatch-table*)
-  (push (create-static-file-dispatcher-and-handler
-         "/sakura.png" "static/sakura.png") *dispatch-table*)
-  (push (create-static-file-dispatcher-and-handler
-         "/happy.png" "static/happy.png") *dispatch-table*)
-  (push (create-static-file-dispatcher-and-handler
-         "/happier.png" "static/happier.png") *dispatch-table*)
-  (push (create-static-file-dispatcher-and-handler
-         "/happiest.png" "static/happiest.png") *dispatch-table*)
-  (push (create-static-file-dispatcher-and-handler
-         "/goku.png" "static/goku.png") *dispatch-table*)
-  (push (create-static-file-dispatcher-and-handler
-         "/guernica.jpg" "static/guernica.jpg") *dispatch-table*)
-  (push (create-static-file-dispatcher-and-handler "/a-gift-of-the-sea.jpg" "static/a-gift-of-the-sea.jpg") *dispatch-table*))
+  (let ((entities
+         '("robots.txt"
+           "favicon.ico"
+           "r99.css"
+           "fuji.png"
+           "panda.png"
+           "kame.png"
+           "dog.png"
+           "cat2.png"
+           "fight.png"
+           "sakura.png"
+           "happy.png"
+           "happier.png"
+           "happiest.png"
+           "goku.png"
+           "guernica.jpg"
+           "a-gift-of-the-sea.jpg"
+           )))
+    (loop for i in entities
+       do
+         (push (create-static-file-dispatcher-and-handler
+                i (format nil "static/~a" i))
+               *dispatch-table*))))
 
 (defun start-server (&optional (port *http-port*))
   (publish-static-content)
