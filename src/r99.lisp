@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.9.3")
+(defvar *version* "0.9.4.3")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -24,7 +24,7 @@
 (defvar *db* "r99")
 ;;
 (defvar *server* nil)
-(defvar *http-port* 3030)
+(defvar *http-port* 3032)
 ;;
 (defvar *myid* "r99");; cookie name
 
@@ -126,8 +126,11 @@
         :content "width=device-width, initial-scale=1.0")
        (:link
         :rel "stylesheet"
-        :href "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css"
-        :integrity "sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" :crossorigin "anonymous")
+        :href
+        "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        :integrity
+        "sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        :crossorigin "anonymous")
        (:title "R99")
        (:link :type "text/css" :rel "stylesheet" :href "/r99.css"))
       (:body
@@ -324,7 +327,6 @@ order by answers.num")))
  order by update_at desc
  limit 5" (myid) num)))
 
-;;fixme: 日付を表示
 (defun show-answers (num)
   (let ((my-answer (r99-answer (myid) num))
         (other-answers (r99-other-answers num)))
@@ -422,8 +424,9 @@ order by answers.num")))
              myid))
          (ret (dbi:fetch-all (query q))))
     (mapcar (lambda (x) (getf x :|num|)) ret)))
-
+;;;
 ;;; status
+;;;
 (defun my-password (myid)
   (let* ((q (format
              nil
@@ -556,27 +559,59 @@ order by answers.num")))
            do
              (incf n))
         n)))
+;;;
+;;; status
+;;;
+(defun cheerup (sc)
+  (cond
+    ((< 99 sc)
+     (list "goku.png" " 期末テストは 100 点取れよ！"))
+    ((= 99 sc)
+     (list "sakura.png" " 完走おめでとう！100番以降もやってみよう。"))
+    ((< 80 sc)
+     (list "kame.png" " ゴールはもうちょっと。"))
+    ((< 60 sc)
+     (list "panda.png" " だいぶがんばってるぞ。"))
+    ((< 40 sc)
+     (list "cat2.png" " その調子。"))
+    ((< 20 sc)
+     (list "dog.png" " ペースはつかんだ。"))
+    ((< 0 sc)
+     (list "fuji.png" " 一歩ずつやる。"))
+    (t
+     (list "fight.png" " がんばらねーと。"))))
+
+(defun get-num-max ()
+  (getf
+   (dbi:fetch (query "select max(num) from problems"))
+   :|max|))
+
+(defun get-last ()
+  (getf
+   (dbi:fetch
+    (query "select count(distinct myid) from answers"))
+   :|count|))
 
 (defun num-max ()
   (getf
    (dbi:fetch (query "select max(num) from problems"))
    :|max|))
 
-(defun get-jname (id)
-    (getf
-     (dbi:fetch
-      (query
-       (format
-        nil
-        "select jname from users where myid='~a'"
-        id)))
-     :|jname|))
-
 (defun last-runner ()
   (getf
    (dbi:fetch
     (query "select count(distinct myid) from answers"))
    :|count|))
+
+(defun get-jname ()
+  (getf
+   (dbi:fetch
+    (query
+     (format
+      nil
+      "select jname from users where myid='~a'"
+      (parse-integer (myid)))))
+   :|jname|))
 
 (defun status-sub (sc)
   (cond
@@ -597,21 +632,19 @@ order by answers.num")))
     (t
      (list "fight.png" " がんばらねーと。"))))
 
+(defun myid-has-value? ()
+  (parse-int (myid)))
+
 (define-easy-handler (status :uri "/status") ()
   (if (myid)
-   (let* ((num-max (num-max))
-          (sv (apply #'vector (solved (myid))))
-          (sc (length sv))
-          (img-comment (status-sub sc))
-          (jname (get-jname (myid)))
-          (last-runner (last-runner))
-          (comments
-           (dbi:fetch-all
-            (query
-             (format
-              nil
-              "select num from answers where myid='~a' and answer
- like '%from 8000%'" (myid))))))
+            (let* ((num-max (get-num-max))
+             (sv (apply #'vector (solved (myid))))
+             (sc (length sv))
+             (cheer (cheerup sc))
+             (image (first cheer))
+             (message (second cheer))
+             (jname (get-jname))
+             (last-runner (get-last)))
         (page
           (:h3 "回答状況")
           (:p "クリックして問題・回答にジャンプ。")
@@ -620,10 +653,10 @@ order by answers.num")))
                (htm (:a :href (format nil "/answer?num=~a" n)
                         :class (if (find n sv) "found" "not-found")
                         (str n))))
-          (:p "comments " (str comments))
+          (htm (:p (:img :src image) (str message)))
           (:hr)
           (:h3 "アクティビティ")
-          (:p (:a :href "/activity" "その日に何問、解いたか？"))
+          (:p (:a :href "/activity" "activity"))
           (:p "毎日ちょっとずつが実力のもと。一度にたくさんはどうかな？")
           (:hr)
           (:h3 "ランキング")
@@ -633,10 +666,9 @@ order by answers.num")))
            (:li "ランキング: " (str (ranking (myid))) "位 / 242 人"
                " (最終ランナーは " (str (- last-runner 1)) "位と表示されます)"))
           (:hr)
-
           (:h3 "自分回答をダウンロード")
+          (:p (:a :href "/download" "download"))
           (:p "全回答を問題番号順にコメントも一緒にダウンロードします。")
-          (:p (:a :href "/download" "ダウンロード"))
           (:hr)
           (:h3 "パスワード変更")
           (:form :method "post" :action "/passwd"
@@ -649,13 +681,8 @@ order by answers.num")))
                  (:p (:input :type "password" :name "new1"))
                  (:p "new password again (same one)")
                  (:p (:input :type "password" :name "new2"))
-                 (:input :type "submit" :value "change")))
-        (redirect "/login")
-        ;; (page
-        ;;   (:p "bug. must not  comes here. myid is " (str (myid)))
-        ;;   (if (myid) (htm  (:p "myid is true"))
-        ;;       (htm (:p "myis is false"))))
-        )))
+                 (:input :type "submit" :value "change"))))
+            (redirect "/login")))
 ;;
 ;; activity
 ;;
@@ -669,7 +696,7 @@ order by answers.num")))
  group by date(update_at)
  order by date(update_at) desc" (myid)))))
     (page
-      (:h2 (str (myid)) " さんの R99 アクティビティは以下です")
+      (:h2 (str (myid)) " Activity")
       (:hr)
       (loop for row = (dbi:fetch res)
          while row
@@ -681,7 +708,9 @@ order by answers.num")))
 
 (setf (html-mode) :html5)
 
+;; dry
 (defun publish-static-content ()
+  
   (push (create-static-file-dispatcher-and-handler
          "/robots.txt" "static/robots.txt") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
