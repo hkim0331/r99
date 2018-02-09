@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.9.5.1")
+(defvar *version* "0.9.5.2")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -660,7 +660,7 @@ order by answers.num")))
                (htm (:a :href (format nil "/answer?num=~a" n)
                         :class (if (find n sv) "found" "not-found")
                         (str n))))
-          (:p "コメントがついた回答があります --> " (str (answers-with-comment "7984")))
+          (:p "コメントがついた回答があります --> " (str (answers-with-comment (myid))))
           ;; (mapcar
           ;;  (lambda (x) (htm (:p x)))
           ;;  (answers-with-comment (myid)))
