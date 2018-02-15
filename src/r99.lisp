@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.9.6.1")
+(defvar *version* "0.9.6.2")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -241,14 +241,15 @@ order by answers.num")))
       ;; (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
       (:h2 "WARN")
       (:p :class "warn"
-          "回答は自力でひねり出し、LPCXpresso で動作を確認し、送信するルールなのに、")
+          "回答は自力でひねり出し、動作確認後に送信のルールなのに、")
       (:p :class "warn"
           "点数稼ぎでどこからからガセネタ拾ってコピー送信するバカがたくさん。")
-      (:p :class "warn" "どこまでバカなんだろうね。")
+      (:p :class "warn"
+          "どこまでバカなんだろうね。点数稼ぎにはならないよ。心証悪くするだけ。")
       (:p :class "warn"
           "期末テストももちろんだが、R99 も動作確認せずのコピー回答はマイナスだから。")
       (:p :class "warn"
-          "採点始まる前に R99 だけでも直しときな、おバカさん。")
+          "採点始まる前に R99 だけでも直しとき。")
       (:hr)
 
       (:h2 "problems")
