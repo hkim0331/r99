@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.9.3")
+(defvar *version* "0.9.5.2")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -126,8 +126,11 @@
         :content "width=device-width, initial-scale=1.0")
        (:link
         :rel "stylesheet"
-        :href "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css"
-        :integrity "sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" :crossorigin "anonymous")
+        :href
+        "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        :integrity
+        "sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        :crossorigin "anonymous")
        (:title "R99")
        (:link :type "text/css" :rel "stylesheet" :href "/r99.css"))
       (:body
@@ -235,7 +238,19 @@ inner join problems on answers.num=problems.num
 group by answers.num, problems.detail
 order by answers.num")))
     (page
-      (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
+      ;; (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
+      (:h2 "WARN")
+      (:p :class "warn"
+          "回答は自力でひねり出し、LPCXpresso で動作を確認し、送信するルールなのに、")
+      (:p :class "warn"
+          "点数稼ぎでどこからからガセネタ拾ってコピー送信するバカがたくさん。")
+      (:p :class "warn" "どこまでバカなんだろうね。")
+      (:p :class "warn"
+          "期末テストももちろんだが、R99 も動作確認せずのコピー回答はマイナスだから。")
+      (:p :class "warn"
+          "採点始まる前に R99 だけでも直しときな、おバカさん。")
+      (:hr)
+
       (:h2 "problems")
       (:p "番号をクリックして回答提出。ビルドできない回答は受け取らないよ。(回答数)")
       (loop for row = (dbi:fetch results)
@@ -324,7 +339,6 @@ order by answers.num")))
  order by update_at desc
  limit 5" (myid) num)))
 
-;;fixme: 日付を表示
 (defun show-answers (num)
   (let ((my-answer (r99-answer (myid) num))
         (other-answers (r99-other-answers num)))
@@ -335,7 +349,7 @@ order by answers.num")))
              (:input :type "hidden" :name "num" :value num)
              (:textarea :name "answer"
                         :cols 60
-                        :rows (+ 1 (count #\return my-answer :test #'equal))
+                        :rows (+ 1 (count #\linefeed my-answer :test #'equal))
                         (str (escape my-answer)))
              (:br)
              (:input :type "submit" :value "update"))
@@ -422,8 +436,9 @@ order by answers.num")))
              myid))
          (ret (dbi:fetch-all (query q))))
     (mapcar (lambda (x) (getf x :|num|)) ret)))
-
+;;;
 ;;; status
+;;;
 (defun my-password (myid)
   (let* ((q (format
              nil
@@ -556,27 +571,69 @@ order by answers.num")))
            do
              (incf n))
         n)))
+;;;
+;;; status
+;;;
+(defun cheerup (sc)
+  (cond
+    ((< 99 sc)
+     (list "goku.png" " 期末テストは 100 点取れよ！"))
+    ((= 99 sc)
+     (list "sakura.png" " 完走おめでとう！100番以降もやってみよう。"))
+    ((< 80 sc)
+     (list "kame.png" " ゴールはもうちょっと。"))
+    ((< 60 sc)
+     (list "panda.png" " だいぶがんばってるぞ。"))
+    ((< 40 sc)
+     (list "cat2.png" " その調子。"))
+    ((< 20 sc)
+     (list "dog.png" " ペースはつかんだ。"))
+    ((< 0 sc)
+     (list "fuji.png" " 一歩ずつやる。"))
+    (t
+     (list "fight.png" " がんばらねーと。"))))
+
+(defun get-num-max ()
+  (getf
+   (dbi:fetch (query "select max(num) from problems"))
+   :|max|))
+
+(defun get-last ()
+  (getf
+   (dbi:fetch
+    (query "select count(distinct myid) from answers"))
+   :|count|))
 
 (defun num-max ()
   (getf
    (dbi:fetch (query "select max(num) from problems"))
    :|max|))
 
-(defun get-jname (id)
-    (getf
-     (dbi:fetch
-      (query
-       (format
-        nil
-        "select jname from users where myid='~a'"
-        id)))
-     :|jname|))
-
 (defun last-runner ()
   (getf
    (dbi:fetch
     (query "select count(distinct myid) from answers"))
    :|count|))
+
+(defun get-jname ()
+  (getf
+   (dbi:fetch
+    (query
+     (format
+      nil
+      "select jname from users where myid='~a'"
+      (parse-integer (myid)))))
+   :|jname|))
+
+(defun answers-with-comment (id)
+  (mapcar
+   (lambda (x) (getf x :|num|))
+   (dbi:fetch-all
+    (query
+     (format
+      nil
+      "select num from answers where myid='~a' and answer like '%from 8000%' order by num"
+      id)))))
 
 (defun status-sub (sc)
   (cond
@@ -599,19 +656,14 @@ order by answers.num")))
 
 (define-easy-handler (status :uri "/status") ()
   (if (myid)
-   (let* ((num-max (num-max))
-          (sv (apply #'vector (solved (myid))))
-          (sc (length sv))
-          (img-comment (status-sub sc))
-          (jname (get-jname (myid)))
-          (last-runner (last-runner))
-          (comments
-           (dbi:fetch-all
-            (query
-             (format
-              nil
-              "select num from answers where myid='~a' and answer
- like '%from 8000%'" (myid))))))
+            (let* ((num-max (get-num-max))
+             (sv (apply #'vector (solved (myid))))
+             (sc (length sv))
+             (cheer (cheerup sc))
+             (image (first cheer))
+             (message (second cheer))
+             (jname (get-jname))
+             (last-runner (get-last)))
         (page
           (:h3 "回答状況")
           (:p "クリックして問題・回答にジャンプ。")
@@ -620,11 +672,15 @@ order by answers.num")))
                (htm (:a :href (format nil "/answer?num=~a" n)
                         :class (if (find n sv) "found" "not-found")
                         (str n))))
-          (:p "comments " (str comments))
+          (:p "コメントがついた回答があります --> " (str (answers-with-comment (myid))))
+          ;; (mapcar
+          ;;  (lambda (x) (htm (:p x)))
+          ;;  (answers-with-comment (myid)))
+          (htm (:p (:img :src image) (str message)))
           (:hr)
           (:h3 "アクティビティ")
-          (:p (:a :href "/activity" "その日に何問、解いたか？"))
           (:p "毎日ちょっとずつが実力のもと。一度にたくさんはどうかな？")
+          (:p (:a :href "/activity" "&rArr; activity"))
           (:hr)
           (:h3 "ランキング")
           (:ul
@@ -635,7 +691,7 @@ order by answers.num")))
           (:hr)
           (:h3 "自分回答をダウンロード")
           (:p "全回答を問題番号順にコメントも一緒にダウンロードします。")
-          (:p (:a :href "/download" "ダウンロード"))
+          (:p (:a :href "/download" "&rArr; download"))
           (:hr)
           (:h3 "パスワード変更")
           (:form :method "post" :action "/passwd"
@@ -648,13 +704,8 @@ order by answers.num")))
                  (:p (:input :type "password" :name "new1"))
                  (:p "new password again (same one)")
                  (:p (:input :type "password" :name "new2"))
-                 (:input :type "submit" :value "change")))
-        ;;(redirect "/login")
-        (page
-          (:p "bug. must not  comes here. myid is " (str (myid)))
-          (if (myid) (htm  (:p "myid is true"))
-              (htm (:p "myis is false"))))
-        )))
+                 (:input :type "submit" :value "change"))))
+            (redirect "/login")))
 ;;
 ;; activity
 ;;
@@ -668,7 +719,7 @@ order by answers.num")))
  group by date(update_at)
  order by date(update_at) desc" (myid)))))
     (page
-      (:h2 (str (myid)) " さんの R99 アクティビティは以下です")
+      (:h2 (str (myid)) " Activity")
       (:hr)
       (loop for row = (dbi:fetch res)
          while row
@@ -680,40 +731,32 @@ order by answers.num")))
 
 (setf (html-mode) :html5)
 
+;; dry!
 (defun publish-static-content ()
-  (push (create-static-file-dispatcher-and-handler
-         "/robots.txt" "static/robots.txt") *dispatch-table*)
-  (push (create-static-file-dispatcher-and-handler
-         "/favicon.ico" "static/favicon.ico") *dispatch-table*)
-  (push (create-static-file-dispatcher-and-handler
-         "/r99.css" "static/r99.css") *dispatch-table*)
-  ;; loop or macro?
-  (push (create-static-file-dispatcher-and-handler
-         "/fuji.png" "static/fuji.png") *dispatch-table*)
-
-  (push (create-static-file-dispatcher-and-handler
-         "/panda.png" "static/panda.png") *dispatch-table*)
-  (push (create-static-file-dispatcher-and-handler
-         "/kame.png" "static/kame.png") *dispatch-table*)
-  (push (create-static-file-dispatcher-and-handler
-         "/dog.png" "static/dog.png") *dispatch-table*)
-  (push (create-static-file-dispatcher-and-handler
-         "/cat2.png" "static/cat2.png") *dispatch-table*)
-  (push (create-static-file-dispatcher-and-handler
-         "/fight.png" "static/fight.png") *dispatch-table*)
-  (push (create-static-file-dispatcher-and-handler
-         "/sakura.png" "static/sakura.png") *dispatch-table*)
-  (push (create-static-file-dispatcher-and-handler
-         "/happy.png" "static/happy.png") *dispatch-table*)
-  (push (create-static-file-dispatcher-and-handler
-         "/happier.png" "static/happier.png") *dispatch-table*)
-  (push (create-static-file-dispatcher-and-handler
-         "/happiest.png" "static/happiest.png") *dispatch-table*)
-  (push (create-static-file-dispatcher-and-handler
-         "/goku.png" "static/goku.png") *dispatch-table*)
-  (push (create-static-file-dispatcher-and-handler
-         "/guernica.jpg" "static/guernica.jpg") *dispatch-table*)
-  (push (create-static-file-dispatcher-and-handler "/a-gift-of-the-sea.jpg" "static/a-gift-of-the-sea.jpg") *dispatch-table*))
+  (let ((entities
+         '("robots.txt"
+           "favicon.ico"
+           "r99.css"
+           "fuji.png"
+           "panda.png"
+           "kame.png"
+           "dog.png"
+           "cat2.png"
+           "fight.png"
+           "sakura.png"
+           "happy.png"
+           "happier.png"
+           "happiest.png"
+           "goku.png"
+           "guernica.jpg"
+           "a-gift-of-the-sea.jpg"
+           )))
+    (loop for i in entities
+       do
+         (push (create-static-file-dispatcher-and-handler
+                (format nil "/~a" i)
+                (format nil "static/~a" i))
+               *dispatch-table*))))
 
 (defun start-server (&optional (port *http-port*))
   (publish-static-content)

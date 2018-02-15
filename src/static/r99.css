@@ -24,3 +24,7 @@ p.mono {
 span.yes {
     color: red;
 }
+
+.warn {
+    color: red;
+}
