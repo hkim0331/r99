@@ -2,6 +2,9 @@ DB=r99
 USER=user1
 PSQL=psql -h localhost -U ${USER} -W ${DB}
 
+uid.txt: sid-uid-myid-jname.txt
+	gawk '{print $$2}' $^ > $@
+
 create:
 	${PSQL} < create-all.postgres
 

@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.9.6.2")
+(defvar *version* "0.9.6.3")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -249,12 +249,15 @@ order by answers.num")))
       (:p :class "warn"
           "期末テストももちろんだが、R99 も動作確認せずのコピー回答はマイナスだから。")
       (:p :class "warn"
-          "採点始まる前に R99 だけでも直しとき。")
+          "採点始まる前に R99 だけでも直しとき。直さないとき、")
+      (:p :class "warn"
+          "平常点、期待しなさんな。あの辺、インチキ回答を確認します。"
+          "点数やれない証拠はきちんと残すから。")
       (:hr)
       (:h3 "連絡事項")
       (:ul
-       (:li "17 だったか 27 だったか、戻ってきてます。")
-       (:li "「x 0.8 で再トライ」は明日金曜の授業の後に決めます。"))
+       (:li "17 号車？ 27 号車？ 戻ってきてます。早いうちに。")
+       (:li "「x 0.8 で再トライ」の曜日は、明日、金曜の授業の後に決めます。"))
       (:hr)
       (:h2 "problems")
       (:p "番号をクリックして回答提出。ビルドできない回答は受け取らないよ。(回答数)")
@@ -267,7 +270,6 @@ order by answers.num")))
              (getf row :|num|)
              (getf row :|count|)
              (getf row :|detail|))))))
-
 ;;
 ;; add-comment
 ;;
