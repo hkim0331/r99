@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "0.9.6")
+(defvar *version* "0.9.6.1")
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -416,9 +416,11 @@ order by answers.num")))
     (page
       (:h2 "submit your answer to " (str num))
       (:p (str d))
-      (:ul (:li "ビルドできない回答は受け取らない。")
-           (:li "回答を受け取ってもそれが正解とは限らない。")
-           (:li "submit できたら、他の受講生の回答と自分の回答をよく見比べること。"))
+      (:ul
+       (:li :class "warn" "動作確認しないで出すとマイナス。でかいぞ。")
+       (:li "ビルドできない回答は受け取らない。")
+       (:li "回答を受け取ってもそれが正解とは限らない。")
+       (:li "submit できたら、他の受講生の回答と自分の回答をよく見比べること。"))
       (:form :method "post" :action "/submit"
              (:input :type "hidden" :name "num" :value num)
              (:textarea :name "answer" :cols 60 :rows 10
