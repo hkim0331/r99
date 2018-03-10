@@ -769,7 +769,7 @@ order by answers.num")))
   (setf *server* (make-instance 'easy-acceptor
                               :address "127.0.0.1"
                               :port port
-                              :document-root #p "tmp"))
+                              :document-root #p "."))
   (start *server*)
   (format t "r99-~a started at ~d.~%" *version* port))
 
