@@ -1,4 +1,5 @@
 drop table answers;
+drop table old_answers;
 drop table users;
 drop table problems;
 

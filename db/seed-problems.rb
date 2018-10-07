@@ -10,15 +10,10 @@ DB = Sequel.postgres("r99",
 problems = DB[:problems]
 num = 0
 File.foreach("r99.md","\n\n", encoding: "utf-8") do |line|
-  if line =~ /^1\./
+  if line =~ /^1\. /
     num += 1
-    problems.insert(num: num, detail: line.sub(/1\./,""), update_at: Time.now)
+    problems.insert(num: num, detail: line.sub(/1\. /,""),
+                    create_at: Time.now, update_at: Time.now)
   end
 end
 
-users = DB[:users]
-File.foreach("sid-uid-myid-jname.txt", encoding: "utf-8") do |line|
-  next if line=~/^\*$/
-  sid, uid, myid, jname =  line.chomp.split
-  users.insert(myid: myid, sid: sid, jname: jname, password: "robocar", update_at: Time.now)
-end

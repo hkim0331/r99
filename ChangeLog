@@ -1,0 +1,6 @@
+2018-10-07  Hiroshi Kimura  <hiroshi.kimura.0331@gmail.com>
+
+	* dbs.melt => db.melt
+	* cd db && make backup
+	* detabase definition
+	

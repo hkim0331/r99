@@ -1,0 +1,366 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='ja'>
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv='X-UA-Compatible' content='IE=edge' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css' integrity='sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm' crossorigin='anonymous' />
+    <title>R99
+    </title>
+    <link type='text/css' rel='stylesheet' href='/r99.css' />
+  </head>
+  <body>
+    <div class='navbar navbar-default navbar-fixed-top'>
+      <div class='container'>
+        <h1 class='pahe-header hidden-xs'>R99
+        </h1>
+<p>
+  <a href='http://robocar.melt.kyutech.ac.jp'>robocar
+  </a> | 
+  <a href='/problems'>problems
+  </a> | 
+  <a href='/users'>answers
+  </a> | 
+  <a href='/status'>status
+  </a> | 
+  <a href='/login'>login
+  </a> / 
+  <a href='/logout'>logout
+  </a>
+</p>
+      </div>
+    </div>
+    <div class='container'>
+      <p>myid: 8000
+      </p>
+      <h2>WARN
+      </h2>
+      <p class='warn'>自力で回答考え、動作確認、字下げそろえて送信のルールなのに、どこからからガセネタ拾ってコピー送信するバカがたくさん。どこまでバカなんだろうね。点数稼ぎにはならないよ。心証悪くするだけ。期末テストももちろんだが、R99 も動作確認せずの回答はマイナスだから。
+      </p>
+      <p class='warn'>採点始まる前に R99 だけでも直しとき。怪しいとこ確認後に採点する。手間のかかるバカ達だ。減点は致命傷か？ちゃんと勉強すればいいのに。
+      </p>
+      <p class='warn'>って書いたら、数分の間に俺の回答でインチキ回答上書きするやつ続出だ。そんなん、勉強した方が早いぞ。書き換えの記録が残るんだから。
+      </p>
+      <p class='warn'>クラスのグループ LINE で拡散しよう。
+      </p>
+      <hr />
+      <h2>problems
+      </h2>
+      <p>番号をクリックして回答提出。ビルドできない回答は受け取らないよ。(回答数)
+      </p><p><a href='/answer?num=1'>1</a> (242)  "hello, robocar!" を n 回プリントする関数 void hello_p(int n)
+
+</p>
+<p><a href='/answer?num=2'>2</a> (243)  整数をキーボードから読み、
+それに1を足した数を表示する関数
+void add_p(void)
+
+</p>
+<p><a href='/answer?num=3'>3</a> (238)  整数を引数にとり、それに1足した数を表示する関数
+void add1_p(int x)
+
+</p>
+<p><a href='/answer?num=4'>4</a> (236)  整数を引数にとり、それに1足した数を戻り値とする関数
+int add1(int x)
+
+</p>
+<p><a href='/answer?num=5'>5</a> (236)  整数二つを引数にとり、それらを足した数を戻り値とする関数
+int add2(int x, int y)
+
+</p>
+<p><a href='/answer?num=6'>6</a> (236)  整数二つを引数にとり、それらの和、差、積、整数商をプリントする関数
+void wa_sa_seki_sho_p(int x, int y)
+
+</p>
+<p><a href='/answer?num=7'>7</a> (236)  整数二つを引数にとり、大きい方の整数をプリントする関数
+void max_p(int x, int y)
+
+</p>
+<p><a href='/answer?num=8'>8</a> (233)  整数二つを引数にとり、大きい方の整数を戻り値とする関数
+int max2(int x, int y)
+
+</p>
+<p><a href='/answer?num=9'>9</a> (234)  整数三つを引数にとり、もっとも大きい整数を戻り値とする関数
+int max3(int x, int y, int z)
+
+</p>
+<p><a href='/answer?num=10'>10</a> (235)  整数4つを引数にとり、もっとも大きい整数を戻り値とする関数
+int max4(int x, int y, int z, int w)
+
+</p>
+<p><a href='/answer?num=11'>11</a> (234)  キーボードから整数ひとつを入力し、それが偶数だったら"偶数です"、
+奇数だったら"奇数です"とプリントする関数
+void even_p(void)
+
+</p>
+<p><a href='/answer?num=12'>12</a> (235)  整数ひとつを引数にとり、それが偶数だったら"偶数です"、
+奇数だったら"奇数です"とプリントする関数
+void even1_p(int x)
+
+</p>
+<p><a href='/answer?num=13'>13</a> (232)  整数ひとつを引数にとり、それが偶数だったら 1、
+奇数だったら 0 を返す関数
+int even(int x)
+
+</p>
+<p><a href='/answer?num=14'>14</a> (232)  整数二つを引数にとり、そのうちの偶数である数をプリントする関数。
+偶数がなかったら "見つかりません" をプリント。
+void evens_p(int x, int y)
+
+</p>
+<p><a href='/answer?num=15'>15</a> (233)  正の整数二つを引数にとり、偶数である数を戻り値とする関数。
+偶数がなかったら -1 を返せ。
+int evens2(int x, int y)
+
+</p>
+<p><a href='/answer?num=16'>16</a> (235)  正整数三つを引数にとり、そのうちの最初の偶数を戻りとする関数。
+偶数なかったら -1 を返す。
+int evens3(int x, int y, int z)
+
+</p>
+<p><a href='/answer?num=17'>17</a> (232)  キーボードから整数 x、y を入力し、
+x が y で割り切れたら "割り切る"、
+そうでない時、"割り切れない" をプリントする関数
+void divide_p(void)
+
+</p>
+<p><a href='/answer?num=18'>18</a> (232)  整数二つを引数とし、第 1 引数が第 2 引数で割り切れたら 1、
+そうでない時 0を返す関数
+int divide(int x, int y)
+
+</p>
+<p><a href='/answer?num=19'>19</a> (231)  整数一つを引数とし、その約数を全てプリントする関数
+void divisors_p(int n)
+
+</p>
+<p><a href='/answer?num=20'>20</a> (230)  整数一つを引数とし、その約数の合計を戻り値とする関数
+int sum_of_divisors(int n)
+
+</p>
+<p><a href='/answer?num=21'>21</a> (233)  整数一つを引数とし、その数が完全数かどうかを判定する関数
+int is_perfect(int n)
+
+</p>
+<p><a href='/answer?num=22'>22</a> (230) 整数一つを引数とし、その数が素数だったら"素数です"とプリントする関数 void is_prime_p(int n).</p>
+<p><a href='/answer?num=23'>23</a> (229)  整数一つを引数とし、
+その数が素数だったら1、素数でなかったら 0 を返す関数
+int is_prime(int n)
+
+</p>
+<p><a href='/answer?num=24'>24</a> (230)  10 以下の素数は何個あるかをプリントする関数
+void primes_p(void)
+
+</p>
+<p><a href='/answer?num=25'>25</a> (228) 100 以下の素数は何個あるかを戻り値とする関数 int prime100(void). それはきっと25。</p>
+<p><a href='/answer?num=26'>26</a> (230) n以下の素数(nは整数)は何個あるかを戻り値とする関数 int prime(int n). prime(10000) は 1229 を返すだろう。</p>
+<p><a href='/answer?num=27'>27</a> (229)  二桁の整数 x について
+ゾロ目（つまり 11 とか 22 とか）だったら"
+ゾロ目です"
+をプリントする関数
+void zorome_p(int x)
+
+</p>
+<p><a href='/answer?num=28'>28</a> (228) 二桁の整数についてゾロ目となる数は何個あるかを返す関数 int zorome2(void)</p>
+<p><a href='/answer?num=29'>29</a> (219) from ≤ x ≤ to の範囲の整数 x について(xは二桁とは限らない)、ゾロ目となる数は何個あるかを返す関数 int zorome(int from, int to).</p>
+<p><a href='/answer?num=30'>30</a> (226) 3桁の整数の桁を入れ替えた整数を返す関数 int rev3(int n). 例えば rev3(314) の戻り値は 413 になる。</p>
+<p><a href='/answer?num=31'>31</a> (225)  rev3(n) が元の整数 n と等しくなる3桁の整数は何個あるかを返す関数
+int how_many_rev3(void)
+
+</p>
+<p><a href='/answer?num=32'>32</a> (223) rev3(n)== n かつ is_prime(n) を満たす最大の数を返す int max_rev3_and_prime(void)</p>
+<p><a href='/answer?num=33'>33</a> (225)  100 以下の 7 の倍数を全てプリントする関数
+void sevens_100_p(void)
+
+</p>
+<p><a href='/answer?num=34'>34</a> (226)  n 以下の 7 の倍数をプリントする関数
+void sevens_p(int n)
+
+</p>
+<p><a href='/answer?num=35'>35</a> (224)  m 以上、n 以下の 7 の倍数をプリントする関数
+void sevens_between_p(int m, int n)
+
+</p>
+<p><a href='/answer?num=36'>36</a> (224)  m 以上、n 以下の k の倍数をプリントする関数
+void between_p(int m, int n, int k)
+
+</p>
+<p><a href='/answer?num=37'>37</a> (224)  整数 n の 2 乗を戻り値とする関数
+int square(int n)
+
+</p>
+<p><a href='/answer?num=38'>38</a> (225)  整数 n の 3 乗を戻り値とする関数
+int triple(int n)
+
+</p>
+<p><a href='/answer?num=39'>39</a> (225)  整数 n の m 乗を返す関数
+int power(int n, int m)
+
+</p>
+<p><a href='/answer?num=40'>40</a> (224)  1~20 の各整数についてその2乗をプリントする関数
+void squares_p(void)
+
+</p>
+<p><a href='/answer?num=41'>41</a> (223)  整数 n のルートを超えない最大の整数を返す関数
+int root(int n).
+ヒントは前問。ライブラリ sqrt を使うことは反則とする。
+
+</p>
+<p><a href='/answer?num=42'>42</a> (222)  3つの整数を引数とし、
+それらの長さを各辺とする三角形がありうるかどうかを判定する関数
+int triangle(int x, int y, int z).
+ヒント：一番長い辺の長さ &lt; 短い辺二つの長さ
+
+</p>
+<p><a href='/answer?num=43'>43</a> (221)  3つの整数を引数とし、
+それらの長さを各辺とする直角三角形がありうるかどうかを判定する関数
+int normal(int x, int y, int z).
+ヒント:前問
+
+</p>
+<p><a href='/answer?num=44'>44</a> (224)  整数 n を引数とし、それが 3 の倍数だったら1、5 の倍数だったら 2、
+3 の倍数でもあり、かつ、5 の倍数でもあったら 3、
+いずれでもなかったら 0 を返す関数
+int fz(int n)
+
+</p>
+<p><a href='/answer?num=45'>45</a> (220)  10以下の整数のうち、もっとも約数の多い数を返す関数
+int most_divisors10(void).
+複数あるときはそのうちの一つを返せば OKとする。
+
+</p>
+<p><a href='/answer?num=46'>46</a> (218)  n 以下の整数のうち、もっとも約数の多い数を返す関数
+int most_divisors(int n).
+前問に同じ。
+
+</p>
+<p><a href='/answer?num=47'>47</a> (223)  3桁の整数 n の各桁の総和を返す関数
+int sum_of_digits3(int n)
+
+</p>
+<p><a href='/answer?num=48'>48</a> (219)  整数 n の各桁の総和を返す関数
+int sum_of_digits(int n)
+
+</p>
+<p><a href='/answer?num=49'>49</a> (223)  整数 n から m までの総和を求める関数
+int sum(int n, int m)
+
+</p>
+<p><a href='/answer?num=50'>50</a> (223)  正の整数 n から m までの整数の積を求める関数
+int product(int n, int m)
+
+</p>
+<p><a href='/answer?num=51'>51</a> (222)  整数 n の絶対値を返す関数
+int abs(int n)
+
+</p>
+<p><a href='/answer?num=52'>52</a> (222)  整数 n が 0 だったら真、それ以外だったら偽を返す関数
+int zero(int n)
+
+</p>
+<p><a href='/answer?num=53'>53</a> (222)  彼・彼女の年齢を y とする。彼・彼女がティーンエイジャーだったら
+真、そうでなければ偽を返す関数
+int teenage(int y)
+
+</p>
+<p><a href='/answer?num=54'>54</a> (225)  float x を四捨五入した int を返す関数
+int f_to_i(float x).
+ヒント: 浮動小数点数 x の整数部分は (int)x で得られる。
+かっこの付け方が妙だけど、こう書く。(int)3.5 は 3 だ。4ではない。
+
+</p>
+<p><a href='/answer?num=55'>55</a> (218) float x を小数点第 2 位で四捨五入した float を返す関数 float f_to_f1(float x). f_to_f1(3.14159265) の戻り値は 3.100000 になる。</p>
+<p><a href='/answer?num=56'>56</a> (214) float x を小数点第 n 位で四捨五入した float を返す関数 float f_to_f(float x, int n). f_to_f(3.14159265, 4) の戻り値は 3.141600 になる。</p>
+<p><a href='/answer?num=57'>57</a> (218)  関数 long random(void) を呼ぶとすごく大きい整数乱数が返ってくる。
+random( ) を利用し、10未満の乱数を10個、プリントする関数
+void rand10_p(void)
+
+</p>
+<p><a href='/answer?num=58'>58</a> (221) 0 以上 n 未満の正の整数乱数を返す関数 int rand_n(int n)</p>
+<p><a href='/answer?num=59'>59</a> (218)  -10 から 10 までの整数乱数を返す関数
+int rand10(void)
+
+</p>
+<p><a href='/answer?num=60'>60</a> (220)  n &le; r &lt; m の整数乱数を返す関数
+int rand_between(int n, int m)
+
+</p>
+<p><a href='/answer?num=61'>61</a> (218)  0.0 &le; r &lt; 1.0 の浮動小数点数乱数を返す関数
+float randf(void)
+
+</p>
+<p><a href='/answer?num=62'>62</a> (219)  上の randf( ) を呼び出して、2次元乱数 [x, y]
+(0.0 &le; x &lt; 1.0, 0.0 &le; y &lt; 1.0)
+を n 個プリントする関数
+void randf_p(int n)
+
+</p>
+<p><a href='/answer?num=63'>63</a> (216)  上の randf_p( ) を応用し、円周率を求める関数
+float pi(int n).
+2次元乱数 [x,y]、
+(0.0 &le; x &lt; 1.0, 0.0 &le; y &lt; 1.0)
+を n = 1,000 個発生し、
+x^2 + y^2 &le; 1 となるものを数える。多分それは 785 近辺の数になるだろう。
+n を増やすと pi の精度は上がるはず。
+
+</p>
+<p><a href='/answer?num=64'>64</a> (220) ファイル "/home/t/hkimura/integers.txt" には一行にひとつ、整数が書き込まれている。そのファイルの先頭の数字を返す関数 int head0(void)</p>
+<p><a href='/answer?num=65'>65</a> (217) ファイル "/home/t/hkimura/integers.txt" が何行あるかを返す関数 int lines0(void)</p>
+<p><a href='/answer?num=66'>66</a> (218) ファイル "/home/t/hkimura/integers.txt" の n 行目の数字を返す関数 int nth0(int n).</p>
+<p><a href='/answer?num=67'>67</a> (216) int nth0(int n) はもし、n がファイル "/home/t/hkimura/integers.txt"  の最大行を超えているとプログラムが実行時エラーになる。実行時エラーを出さずに、"最大行を超えています\n"を表示し、戻り値 -1 を返すように改良した int nth1(int)</p>
+<p><a href='/answer?num=68'>68</a> (218) ファイル "/home/t/hkimura/integers.txt" の最初の十行に含まれる整数の総和を返す関数 int sum10(void). 戻り値は 130037</p>
+<p><a href='/answer?num=69'>69</a> (214) ファイル "/home/t/hkimura/integers.txt" の最初の n 行に含まれる整数の総和を返す関数 int sum_n(int n)</p>
+<p><a href='/answer?num=70'>70</a> (212) ファイル "/home/t/hkimura/integers.txt" の最後の n 行に含まれる整数の総和を返す関数 int sum_tail(int n). sum_tail(10) はきっと 143607.</p>
+<p><a href='/answer?num=71'>71</a> (214) n よりも大きい完全数はなにか？を求める関数 int next_perfect(int n). next_perfect(28) はきっと 496 だ。</p>
+<p><a href='/answer?num=72'>72</a> (216) n 以上 m 未満の奇数の和を求める関数 int sum_odds(int n, int m). sum_odds(100, 200) は 7500 を返す。</p>
+<p><a href='/answer?num=73'>73</a> (216) n 未満の素数の和を求める関数 int sum_primes_under(int n). sum_primes_under(1000) は 76127 のはず。</p>
+<p><a href='/answer?num=74'>74</a> (214) n 以上 m 未満の素数の和を求める関数 int sum_primes_between(int n, int m).</p>
+<p><a href='/answer?num=75'>75</a> (215) 関数 int factorial(int n) を定義せよ。factorial(5) は 5! をリターンする。0! は 1 だよ。 一般に factoria(n) = n * factorial(n-1).</p>
+<p><a href='/answer?num=76'>76</a> (212) factorial(0), factorial(1), factorial(2)... と次々に計算していき、factorial(n) < 0 となる最初の n を求める関数 int factorial_overflow(void)。 C 言語ではこういうことが起こる。int が有限だからね。</p>
+<p><a href='/answer?num=77'>77</a> (213) 関数 int fibo(int n) を定義せよ。fibo(0)=0, fibo(1)=1, fibo(2)=1で、一般にfibo(n) = fibo(n-1) + fibo(n-2).
+</p>
+<p><a href='/answer?num=78'>78</a> (214) fibo(n) が最初に 1,000 を超える n はいくらかを求める関数 int fibo_over1000(void). 答えはきっと 17 だ。</p>
+<p><a href='/answer?num=79'>79</a> (212) fibo(n) が最初に m を超える n を返す関数 int fibo_over(int m).</p>
+<p><a href='/answer?num=80'>80</a> (211) n 以上 m 未満となるフィボナッチ数の総和を返す関数 int sum_of_fibo_between(int n, int m).</p>
+<p><a href='/answer?num=81'>81</a> (228) （テキスト文字列参照）文字列 s の長さを返す関数 int str_len(char s[ ]).</p>
+<p><a href='/answer?num=82'>82</a> (223) 文字列 s に含まれる文字 c の数を返す関数 int count_chars(char s[ ], char c).</p>
+<p><a href='/answer?num=83'>83</a> (223) 文字列 s1 と文字列 s2 が等しいかどうかを判定する関数 int str_eql(char s1[ ], char s2[ ]). str_eql("123","123abc")の戻り値は 0。</p>
+<p><a href='/answer?num=84'>84</a> (220) 二つの文字列 s1, s2 の先頭の n 文字が等しいかどうかを判定する関数 int str_eql_n(char s1[ ], char s2[ ], int n). str_eql_n("123","123abc",3)の戻り値は 1.</p>
+<p><a href='/answer?num=85'>85</a> (218) 文字列 s1 を文字列 s2 にコピーする関数 void str_copy(char s1[ ], char s2[ ]). s2 は s1 をコピーするに十分な長さがあると仮定してよい。</p>
+<p><a href='/answer?num=86'>86</a> (220) 文字列 s1 の後ろに文字列 s2 を連結する関数 void str_append(char s1[ ], char s2[ ]).</p>
+<p><a href='/answer?num=87'>87</a> (215) 文字列 s1 の n 文字目からの m 文字を s2 の先頭にコピーする関数 void str_take(char s1[ ], int n, int m, char s2[ ]).</p>
+<p><a href='/answer?num=88'>88</a> (218) 文字列 s1 中に文字列 s2 が出現するかどうかを判定する関数 int str_search(char s1[ ], char s2[ ]). s2 が s1 の何文字目から出現しているかを返そう。見つからなかった時は -1 を返せ。</p>
+<p><a href='/answer?num=89'>89</a> (215) 文字列 s1 の n 文字目からの m 文字を削除する void str_remove(char s1[ ], int n, int m).</p>
+<p><a href='/answer?num=90'>90</a> (210) 文字列 s1 中に文字列 s2 が見つかる場合、s1 から s2 を削除する void str_remove_str(char s1[ ], char s2[ ]). 見つからない時？なにも削除しないよ。</p>
+<p><a href='/answer?num=91'>91</a> (205) 文字列 s1 の n 文字目に文字列 s2 を挿入する void str_insert(char s1[ ], int n, char s2[ ]).</p>
+<p><a href='/answer?num=92'>92</a> (205) 文字列 s1 中に現れる文字列 s2 を文字列 s3 で置き換える void str_subst(char s1[ ], char s2[ ], char s3[ ]).</p>
+<p><a href='/answer?num=93'>93</a> (203) 文字列 s1 を全て大文字にして文字列s2にコピーする関数 void toUpper(char s1[ ], char s2[ ]).</p>
+<p><a href='/answer?num=94'>94</a> (204) 文字列 s1 を整数に変換して返す関数 int str_to_int(char s1[ ]). str_to_int("314")の戻り値は 314 になる。</p>
+<p><a href='/answer?num=95'>95</a> (205)  文字列 s1 を逆にした文字列 s2 を作る関数 void str_reverse(char s1[ ], char s2[ ]).</p>
+<p><a href='/answer?num=96'>96</a> (200) 整数 n を文字列 s に変換する関数 void int_to_str(int n, char s[ ]). int_to_int(1023, s) の呼び出しによって 文字列 "1023" が s にコピーされる。</p>
+<p><a href='/answer?num=97'>97</a> (203) サイズ n の整数配列 a[ ] に 0 ~ 99 の乱数をセットする関数 void init_randoms_99(int a[ ] , int n).</p>
+<p><a href='/answer?num=98'>98</a> (197) 97 で作った乱数配列 a[ ] を要素の大きさ順に並べ替え、b[ ] にセットする関数 sort(int a[ ], int b[ ], int n)</p>
+<p><a href='/answer?num=99'>99</a> (198) 98 で並べ替えた配列 b[ ] がまじで要素順になっているかを確認する関数 int is_sorted(int b[ ], int n).</p>
+<p><a href='/answer?num=100'>100</a> (68) (おまけ) 整数 n が平方数であるかどうかを判定する関数 int is_square(int n). 15129 は平方数である。</p>
+<p><a href='/answer?num=101'>101</a> (42) (おまけ) 2<sup>16</sup>を超えない最大の素数は何か？ それは 65521.</p>
+<p><a href='/answer?num=102'>102</a> (28)  (おまけ) 2<sup>31</sup>-1を超えない最大の素数は何か？ それはきっと 2147483647.</p>
+<p><a href='/answer?num=103'>103</a> (26) (おまけ) 4番目までの素数を足すと 2+3+5+7=17. 1000 番目までの素数の和を求めなさい。それはたぶん 3682913.</p>
+<p><a href='/answer?num=104'>104</a> (13) (おまけ) 10000未満の素数 p1, p2, p3 で、p1<sup>2</sup>+p2<sup>2</sup>=p3<sup>2</sup> を満たすものはあるでしょうか？</p>
+<p><a href='/answer?num=105'>105</a> (14) 2520 は 1 から 10 の数字のすべての整数で割り切れる最小の整数である。1 から 20 までの整数すべてで割り切れる最小の整数は何か？(Project Euler の 5 番)</p>
+<p><a href='/answer?num=106'>106</a> (8) （96 と被ったので新しいのと入れ替え）整数 n がハッピー数かどうかを判定する関数 int happy(int n). 2018 はハッピー数ではない。2019 はハッピー数。ハッピー数についてはネットで調べること。
+</p>
+<p><a href='/answer?num=107'>107</a> (6) 左右どちらから読んでも同じ値になる数を回文数という。2桁の数の積で表される回文数のうち、最大のものは 9009 = 91 × 99 である。3桁の数の積で表される回文数の最大値を求めよ。きっとそれは 888888 ではない。(Project Euler 4番)</p>
+<p><a href='/answer?num=108'>108</a> (8)  600851475143 の素因数のうち最大のものを求めよ。きっとそれは 6000 よりも大きい。(Project Euler の3番)</p>
+<p><a href='/answer?num=109'>109</a> (7) hkimura の 108 番の回答は実は間違っています。たまたま正しい答えを返すのみ。任意の整数の素因数の最大を返すよう、hkimura の回答を改善しなさい。</p>
+<p><a href='/answer?num=110'>110</a> (6) (悪ふざけ)問題48のint sum_of_digits(int n) をできるだけ、{} や変数を使わずに書け。hkimura は苦手です。hkimura を超える回答を待つ。コドモは真似すんな。</p>
+<p><a href='/answer?num=111'>111</a> (10) (悪ふざけ、でも、プログラムに興味を持つ学生に) n,m &ge; 0 とする。n * m と同じ計算をする関数 int times(int n, int m) を定義せよ。times 中で * を使うのは反則。</p>
+<p><a href='/answer?num=112'>112</a> (12) (悪ふざけ) ++ と -- のみを使い、x + y と同じ計算をする関数 int add(int x, int y) を定義せよ。あ、すいません、y &ge; 0 とします。</p>
+<p><a href='/answer?num=113'>113</a> (11) (悪ふざけ) + や * を使わず、n * 2 と同じ計算をする関数 int doubles(int n) を定義せよ。</p>
+<p><a href='/answer?num=114'>114</a> (7) (悪ふざけ) n * 10 と同じ計算をする関数 int ten(int n) を定義できるかな？ 今のところ、回答を思いつかないので、ぜひ、hkimura の鼻をあかしてください。+ と * は使っちゃダメよ。</p>
+<p><a href='/answer?num=115'>115</a> (6) (悪ふざけ) n * 100 はどうでしょう？ 絶対、期末試験には出ません。</p>
+
+      <hr />
+      <span>programmed by hkimura, release 0.9.8.
+      </span>
+    </div>
+  </body>
+</html>

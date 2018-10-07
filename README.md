@@ -1,6 +1,40 @@
 # R99
 
+## 2018
+
+* version 1.0
+  新しく 2018 用のを準備始めたというだけで、完成度が 1.0 な訳ではない。
+  逆に 0.
+
+
+### FIXME
+
+* インチキ防止
+
+    update 時にコピー取る、で。
+    別にテーブル用意して、アップデートの際はそっちにコピーしてから
+    アップデートしよう。
+
+```
+create table old_answers (
+       id serial primary key,
+       myid       integer not null,
+       pid        integer not null,
+       answer     text,
+       create_at  timestamp);
+```
+
+* make drop  create init でエラー
+* gem update
+
+
+
+---
+
+# 2017
+
 robocar-2017 用、簡単 C の 99 題。
+
 
 ## FIXME
 

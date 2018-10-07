@@ -1,25 +1,28 @@
+DBSERVER=db.melt.kyutech.ac.jp
+
 DB=r99
 USER=user1
 PSQL=psql -h localhost -U ${USER} -W ${DB}
 
-uid.txt: sid-uid-myid-jname.txt
-	gawk '{print $$2}' $^ > $@
+backup:
+	pg_dump -h ${DBSERVER} -U ${USER} -W ${DB} > backups/`date +%F`.sql
 
-create:
-	${PSQL} < create-all.postgres
+start: drop create init
 
 drop:
 	${PSQL} < drop-all.postgres
 
-migrate:
-	${PSQL} < migrations/01-rename-pid-num.sql
-	${PSQL} < migrations/02-add-midterm.sql
+create:
+	${PSQL} < create-all.postgres
+
+init:
+	ruby problems-init.rb
 
 seed:
 	ruby seed.rb
 
-backup:
-	pg_dump -h dbs.melt.kyutech.ac.jp -U ${USER} -W ${DB} > backups/`date +%F`.sql
+uid.txt: sid-uid-myid-jname.txt
+	gawk '{print $$2}' $^ > $@
 
 # before restore, must drop database r99.
 # if dropped, vanish grant.
