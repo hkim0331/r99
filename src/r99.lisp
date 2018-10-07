@@ -17,7 +17,8 @@
         #+mkcl (mkcl:getenv name)
         #+sbcl (sb-ext:posix-getenv name)
         default)))
-;;
+
+;;これだとコンパイル時に決定する、か？
 (defvar *host* (or (getenv "R99_HOST") "localhost"))
 (defvar *user* (or (getenv "R99_USER") "user1"))
 (defvar *password* (or (getenv "R99_PASS") "pass1"))

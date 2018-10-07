@@ -2,6 +2,17 @@
 
 robocar-2017 用、簡単 C の 99 題。
 
+## FIXME
+
+* 2018-03-26 コンパイルするときの環境変数を見るのか？
+
+```sh
+$ export R99_HOST=db.melt.kyutech.ac.jp
+$ make reinstall
+```
+
+だとエラーが出ない。
+
 ## Installation
 
 ```sh
