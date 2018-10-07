@@ -233,25 +233,39 @@
 
 (define-easy-handler (problems :uri "/problems") ()
   (let ((results
-         (query
-          "select answers.num, count(*), problems.detail from answers
-inner join problems on answers.num=problems.num
-group by answers.num, problems.detail
-order by answers.num")))
+         (query "select num, detail from problems order by num")))
     (page
-      ;; (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
-      (:hr)
+      (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
       (:h2 "problems")
-      (:p "番号をクリックして回答提出。ビルドできない回答は受け取らないよ。(回答数)")
       (loop for row = (dbi:fetch results)
          while row
-         do (format
-             t
-             "<p><a href='/answer?num=~a'>~a</a> (~a) ~a</p>~%"
-             (getf row :|num|)
-             (getf row :|num|)
-             (getf row :|count|)
-             (getf row :|detail|))))))
+         do (format t "<p>~a, ~a</p>"
+                    (getf row :|num|)
+                    (getf row :|detail|))))))
+
+;; (define-easy-handler (problems :uri "/problems") ()
+;;   (let ((results
+;;          (query
+;;           "select answers.num, count(*), problems.detail from answers
+;; inner join problems on answers.num=problems.num
+;; group by answers.num, problems.detail
+;; order by answers.num")))
+;;     (page
+;;       ;;(:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
+;;       (:hr)
+;;       (:h2 "problems")
+;;       (:p "番号をクリックして回答提出。ビルドできない回答は受け取らないよ。(回答数)")
+;;       (loop for row = (dbi:fetch results)
+;;          while row
+;;          do (format
+;;              t
+;;              "<p><a href='/answer?num=~a'>~a</a> (~a) ~a</p>~%"
+;;              (getf row :|num|)
+;;              (getf row :|num|)
+;;              (getf row :|count|)
+;;              (getf row :|detail|))))))
+
+
 ;;
 ;; add-comment
 ;;
