@@ -11,6 +11,6 @@ problems = DB[:problems]
 File.foreach(ARGV[0], encoding: "utf-8") do |line|
   next if line =~ /^\s*$/
   num, detail = line.chomp.split(',', 2)
-  problems.insert(num: num, detail: detail,
+  problems.where(num: num,) detail: detail,
                   update_at: now, create_at: now)
 end

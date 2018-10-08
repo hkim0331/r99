@@ -19,7 +19,7 @@ init:
 	ruby problems-init.rb
 
 seed:
-	ruby seed.rb
+	ruby problems-seed.rb
 
 uid.txt: sid-uid-myid-jname.txt
 	gawk '{print $$2}' $^ > $@
