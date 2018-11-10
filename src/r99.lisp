@@ -192,22 +192,30 @@
   (redirect "/users"))
 
 ;; FIXME エラーになってる。2018-11-10
+;; midterm はなんだっけ？
 (define-easy-handler (users :uri "/users") ()
   (page
-    (:p (:img :src "/guernica.jpg" :width "100%"))
-    (:h2 "誰が何問?")
-    (let* ((n 0)
-           (recent
-            (dbi:fetch
-             (query "select myid, num, update_at::text from answers
+   (:p (:img :src "/guernica.jpg" :width "100%"))
+   (:h2 "誰が何問?")
+   (let* ((n 0)
+          (recent
+           (dbi:fetch
+            (query "select myid, num, update_at::text from answers
  order by update_at desc limit 1")))
-           (results
-            (query "select users.myid, users.midterm, count(distinct answer)
- from users
- inner join answers
- on users.myid=answers.myid
- group by users.myid, users.midterm
- order by users.myid"))
+          (results
+           (query "select users.myid,count(distinct answer)
+from users
+inner join answers
+on users.myid=answers.myid
+group by users.myid
+order by users.myid")
+            ;;(query "select users.myid, users.midterm, count(distinct answer)
+            ;; from users
+            ;; inner join answers
+            ;; on users.myid=answers.myid
+            ;; group by users.myid, users.midterm
+            ;; order by users.myid")
+            )
            (working-users
              (mapcar (lambda (x) (getf x :|myid|))
                      (dbi:fetch-all
@@ -233,10 +241,11 @@
                       (working (if (find myid working-users) "yes" "no")))
                  (format
                   t
-                  "<pre><span class=~a>~A</span> (~2d) ~A<a href='/last?myid=~d'>~d</a></pre>"
+                  ;;"<pre><span class=~a>~A</span> (~2d) ~A<a href='/last?myid=~d'>~d</a></pre>"
+                  "<pre><span class=~a>~A</span> () ~A<a href='/last?myid=~d'>~d</a></pre>"
                   working
                   myid
-                  (getf row :|midterm|)
+;                  (getf row :|midterm|)
                   (stars (getf row :|count|))
                   myid
                   (getf row :|count|)))
