@@ -109,7 +109,7 @@
      " | "
      (:a :href "/problems" "problems")
      " | "
-     (:a :href "/users" "answers")
+     (:a :href "/users" "others")
      " | "
      (:a :href "/status" "status")
      " | "
@@ -352,7 +352,7 @@ order by users.myid")
       (:form :methopd "post" :action "/add-comment"
              (:input :type "hidden" :name "id" :value id)
              (:textarea :rows 5 :cols 50 :name "comment"
-                        :placeholder "warm comment please.")
+                        :placeholder "暖かいコメントをお願いします。")
              (:p (:input :type "submit" :value "comment")
                  " (your comment is displayed with your myid)")))))
 
@@ -674,6 +674,7 @@ values ('~a', '~a', '~a')"
       (parse-integer (myid)))))
    :|jname|))
 
+;;CHECK: work?
 (defun answers-with-comment (id)
   (mapcar
    (lambda (x) (getf x :|num|))
@@ -681,7 +682,8 @@ values ('~a', '~a', '~a')"
     (query
      (format
       nil
-      "select num from answers where myid='~a' and answer like '%from 8000%' order by num"
+      "select num from answers where myid='~a' and
+answer like '%/* comment from%' order by num"
       id)))))
 
 (defun status-sub (sc)
@@ -721,7 +723,8 @@ values ('~a', '~a', '~a')"
                (htm (:a :href (format nil "/answer?num=~a" n)
                         :class (if (find n sv) "found" "not-found")
                         (str n))))
-          (:p "コメントがついた回答があります --> " (str (answers-with-comment (myid))))
+          (:p "コメントがついた回答があります --> "
+              (str (answers-with-comment (myid))))
           ;; (mapcar
           ;;  (lambda (x) (htm (:p x)))
           ;;  (answers-with-comment (myid)))

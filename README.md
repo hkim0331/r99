@@ -9,6 +9,10 @@
 * defvar hkimura
 * update の際にコピーを old_answers にとる。
 * 一番の問題は問題。
+* [BUG] answers がひとつもない時、エラー。
+* answers は内容を表していない。
+* コメントはどうつけるんだっけ？
+* status にコメントのついた回答を表示のはずか？
 
 ### [1.0]
 
@@ -68,7 +72,7 @@ Postgres との接続のため、次の環境変数をセット。
 
 db フォルダにてデータベースの作成とシード。
 
-```
+```sh
 $ cd db
 $ make create
 $ make migrate
@@ -76,7 +80,7 @@ $ make migrate
 
 src フォルダに移り、環境変数を確認して、
 
-```
+```sh
 $ cd ../src
 $ make install
 ```
