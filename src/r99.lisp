@@ -772,8 +772,7 @@
            "happiest.png"
            "goku.png"
            "guernica.jpg"
-           "a-gift-of-the-sea.jpg"
-           )))
+           "a-gift-of-the-sea.jpg")))
     (loop for i in entities
        do
          (push (create-static-file-dispatcher-and-handler

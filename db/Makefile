@@ -1,13 +1,17 @@
+RUBY=/usr/local/bin/ruby
 DBSERVER=db.melt.kyutech.ac.jp
-
 DB=r99
 USER=user1
 PSQL=psql -h localhost -U ${USER} -W ${DB}
 
+# r99-2018.md:
+# 	${RUBY} make-r99-2018.rb > $@
+# 	cat problem* >> $@
+
 backup:
 	pg_dump -h ${DBSERVER} -U ${USER} -W ${DB} > backups/`date +%F`.sql
 
-start: drop create init
+start: drop create init seed
 
 drop:
 	${PSQL} < drop-all.postgres
@@ -16,10 +20,10 @@ create:
 	${PSQL} < create-all.postgres
 
 init:
-	ruby problems-init.rb
+	${RUBY} init-problems.rb
 
-seed:
-	ruby problems-seed.rb
+seed: problems-2018.txt
+	${RUBY} seed-problems.rb $?
 
 uid.txt: sid-uid-myid-jname.txt
 	gawk '{print $$2}' $^ > $@

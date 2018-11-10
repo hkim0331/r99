@@ -1,0 +1,349 @@
+;;
+;; comments start by ';' character,
+;; must follow blank line or it will be a problem.
+;;
+
+;;
+;; printf
+;;
+
+"hello, robocar!" を n 回プリントする関数 void hello_p(int n)
+
+整数をキーボードから読み、
+それに1を足した数を表示する関数
+void add_p(void)
+
+整数を引数にとり、それに1足した数を表示する関数
+void add1_p(int x)
+
+整数を引数にとり、それに1足した数を戻り値とする関数
+int add1(int x)
+
+整数二つを引数にとり、それらを足した数を戻り値とする関数
+int add2(int x, int y)
+
+整数二つを引数にとり、それらの和、差、積、整数商をプリントする関数
+void wa_sa_seki_sho_p(int x, int y)
+
+整数二つを引数にとり、大きい方の整数をプリントする関数
+void max_p(int x, int y)
+
+整数二つを引数にとり、大きい方の整数を戻り値とする関数
+int max2(int x, int y)
+
+整数三つを引数にとり、もっとも大きい整数を戻り値とする関数
+int max3(int x, int y, int z)
+
+整数4つを引数にとり、もっとも大きい整数を戻り値とする関数
+int max4(int x, int y, int z, int w)
+
+キーボードから整数ひとつを入力し、それが偶数だったら"偶数です"、
+奇数だったら"奇数です"とプリントする関数
+void even_p(void)
+
+整数ひとつを引数にとり、それが偶数だったら"偶数です"、
+奇数だったら"奇数です"とプリントする関数
+void even1_p(int x)
+
+整数ひとつを引数にとり、それが偶数だったら 1、
+奇数だったら 0 を返す関数
+int even(int x)
+
+整数二つを引数にとり、そのうちの偶数である数をプリントする関数。
+偶数がなかったら "見つかりません" をプリント。
+void evens_p(int x, int y)
+
+正の整数二つを引数にとり、偶数である数を戻り値とする関数。
+偶数がなかったら -1 を返せ。
+int evens2(int x, int y)
+
+正整数三つを引数にとり、そのうちの最初の偶数を戻りとする関数。
+偶数なかったら -1 を返す。
+int evens3(int x, int y, int z)
+
+キーボードから整数 x、y を入力し、
+x が y で割り切れたら "割り切る"、
+そうでない時、"割り切れない" をプリントする関数
+void divide_p(void)
+
+整数二つを引数とし、第 1 引数が第 2 引数で割り切れたら 1、
+そうでない時 0を返す関数
+int divide(int x, int y)
+
+整数一つを引数とし、その約数を全てプリントする関数
+void divisors_p(int n)
+
+整数一つを引数とし、その約数の合計を戻り値とする関数
+int sum_of_divisors(int n)
+
+整数一つを引数とし、その数が完全数かどうかを判定する関数
+int is_perfect(int n)
+
+整数一つを引数とし、
+その数が素数だったら"素数です"とプリントする関数
+int is_prime_p(int n)
+
+整数一つを引数とし、
+その数が素数だったら1、素数でなかったら 0 を返す関数
+int is_prime(int n)
+
+10 以下の素数は何個あるかをプリントする関数
+void primes_p(void)
+
+100 以下の素数は何個あるかを戻り値とする関数
+int prime100(void)
+
+n以下の素数(nは整数)は何個あるかを戻り値とする関数
+int prime(int n)
+
+二桁の整数 x について
+ゾロ目（つまり 11 とか 22 とか）だったら"
+ゾロ目です"
+をプリントする関数
+void zorome_p(int x)
+
+二桁の整数についてゾロ目となる数は何個あるかを返す関数
+void zorome2(void)
+
+from &le; x &le; to の範囲の整数 x について、
+ゾロ目となる数は何個あるかを返す関数
+void zorome(int from, int to)
+
+3桁の整数の桁を入れ替えた整数を返す関数
+int rev3(int n). 例えば rev(314) の戻り値は 413 になる。
+
+rev3(n) が元の整数 n と等しくなる3桁の整数は何個あるかを返す関数
+int how_many_rev3(void)
+
+rev3(n)== n かつ is_prime(n) を満たす最大の数を返す
+int max_rev3_and_prime(int n)
+
+100 以下の 7 の倍数を全てプリントする関数
+void sevens_100_p(void)
+
+n 以下の 7 の倍数をプリントする関数
+void sevens_p(int n)
+
+m 以上、n 以下の 7 の倍数をプリントする関数
+void sevens_between_p(int m, int n)
+
+m 以上、n 以下の k の倍数をプリントする関数
+void between_p(int m, int n, int k)
+
+整数 n の 2 乗を戻り値とする関数
+int square(int n)
+
+整数 n の 3 乗を戻り値とする関数
+int triple(int n)
+
+整数 n の m 乗を返す関数
+int power(int n, int m)
+
+1~20 の各整数についてその2乗をプリントする関数
+void squares_p(void)
+
+整数 n のルートを超えない最大の整数を返す関数
+int root(int n).
+ヒントは前問。ライブラリ sqrt を使うことは反則とする。
+
+3つの整数を引数とし、
+それらの長さを各辺とする三角形がありうるかどうかを判定する関数
+int triangle(int x, int y, int z).
+ヒント：一番長い辺の長さ &lt; 短い辺二つの長さ
+
+3つの整数を引数とし、
+それらの長さを各辺とする直角三角形がありうるかどうかを判定する関数
+int normal(int x, int y, int z).
+ヒント:前問
+
+整数 n を引数とし、それが 3 の倍数だったら1、5 の倍数だったら 2、
+3 の倍数でもあり、かつ、5 の倍数でもあったら 3、
+いずれでもなかったら 0 を返す関数
+int fz(int n)
+
+10以下の整数のうち、もっとも約数の多い数を返す関数
+int most_divisors10(void).
+複数あるときはそのうちの一つを返せば OKとする。
+
+n 以下の整数のうち、もっとも約数の多い数を返す関数
+int most_divisors(int n).
+前問に同じ。
+
+3桁の整数 n の各桁の総和を返す関数
+int sum_of_digits3(int n)
+
+整数 n の各桁の総和を返す関数
+int sum_of_digits(int n)
+
+整数 n から m までの総和を求める関数
+int sum(int n, int m)
+
+正の整数 n から m までの整数の積を求める関数
+int product(int n, int m)
+
+整数 n の絶対値を返す関数
+int abs(int n)
+
+整数 n が 0 だったら真、それ以外だったら偽を返す関数
+int zero(int n)
+
+彼・彼女の年齢を y とする。彼・彼女がティーンエイジャーだったら
+真、そうでなければ偽を返す関数
+int teenage(int y)
+
+float x を四捨五入した int を返す関数
+int f_to_i(float x).
+ヒント: 浮動小数点数 x の整数部分は (int)x で得られる。
+かっこの付け方が妙だけど、こう書く。(int)3.5 は 3 だ。4ではない。
+
+float x を小数点第 2 位で四捨五入した float を返す関数
+int f_to_f1(float x).
+f_to_f1(3.14159265) の戻り値は 3.100000 になる。
+
+float x を小数点第 n 位で四捨五入した float を返す関数
+int f_to_f(float x, int n).
+f_to_f(3.14159265, 4) の戻り値は 3.141600
+になる。
+
+関数 long random(void) を呼ぶとすごく大きい整数乱数が返ってくる。
+random( ) を利用し、10未満の乱数を10個、プリントする関数
+void rand10_p(void)
+
+0 以上 n 未満の正の整数乱数を返す関数
+int rand(int n)
+
+-10 から 10 までの整数乱数を返す関数
+int rand10(void)
+
+n &le; r &lt; m の整数乱数を返す関数
+int rand_between(int n, int m)
+
+0.0 &le; r &lt; 1.0 の浮動小数点数乱数を返す関数
+float randf(void)
+
+上の randf( ) を呼び出して、2次元乱数 [x, y]
+(0.0 &le; x &lt; 1.0, 0.0 &le; y &lt; 1.0)
+を n 個プリントする関数
+void randf_p(int n)
+
+上の randf_p( ) を応用し、円周率を求める関数
+float pi(int n).
+2次元乱数 [x,y]、
+(0.0 &le; x &lt; 1.0, 0.0 &le; y &lt; 1.0)
+を n = 1,000 個発生し、
+x^2 + y^2 &le; 1 となるものを数える。多分それは 785 近辺の数になるだろう。
+n を増やすと pi の精度は上がるはず。
+
+ファイル "/home/t/hkimura/integers.txt" には一行にひとつ、整数が書き込まれている。そのファイルの先頭の数字を返す関数 int head0(void)
+
+ファイル "/home/t/hkimura/integers.txt" が何行あるかを返す関数 int lines0(void)
+
+ファイル "/home/t/hkimura/integers.txt" の n 行目の数字を返す関数 int nth0(int n).
+
+int nth0(int n) はもし、n がファイル "/home/t/hkimura/integers.txt"  の最大行を超えているとプログラムが実行時エラーになる。実行時エラーを出さずに、"最大行を超えています\n"を表示し、戻り値 -1 を返すように改良した int nth1(int)
+
+ファイル "/home/t/hkimura/integers.txt" の最初の十行に含まれる整数の総和を返す関数 int sum10(void)
+
+ファイル "/home/t/hkimura/integers.txt" の最初の n 行に含まれる整数の総和を返す関数 int sum_n(int n)
+
+ファイル "/home/t/hkimura/integers.txt" の最後の n 行に含まれる整数の総和を返す関数 int sum_tail(int n)
+
+n よりも大きい完全数はなにか？を求める関数 int next_perfect(int n). next_perfect(28) はきっと 496 だ。
+
+n 以上 m 未満の奇数の和を求める関数 int sum_odds(int n, int m). sum_odds(100, 200) は 7500 を返す。
+
+n 未満の素数の和を求める関数 int sum_primes_under(int n). sum_primes_under(1000) は 76127 のはず。
+
+n 以上 m 未満の素数の和を求める関数 int sum_primes_between(int n, int m).
+
+関数 int factorial(int n) を定義せよ。factorial(5) は 5! をリターンする。0! は 1 だよ。 一般に factoria(n) = n * factorial(n-1).
+
+factorial(0), factorial(1), factorial(2)... と次々に計算していき、factorial(n) < 0 となる最初の n を求める関数 int factorial_overflow(void)。 C 言語ではこういうことが起こる。int が有限だからね。
+
+関数 int fibo(int n) を定義せよ。fibo(0)=0, fibo(1)=1, fibo(2)=2 で、 一般にfibo(n) = fibo(n-1) + fibo(n-2).
+
+fibo(n) が最初に 1,000 を超える n はいくらかを求める関数 int fibo_over1000(void). 答えはきっと 17 だ。
+
+fibo(n) が最初に m を超える n を返す関数 int fibo_over(int m).
+
+n 以上 m 未満となるフィボナッチ数の総和を返す関数 int sum_of_fibo_between(int n, int m).
+
+テキスト文字列参照）文字列 s の長さを返す関数 int str_len(char s[]).
+
+文字列 s に含まれる文字 c の数を返す関数 int count_chars(char s[], char c).
+
+文字列 s1 と文字列 s2 が等しいかどうかを判定する関数 int str_eql(char s1[], char s2[]).
+
+二つの文字列 s1, s2 の先頭の n 文字が等しいかどうかを判定する関数 int str_eql_n(char s1[], char s2[], int n).
+
+文字列 s1 を文字列 s2 にコピーする関数 void str_copy(char s1[], char s2[]). s2 は s1 をコピーするに十分な長さがあると仮定してよい。
+
+文字列 s1 の後ろに文字列 s2 を連結する関数 void str_append(char s1[], char s2[]).
+
+文字列 s1 の n 文字目からの m 文字を s2 の先頭にコピーする関数 void str_take(char s1[], int n, int m, char s2[]).
+
+文字列 s1 中に文字列 s2 が出現するかどうかを判定する関数 int str_search(char s1[], char s2[]). s2 が s1 の何文字目から出現しているかを返そう。見つからなかった時は -1 を返せ。
+
+文字列 s1 の n 文字目からの m 文字を削除する void str_remove(char s1[], int n, int m).
+
+文字列 s1 中に文字列 s2 が見つかる場合、s1 から s2 を削除する void str_remove_str(char s1[], char s2[]). 見つからない時？なにも削除しないよ。
+
+文字列 s1 の n 文字目に文字列 s2 を挿入する void str_insert(char s1[], int n, char s2[]).
+
+文字列 s1 中に現れる文字列 s2 を文字列 s3 で置き換える void str_subst(char s1[], char s2[], char s3[]).
+
+文字列 s1 を全て大文字にして文字列s2にコピーする関数 toUpper(char s1[], char s2[]).
+
+文字列 s1 を整数に変換して返す関数 int str_to_int(char s1[]). str_to_int("314")の戻り値は 214 になる。
+
+整数 n を文字列 s[] に変換する関数 void int_to_str(int n, char s[]). int_to_int(1023, s) の呼び出しによって 文字列 "1023" が s にコピーされる。
+
+文字列 s1[] を逆にした文字列 s2[] を作る関数 void str_reverse(char s1[], char s2[]).
+
+
+サイズ n の整数配列 a[] に 0 ~ 99 の乱数をセットする関数 void init_randoms_99(int a[] , int n).
+
+上で作った乱数配列 a[] を要素の大きさ順に並べ替え、b[] にセットする関数 sort(int a[,], int n, int b[]).
+
+上で並べ替えた配列 b[] がまじで要素順になっているかを確認する関数 int is_sorted(int b[], int n).
+
+(おまけ) 整数 n が平方数であるかどうかを判定する関数 int is_square(int n). 15129 は平方数である。
+
+(おまけ) 2<sup>16</sup>を超えない最大の素数は何か？ それは 65521.
+
+(おまけ) 2<sup>31</sup>を超えない最大の素数は何か？ それはきっと 2147483647.
+
+(おまけ) 4番目までの素数を足すと 2+3+5+7=17. 1000 番目までの素数の和を求めなさい。それはたぶん 3682913.
+
+(おまけ) 1000未満の素数 p1, p2, p3 で、p1<sup>2</sup>+p2<sup>2</sup>=p3<sup>2</sup> を満たすものはあるでしょうか？ 現在、調査中です。
+
+2520 は 1 から 10 の数字のすべての整数で割り切れる最小の整数である。1 から 20 までの整数すべてで割り切れる最小の整数は何か？(Project Euler の 5 番)
+
+整数 n を文字列 s に変換する関数 int_to_str(int n, char s[]). s[] は十分な長さがあると仮定してよい。int_to_str(1234,s) の結果、s には文字列 "1234" がセットされる。
+
+左右どちらから読んでも同じ値になる数を回文数という。2桁の数の積で表される回文数のうち、最大のものは 9009 = 91 × 99 である。3桁の数の積で表される回文数の最大値を求めよ。(Project Euler の 4 番)
+
+600851475143 の素因数のうち最大のものを求めよ。(Project Euler の3番)
+
+hkimura の 108 番の回答は実は間違っています。たまたま正しい答えを返すのみ。任意の整数の素因数の最大を返すよう、hkimura の回答を改善しなさい。
+
+(悪ふざけ)int sum_of_digits(int n) をできるだけ、{} や変数を使わずに書け。hkimura は苦手です。hkimura を超える回答を待つ。
+
+(悪ふざけ、でも、プログラムに興味を持つ学生に) n * m と同じ計算をする関数 int times(int n, int m) を定義せよ。times 中で * を使うのは反則とする。
+
+(悪ふざけ) ++ のみを使い、x + y と同じ計算をする関数 int add(int x, int y) を定義せよ。
+
+(悪ふざけ) + や * を使わず、n * 2 と同じ計算をする関数 int doubles(int n) を定義せよ。
+
+(悪ふざけ) n * 10 と同じ計算をする関数 int ten(int n) を定義できるかな？ 今のところ、回答を思いつかないので、ぜひ、hkimura の鼻をあかしてください。+ と * は使っちゃダメよ。
+
+(悪ふざけ) n * 100 はどうでしょう？ 絶対、期末試験には出ません。
+
+
+
+
+
+
+
+
+
