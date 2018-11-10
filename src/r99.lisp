@@ -191,6 +191,7 @@
 (define-easy-handler (users-alias :uri "/answers") ()
   (redirect "/users"))
 
+;; FIXME エラーになってる。2018-11-10
 (define-easy-handler (users :uri "/users") ()
   (page
     (:p (:img :src "/guernica.jpg" :width "100%"))
@@ -247,17 +248,19 @@
 (define-easy-handler (index-alias :uri "/") ()
   (redirect "/problems"))
 
+;; FIXME, (count) をどう表示するか？2017 は複雑な SQL 流してた。
+;; answers テーブルから引けばいいんじゃね？ 2018-11-10
 (define-easy-handler (problems :uri "/problems") ()
   (let ((results
          (query "select num, detail from problems order by num")))
     (page
       (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
-      (:h1 :class "warn" "UNDER CONSTRUCTION")
-      (:p "問題も変えます。考え中です。" )
       (:h2 "problems")
       (loop for row = (dbi:fetch results)
          while row
-         do (format t "<p>~a, ~a</p>"
+         do (format t
+                    "<p><a href='/answer?num=~a'>~a</a> ( ) ~a</p>~%"
+                    (getf row :|num|)
                     (getf row :|num|)
                     (getf row :|detail|))))))
 

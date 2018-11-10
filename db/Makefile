@@ -4,14 +4,14 @@ DB=r99
 USER=user1
 PSQL=psql -h localhost -U ${USER} -W ${DB}
 
+start: drop create init seed
+
 # r99-2018.md:
 # 	${RUBY} make-r99-2018.rb > $@
 # 	cat problem* >> $@
 
 backup:
 	pg_dump -h ${DBSERVER} -U ${USER} -W ${DB} > backups/`date +%F`.sql
-
-start: drop create init seed
 
 drop:
 	${PSQL} < drop-all.postgres
