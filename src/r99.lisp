@@ -4,6 +4,9 @@
 
 (defvar *version* "1.0.1")
 
+(defvar *nakadouzono* 8998)
+(defvar *hkimura* 8999)
+
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
   (declare (type (or string symbol) name))
@@ -403,11 +406,11 @@ order by users.myid")
       (format
        t
        "<b>nakadouzono:</b><pre class='answer'><code>~a</code></pre><hr>"
-       (escape (r99-answer 8001 num)))
+       (escape (r99-answer *nakadouzono* num)))
       (format
        t
        "<b>hkimura:</b><pre class='answer'><code>~a</code></pre>"
-       (escape (r99-answer 8000 num))))))
+       (escape (r99-answer *hkimura* num))))))
 
 (defun exist? (num)
   (let ((sql (format
@@ -417,21 +420,31 @@ order by users.myid")
               num)))
     (not (null (dbi:fetch (query sql))))))
 
+;; backup to old_answers, 2018-11-10
 (defun update (myid num answer)
-  (let ((sql (format
+  (let ((sql0 (format
+               nil
+               "insert into old_answers (myid, num, answer)
+values ('~a', '~a', '~a')"
+               myid
+               num
+               answer))
+        (sql (format
               nil
               "update answers set answer='~a', update_at=now()
  where myid='~a' and num='~a'"
               (escape-apos answer)
               myid
               num)))
+    (query sql0)
     (query sql)
     (redirect "/users")))
 
+;;change: update_at -> create_at
 (defun insert (myid num answer)
   (let ((sql (format
               nil
-              "insert into answers (myid, num, answer, update_at)
+              "insert into answers (myid, num, answer, create_at)
  values ('~a','~a', '~a', now())"
               myid
               num
@@ -564,8 +577,9 @@ order by users.myid")
           (if (string= new1 new2)
               (query (format
                       nil
-                      "update users set password='~a' where myid='~a'"
-                      new1 myid))
+                      "update users set password='~a', update_at='now()' where myid='~a'"
+                      new1
+                      myid))
               (setf stat "パスワードが一致しません。"))
           (setf stat "現在のパスワードが一致しません"))
       (:p (str stat)))))

@@ -2,9 +2,17 @@
 
 ## 2018
 
+### [1.0.1] 2018-11-10
 
-* version 1.0
-  新しく 2018 用のを準備始めたというだけで、完成度が 1.0 な訳ではない。
+* シンプルな SQL --- 回答カウントしていない。なんとかしないと。
+* create_at/update_at を正しく使う
+* defvar hkimura
+* update の際にコピーを old_answers にとる。
+
+
+### [1.0]
+
+新しく 2018 用のを準備始めたというだけで、完成度が 1.0 な訳ではない。
 
 ### FIXME
 
@@ -14,7 +22,7 @@
     別にテーブル用意して、アップデートの際はそっちにコピーしてから
     アップデートしよう。
 
-```
+```sql
 create table old_answers (
        id serial primary key,
        myid       integer not null,
