@@ -6,13 +6,14 @@
 
 * シンプルな SQL --- 回答カウントしていない。なんとかしないと。
 * create_at/update_at を正しく使う
-* defvar hkimura
-* update の際にコピーを old_answers にとる。
+* [DONE]defvar hkimura
+* [DONE]update の際にコピーを old_answers にとる。
 * 一番の問題は問題。
 * [BUG] answers がひとつもない時、エラー。
 * answers は内容を表していない。
-* コメントはどうつけるんだっけ？
-* status にコメントのついた回答を表示のはずか？
+* [DONE]コメントはどうつけるんだっけ？
+* [DONE]status にコメントのついた回答を表示のはずか？
+* status/ranking が表示されない。
 
 ### [1.0]
 
