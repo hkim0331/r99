@@ -109,7 +109,7 @@
      " | "
      (:a :href "/problems" "problems")
      " | "
-     (:a :href "/users" "others")
+     (:a :href "/others" "others")
      " | "
      (:a :href "/status" "status")
      " | "
@@ -192,11 +192,11 @@
 ;; answers
 ;;
 (define-easy-handler (users-alias :uri "/answers") ()
-  (redirect "/users"))
+  (redirect "/others"))
 
 ;; FIXME エラーになってる。2018-11-10
 ;; midterm はなんだっけ？
-(define-easy-handler (users :uri "/users") ()
+(define-easy-handler (users :uri "/others") ()
   (page
    (:p (:img :src "/guernica.jpg" :width "100%"))
    (:h2 "誰が何問?")
@@ -206,7 +206,7 @@
             (query "select myid, num, update_at::text from answers
  order by update_at desc limit 1")))
           (results
-           (query "select users.myid,count(distinct answer)
+           (query "select users.myid, count(distinct answer)
 from users
 inner join answers
 on users.myid=answers.myid
@@ -224,20 +224,24 @@ order by users.myid")
                      (dbi:fetch-all
                       (query  "select distinct(myid) from answers
  where now() - update_at < '48 hours'")))))
-      (htm (:p (format
-                t
-                "myid ~a answered to question <a href='/answer?num=~a'>~a</a> at ~a."
-                (getf recent :|myid|)
-                (getf recent :|num|)
-                (getf recent :|num|)
-                (short (getf recent :|update_at|))))
-           (:p (format
-                t
-                "<span class='yes'>赤</span>
- は過去 48 時間以内にアップデートがあった受講生。全回答数 ~a。"
-                (count-answers)))
-           (:hr))
-      (loop for row = (dbi:fetch results)
+     (htm
+      ;;BUG
+      ;; (:p
+      ;;  (format
+      ;;   t
+      ;;   "myid ~a answered to question <a href='/answer?num=~a'>~a</a> at ~a."
+      ;;   (getf recent :|myid|)
+      ;;   (getf recent :|num|)
+      ;;   (getf recent :|num|)
+      ;;   (short (getf recent :|update_at|))))
+      ;;BUG
+      (:p
+       (format
+        t
+        "<span class='yes'>赤</span> は過去 48 時間以内にアップデートがあった受講生。全回答数 ~a。"
+        (count-answers)))
+      (:hr))
+     (loop for row = (dbi:fetch results)
             while row
             do
                (let* ((myid (getf row :|myid|))
@@ -254,6 +258,7 @@ order by users.myid")
                   (getf row :|count|)))
            (incf n))
       (htm (:p "受講生 ??? 人、一題以上回答者 " (str n) " 人。")))))
+
 ;;
 ;; /problems
 ;;
@@ -264,7 +269,13 @@ order by users.myid")
 ;; answers テーブルから引けばいいんじゃね？ 2018-11-10
 (define-easy-handler (problems :uri "/problems") ()
   (let ((results
-         (query "select num, detail from problems order by num")))
+         (query "select num, detail from problems order by num")
+;;          (query
+;;           "select answers.num, count(*), problems.detail from answers
+;; inner join problems on answers.num=problems.num
+;; group by answers.num, problems.detail
+;; order by answers.num")
+          ))
     (page
       (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
       (:h2 "problems")
@@ -438,14 +449,14 @@ values ('~a', '~a', '~a')"
               num)))
     (query sql0)
     (query sql)
-    (redirect "/users")))
+    (redirect "/others")))
 
 ;;change: update_at -> create_at
 (defun insert (myid num answer)
   (let ((sql (format
               nil
-              "insert into answers (myid, num, answer, create_at)
- values ('~a','~a', '~a', now())"
+              "insert into answers (myid, num, answer, create_at, update_at)
+ values ('~a','~a', '~a', now(), now())"
               myid
               num
               (escape-apos answer))))
@@ -738,7 +749,7 @@ answer like '%/* comment from%' order by num"
           (:ul
            (:li "氏名: " (str jname))
            (:li "回答数: " (str sc))
-           (:li "ランキング: " (str (ranking (myid))) "位 / 242 人"
+           (:li "ランキング: " (str (ranking (myid))) "位 / 246 人"
                " (最終ランナーは " (str (- last-runner 1)) "位と表示されます)"))
           (:hr)
           (:h3 "自分回答をダウンロード")

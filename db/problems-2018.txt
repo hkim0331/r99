@@ -4,16 +4,16 @@
 ;;
 
 ;;
-;; printf
+;; printf, return value
 ;;
 
 "hello, robocar!" をプリントする関数
 void hello_p(void).
 
-"hello, robocar!" を n 回プリントする関数
-void hello_n_p(int n).
+引数 n で与えらえれた回数分、"hello, robocar!" プリントする関数
+void hellos_p(int n).
 
-整数をキーボードから読み、
+整数ひとつをキーボードから読み、
 それに 1 を足した数をプリントする関数
 void add1_p(void).
 
@@ -32,23 +32,23 @@ float en(int r).
 奇数だったら"奇数です"とプリントする関数
 void even_p(void).
 
-整数ひとつを引数にとり、それが偶数だったら 1、
+整数 x を引数にとり、それが偶数だったら 1、
 奇数だったら 0 を返す関数
 int even(int x).
 
-整数二つを引数にとり、それらを足した数をプリントする関数
+整数 x , y を引数にとり、それらを足した数をプリントする関数
 int add2_p(int x, int y).
 
-整数二つを引数にとり、それらを足した数を戻り値とする関数
+整数 x, y を引数にとり、それらを足した数を戻り値とする関数
 int add2(int x, int y).
 
-整数二つを引数にとり、それらの和、差、積、整数商をプリントする関数
+整数 x, y を引数にとり、それらの和、差、積、整数商をプリントする関数
 void wa_sa_seki_sho_p(int x, int y).
 
-整数二つを引数にとり、大きい方の整数をプリントする関数
+整数 x, y を引数にとり、大きい方の整数をプリントする関数
 void max_p(int x, int y).
 
-整数二つを引数にとり、大きい方の整数を戻り値とする関数
+整数 x, y を引数にとり、大きい方の整数を戻り値とする関数
 int max2(int x, int y).
 
 整数三つを引数にとり、もっとも大きい整数を戻り値とする関数
@@ -81,51 +81,11 @@ int divide(int x, int y).
 整数一つを引数とし、その約数を全てプリントする関数
 void divisors_p(int n).
 
-整数一つを引数とし、その約数の合計を戻り値とする関数
-int sum_of_divisors(int n).
+(*)引数の整数の全ての約数の配列を配列 ret に入れる関数
+void divisors_array(int n, int ret[]).
 
-整数一つを引数とし、その数が完全数かどうかを判定する関数
-int is_perfect(int n).
-
-整数一つを引数とし、
-その数が素数だったら"素数です"とプリントする関数
-int is_prime_p(int n).
-
-整数一つを引数とし、
-その数が素数だったら1、素数でなかったら 0 を返す関数
-int is_prime(int n).
-
-10 以下の素数は何個あるかをプリントする関数
-void primes_p(void).
-
-100 以下の素数は何個あるかを戻り値とする関数
-int prime100(void).
-
-n 以下の素数(nは整数)は何個あるかを戻り値とする関数
-int prime(int n).
-
-二桁の整数 x について
-ゾロ目（つまり 11 とか 22 とか）だったら
-"ゾロ目です"
-をプリントする関数
-void zorome_p(int x).
-
-二桁の整数についてゾロ目となる数は何個あるかを返す関数
-void zorome2(void).
-
-from &le; x &le; to の範囲の整数 x について、
-ゾロ目となる数は何個あるかを返す関数
-void zorome(int from, int to).
-
-3桁の整数の桁を入れ替えた整数を返す関数
-int rev3(int n).
-例えば rev(314) の戻り値は 413 になる。
-
-rev3(n) が元の整数 n と等しくなる3桁の整数は何個あるかを返す関数
-int how_many_rev3(void).
-
-rev3(n) == n かつ is_prime(n) を満たす最大の数を返す
-int max_rev3_and_prime(int n).
+(**)引数の整数の全ての約数の配列を戻す関数
+int * divisors(int n).
 
 100 以下の 7 の倍数を全てプリントする関数
 void sevens_100_p(void).
@@ -138,6 +98,79 @@ void sevens_between_p(int m, int n).
 
 m 以上、n 以下の k の倍数をプリントする関数
 void between_p(int m, int n, int k).
+
+整数一つを引数とし、その約数の合計を戻り値とする関数
+int sum_of_divisors(int n).
+
+整数一つを引数とし、その数が完全数かどうかを判定する関数
+int is_perfect(int n).
+sum_of_divisors( ) ができれば簡単。
+
+整数一つを引数とし、
+その数が素数だったら "素数です" とプリントする関数
+int is_prime_p(int n).
+
+整数一つを引数とし、
+その数が素数だったら1、素数でなかったら 0 を返す関数
+int is_prime(int n).
+
+10 以下の素数は何個あるかをプリントする関数
+void primes10_p(void).
+
+100 以下の素数は何個あるかを戻り値とする関数
+int primes100(void).
+
+n 以下の素数(nは整数)は何個あるかを戻り値とする関数
+int primes(int n).
+
+h 時 m 分 s 秒の h, m, s を引数にとり、0 時 0 分 0 秒からの通
+算秒に変換した整数を戻り値とする関数
+int time_to_int(int h, int m, int s).
+
+時刻 h1:m1:s1 と 時刻 h2:m2:s2 の間の秒数を整数で返す関数
+int sec_between(int h1, int m1, int s1, int h2, int m2, int s3).
+
+時刻 h1:m1:s1 と 時刻 h2:m2:s2 の間の時間をプリントする関数
+void times_between_p(int h1, int m1, int s1, int h2, int m2, int s3).
+
+(*)時刻 h1:m1:s1 と 時刻 h2:m2:s2 をそれぞれ文字列として受け取り、
+それらの時間差をプリントする関数
+void times_between(char time1[], char time2[]).
+
+西暦 year を引数にとり平成で返す関数。平成にならない時は -1 を返す。
+int to_heisei(int year).
+
+西暦 year を引数にとり、閏年であれば 1、そうでなければ 0 を返す関数。
+int leap(int year)
+
+m1 月 d1 日から m2 月 d2 月までの日数を返す関数
+int days(int m1, int d1, int m2, int m2).
+
+y1 年 m1 月 d1 日から y2 年 m2 月 d2 月までの日数を返す関数
+int days_between(int y1, int m1, int d1, int y2, int m2, int m2).
+
+;; 二桁の整数 x について
+;; ゾロ目（つまり 11 とか 22 とか）だったら
+;; "ゾロ目です"
+;; をプリントする関数
+;; void zorome_p(int x).
+
+;; 二桁の整数についてゾロ目となる数は何個あるかを返す関数
+;; void zorome2(void).
+
+;; from &le; x &le; to の範囲の整数 x について、
+;; ゾロ目となる数は何個あるかを返す関数
+;; void zorome(int from, int to).
+
+3桁の整数の桁を入れ替えた整数を返す関数
+int rev3(int n).
+例えば rev(314) の戻り値は 413 になる。310 は 13 だ。
+
+rev3(n) が元の整数 n と等しくなる3桁の整数は何個あるかを返す関数
+int how_many_rev3(void).
+
+;; rev3(n) == n かつ is_prime(n) を満たす最大の数を返す
+;; int max_rev3_and_prime(int n).
 
 整数 n の 2 乗を戻り値とする関数
 int square(int n).
@@ -223,14 +256,8 @@ f_to_f(3.14159265, 4) の戻り値は 3.141600
 ;;
 
 関数 long random(void) を呼ぶとすごく大きい整数乱数が返ってくる。
-random( ) を利用し、10未満の乱数を10個、プリントする関数
-void rand10_p(void).
-
-0 以上 n 未満の正の整数乱数を返す関数
-int rand(int n).
-
--10 から 10 までの整数乱数を返す関数
-int rand10(void).
+random( ) を利用し、0 以上 n 未満の正の整数乱数を返す関数
+int rand(int n) を作れ。
 
 n &le; r &lt; m の整数乱数を返す関数
 int rand_between(int n, int m).
@@ -243,12 +270,13 @@ float randf(void).
 を n 個プリントする関数
 void randf_p(int n).
 
-上の randf_p( ) を応用し、円周率を求める関数
+上の randf_p( ) を応用し、円周率 pi を求める関数
 float pi(int n).
 2次元乱数 [x,y]、
 (0.0 &le; x &lt; 1.0, 0.0 &le; y &lt; 1.0)
 を n = 1,000 個発生し、
-x^2 + y^2 &le; 1 となるものを数える。多分それは 785 近辺の数になるだろう。
+x^2 + y^2 &le; 1 となるものを数える。多分それは 785 近辺の数になる。
+とすると円周率 pi は  (785/1000)*4 と推定できる。
 n を増やすと pi の精度は上がるはず。
 
 ;;
@@ -343,7 +371,9 @@ int str_eql(char s1[ ], char s2[ ]).
 二つの文字列 s1, s2 の先頭の n 文字が等しいかどうかを判定する関数
 int str_eql_n(char s1[ ], char s2[ ], int n).
 
-文字列 s1 を文字列 s2 にコピーする関数 void str_copy(char s1[ ], char s2[ ]). s2 は s1 をコピーするに十分な長さがあると仮定してよい。
+文字列 s1 を文字列 s2 にコピーする関数
+void str_copy(char s1[ ], char s2[ ]).
+s2 は s1 をコピーするに十分な長さがあると仮定してよい。
 
 文字列 s1 の後ろに文字列 s2 を連結する関数
 void str_append(char s1[ ], char s2[ ]).
@@ -390,15 +420,3 @@ sort(int a[,], int n, int b[ ]).
 
 上で並べ替えた配列 b[ ] がまじで要素順になっているかを確認する関数
 int is_sorted(int b[ ], int n).
-
-
-
-
-
-
-
-
-
-
-
-
