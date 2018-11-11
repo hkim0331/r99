@@ -742,7 +742,7 @@ answer like '%/* comment from%' order by num"
           (htm (:p (:img :src image) (str message)))
           (:hr)
           (:h3 "アクティビティ")
-          (:p "毎日ちょっとずつが実力のもと。一度にたくさんはどうかな？")
+          (:p "毎日ちょっとずつが実力のもと。一度にたくさんは身にならんやろ。")
           (:p (:a :href "/activity" "&rArr; activity"))
           (:hr)
           (:h3 "ランキング")
@@ -750,7 +750,7 @@ answer like '%/* comment from%' order by num"
            (:li "氏名: " (str jname))
            (:li "回答数: " (str sc))
            (:li "ランキング: " (str (ranking (myid))) "位 / 246 人"
-               " (最終ランナーは " (str (- last-runner 1)) "位と表示されます)"))
+                " (最終ランナーは " (str (- last-runner 1)) "位と表示されます)"))
           (:hr)
           (:h3 "自分回答をダウンロード")
           (:p "全回答を問題番号順にコメントも一緒にダウンロードします。")
