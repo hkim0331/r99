@@ -4,8 +4,10 @@ DB=r99
 USER=user1
 PSQL=psql -h localhost -U ${USER} -W ${DB}
 
+start: drop create init seed seed-users seed-answers
 
-start: drop create init seed seed-users
+seed-answers:
+	${RUBY} seed-answers.rb
 
 seed-users: sid-uid-myid-jname.txt
 	${RUBY} seed-users.rb
