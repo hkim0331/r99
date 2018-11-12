@@ -14,7 +14,7 @@ install: r99
 	sudo systemctl start r99
 
 clean:
-	${RM} r99
+	${RM} r99 *.bak
 
 reinstall:
 	make clean install

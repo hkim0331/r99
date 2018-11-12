@@ -1,4 +1,4 @@
-RUBY=/usr/local/bin/ruby
+RUBY=/usr/bin/env ruby
 DBSERVER=db.melt.kyutech.ac.jp
 DB=r99
 USER=user1
