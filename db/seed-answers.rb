@@ -7,5 +7,5 @@ DB = Sequel.postgres("r99",
                    host: (ENV["R99_HOST"] or "localhost"))
 
 DB[:answers].insert(myid: 8999, num: 1, answer: "void hello_p(void) {
-printf(\"hello,robocar\n\");
+  printf(\"hello,robocar\\n\");
 }", create_at: Time.now, update_at: Time.now)

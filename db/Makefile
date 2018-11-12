@@ -1,16 +1,20 @@
-RUBY=/usr/local/bin/ruby
+RUBY=/usr/bin/env ruby
 DBSERVER=db.melt.kyutech.ac.jp
 DB=r99
 USER=user1
 PSQL=psql -h localhost -U ${USER} -W ${DB}
 
-start: drop create init seed seed-users seed-answers
+init: drop create seed-problems seed-users seed-answers
 
-seed-answers:
-	${RUBY} seed-answers.rb
+# simply insert one answer.
+seed-problems: problems-2018.txt problems-extra.txt
+	${RUBY} seed-problems.rb $^
 
 seed-users: sid-uid-myid-jname.txt
 	${RUBY} seed-users.rb
+
+seed-answers:
+	${RUBY} seed-answers.rb
 
 # r99-2018.md:
 # 	${RUBY} make-r99-2018.rb > $@
@@ -25,11 +29,9 @@ drop:
 create:
 	${PSQL} < create-all.postgres
 
-init:
-	${RUBY} init-problems.rb
-
-seed: problems-2018.txt
-	${RUBY} seed-problems.rb $?
+# nouse in 1.1
+#init:
+#	${RUBY} init-problems.rb
 
 uid.txt: sid-uid-myid-jname.txt
 	gawk '{print $$2}' $^ > $@
@@ -47,5 +49,3 @@ uid.txt: sid-uid-myid-jname.txt
 restore:
 	${PSQL} < drop-tables.postgres
 	${PSQL} < backups/last.sql
-
-
