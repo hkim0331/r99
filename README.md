@@ -7,7 +7,7 @@
 * r99/src に降りて M-x-slime すれば working directory 問題は出ないか？
 * ~/quicklisp は r99 バイナリを作るときだけに必要？なのであれば、開発
   機にはいらないな。
-* 1.1 を目指す。 
+* 1.1 を目指す。
 
 ### 2018-11-11
 
@@ -18,13 +18,13 @@
 
 * シンプルな SQL --- 回答カウントしていない。なんとかしないと。
 * create_at/update_at を正しく使う
-* [DONE]defvar hkimura
-* [DONE]update の際にコピーを old_answers にとる。
+* [DONE] defvar hkimura
+* [DONE] update の際にコピーを old_answers にとる。
 * 一番の問題は問題。
 * [BUG] answers がひとつもない時、エラー。
 * answers は内容を表していない。
-* [DONE]コメントはどうつけるんだっけ？
-* [DONE]status にコメントのついた回答を表示のはずか？
+* [DONE] コメントはどうつけるんだっけ？
+* [DONE] status にコメントのついた回答を表示のはずか？
 * status/ranking が表示されない。
 
 ### [1.0]
@@ -51,14 +51,11 @@ create table old_answers (
 * make drop  create init でエラー
 * gem update
 
-
-
 ---
 
 # 2017
 
 robocar-2017 用、簡単 C の 99 題。
-
 
 ## FIXME
 

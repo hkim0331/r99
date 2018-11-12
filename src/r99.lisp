@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "1.0.1")
+(defvar *version* "1.1.1")
 
 (defvar *nakadouzono* 8998)
 (defvar *hkimura* 8999)
@@ -21,15 +21,13 @@
         #+sbcl (sb-ext:posix-getenv name)
         default)))
 
-;;これだとコンパイル時に決定する、か？
+;;これだとコンパイル時に決定する、なのか？
 (defvar *host* (or (getenv "R99_HOST") "localhost"))
 (defvar *user* (or (getenv "R99_USER") "user1"))
 (defvar *password* (or (getenv "R99_PASS") "pass1"))
 (defvar *db* "r99")
-;;
 (defvar *server* nil)
 (defvar *http-port* 3030)
-;;
 (defvar *myid* "r99");; cookie name
 
 (defun query (sql)
@@ -211,18 +209,18 @@ from users
 inner join answers
 on users.myid=answers.myid
 group by users.myid
-order by users.myid")
+order by users.myid"))
             ;;(query "select users.myid, users.midterm, count(distinct answer)
             ;; from users
             ;; inner join answers
             ;; on users.myid=answers.myid
             ;; group by users.myid, users.midterm
             ;; order by users.myid")
-            )
-           (working-users
-             (mapcar (lambda (x) (getf x :|myid|))
-                     (dbi:fetch-all
-                      (query  "select distinct(myid) from answers
+
+          (working-users
+            (mapcar (lambda (x) (getf x :|myid|))
+                    (dbi:fetch-all
+                     (query  "select distinct(myid) from answers
  where now() - update_at < '48 hours'")))))
      (htm
       ;;BUG
@@ -257,7 +255,7 @@ order by users.myid")
                   myid
                   (getf row :|count|)))
            (incf n))
-      (htm (:p "受講生 ??? 人、一題以上回答者 " (str n) " 人。")))))
+     (htm (:p "受講生 246 人、一題以上回答者 " (str n) " 人。")))))
 
 ;;
 ;; /problems
@@ -269,24 +267,22 @@ order by users.myid")
 ;; answers テーブルから引けばいいんじゃね？ 2018-11-10
 (define-easy-handler (problems :uri "/problems") ()
   (let ((results
-         (query "select num, detail from problems order by num")
-;;          (query
-;;           "select answers.num, count(*), problems.detail from answers
-;; inner join problems on answers.num=problems.num
-;; group by answers.num, problems.detail
-;; order by answers.num")
-          ))
+         (query "select num, detail from problems order by num")))
     (page
-      (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
-      (:h2 "problems")
-      (loop for row = (dbi:fetch results)
-         while row
-         do (format t
-                    "<p><a href='/answer?num=~a'>~a</a> ( ) ~a</p>~%"
-                    (getf row :|num|)
-                    (getf row :|num|)
-                    (getf row :|detail|))))))
-
+     (:h1 :class "warn" "UNDER CONSTRUCTION")
+     (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
+     (:h2 "problems")
+     (:p "番号をクリックして回答提出。ビルドできない回答は受け取らないよ。")
+     (loop for row = (dbi:fetch results)
+        while row
+        do (format t
+                   "<p><a href='/answer?num=~a'>~a</a>, ~a</p>~%"
+                   (getf row :|num|)
+                   (getf row :|num|)
+                   (getf row :|detail|))))))
+;;
+;; r99 2017 version
+;;
 ;; (define-easy-handler (problems :uri "/problems") ()
 ;;   (let ((results
 ;;          (query
@@ -718,7 +714,7 @@ answer like '%/* comment from%' order by num"
 
 (define-easy-handler (status :uri "/status") ()
   (if (myid)
-            (let* ((num-max (get-num-max))
+      (let* ((num-max (get-num-max))
              (sv (apply #'vector (solved (myid))))
              (sc (length sv))
              (cheer (cheerup sc))
@@ -726,49 +722,49 @@ answer like '%/* comment from%' order by num"
              (message (second cheer))
              (jname (get-jname))
              (last-runner (get-last)))
-        (page
-          (:h3 "回答状況")
-          (:p "クリックして問題・回答にジャンプ。")
-          (loop for n from 1 to num-max
-             do
-               (htm (:a :href (format nil "/answer?num=~a" n)
-                        :class (if (find n sv) "found" "not-found")
-                        (str n))))
-          (:p "コメントがついた回答があります --> "
-              (str (answers-with-comment (myid))))
-          ;; (mapcar
-          ;;  (lambda (x) (htm (:p x)))
-          ;;  (answers-with-comment (myid)))
-          (htm (:p (:img :src image) (str message)))
-          (:hr)
-          (:h3 "アクティビティ")
-          (:p "毎日ちょっとずつが実力のもと。一度にたくさんは身にならんやろ。")
-          (:p (:a :href "/activity" "&rArr; activity"))
-          (:hr)
-          (:h3 "ランキング")
-          (:ul
-           (:li "氏名: " (str jname))
-           (:li "回答数: " (str sc))
-           (:li "ランキング: " (str (ranking (myid))) "位 / 246 人"
-                " (最終ランナーは " (str (- last-runner 1)) "位と表示されます)"))
-          (:hr)
-          (:h3 "自分回答をダウンロード")
-          (:p "全回答を問題番号順にコメントも一緒にダウンロードします。")
-          (:p (:a :href "/download" "&rArr; download"))
-          (:hr)
-          (:h3 "パスワード変更")
-          (:form :method "post" :action "/passwd"
-                 (:p "myid (変更不可)")
-                 (:p (:input :type "text" :name "myid" :value (str (myid))
-                             :readonly "readonly"))
-                 (:p "old password")
-                 (:p (:input :type "password" :name "old"))
-                 (:p "new password")
-                 (:p (:input :type "password" :name "new1"))
-                 (:p "new password again (same one)")
-                 (:p (:input :type "password" :name "new2"))
-                 (:input :type "submit" :value "change"))))
-            (redirect "/login")))
+       (page
+         (:h3 "回答状況")
+         (:p "クリックして問題・回答にジャンプ。")
+         (loop for n from 1 to num-max
+            do
+              (htm (:a :href (format nil "/answer?num=~a" n)
+                       :class (if (find n sv) "found" "not-found")
+                       (str n))))
+         (:p "コメントがついた回答があります --> "
+             (str (answers-with-comment (myid))))
+         ;; (mapcar
+         ;;  (lambda (x) (htm (:p x)))
+         ;;  (answers-with-comment (myid)))
+         (htm (:p (:img :src image) (str message)))
+         (:hr)
+         (:h3 "アクティビティ")
+         (:p "毎日ちょっとずつが実力のもと。一度にたくさんは身にならんやろ。")
+         (:p (:a :href "/activity" "&rArr; activity"))
+         (:hr)
+         (:h3 "ランキング")
+         (:ul
+          (:li "氏名: " (str jname))
+          (:li "回答数: " (str sc))
+          (:li "ランキング: " (str (ranking (myid))) "位 / 246 人"
+               " (最終ランナーは " (str (- last-runner 1)) "位と表示されます)"))
+         (:hr)
+         (:h3 "自分回答をダウンロード")
+         (:p "全回答を問題番号順にコメントも一緒にダウンロードします。")
+         (:p (:a :href "/download" "&rArr; download"))
+         (:hr)
+         (:h3 "パスワード変更")
+         (:form :method "post" :action "/passwd"
+                (:p "myid (変更不可)")
+                (:p (:input :type "text" :name "myid" :value (str (myid))
+                            :readonly "readonly"))
+                (:p "old password")
+                (:p (:input :type "password" :name "old"))
+                (:p "new password")
+                (:p (:input :type "password" :name "new1"))
+                (:p "new password again (same one)")
+                (:p (:input :type "password" :name "new2"))
+                (:input :type "submit" :value "change"))))
+      (redirect "/login")))
 ;;
 ;; activity
 ;;
