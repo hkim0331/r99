@@ -4,16 +4,17 @@ DB=r99
 USER=user1
 PSQL=psql -h localhost -U ${USER} -W ${DB}
 
-init: drop create init seed seed-users seed-answers
+init: drop create seed-problems seed-users seed-answers
 
-seed-answers:
-	${RUBY} seed-answers.rb
-
-seed: problems-2018.txt problems-extra.txt
+# simply insert one answer.
+seed-problems: problems-2018.txt problems-extra.txt
 	${RUBY} seed-problems.rb $^
 
 seed-users: sid-uid-myid-jname.txt
 	${RUBY} seed-users.rb
+
+seed-answers:
+	${RUBY} seed-answers.rb
 
 # r99-2018.md:
 # 	${RUBY} make-r99-2018.rb > $@
@@ -28,8 +29,9 @@ drop:
 create:
 	${PSQL} < create-all.postgres
 
-init:
-	${RUBY} init-problems.rb
+# nouse in 1.1
+#init:
+#	${RUBY} init-problems.rb
 
 uid.txt: sid-uid-myid-jname.txt
 	gawk '{print $$2}' $^ > $@
