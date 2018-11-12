@@ -9,6 +9,9 @@ start: drop create init seed seed-users seed-answers
 seed-answers:
 	${RUBY} seed-answers.rb
 
+seed: problems-2018.txt problems-extra.txt
+	${RUBY} seed-problems.rb $^
+
 seed-users: sid-uid-myid-jname.txt
 	${RUBY} seed-users.rb
 
@@ -28,9 +31,6 @@ create:
 init:
 	${RUBY} init-problems.rb
 
-seed: problems-2018.txt
-	${RUBY} seed-problems.rb $?
-
 uid.txt: sid-uid-myid-jname.txt
 	gawk '{print $$2}' $^ > $@
 
@@ -47,5 +47,3 @@ uid.txt: sid-uid-myid-jname.txt
 restore:
 	${PSQL} < drop-tables.postgres
 	${PSQL} < backups/last.sql
-
-
