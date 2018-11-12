@@ -2,7 +2,10 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "1.0.1")
+(defvar *version* "1.1")
+
+(defvar *nakadouzono* 8998)
+(defvar *hkimura* 8999)
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -106,7 +109,7 @@
      " | "
      (:a :href "/problems" "problems")
      " | "
-     (:a :href "/users" "answers")
+     (:a :href "/others" "others")
      " | "
      (:a :href "/status" "status")
      " | "
@@ -189,75 +192,98 @@
 ;; answers
 ;;
 (define-easy-handler (users-alias :uri "/answers") ()
-  (redirect "/users"))
+  (redirect "/others"))
 
-(define-easy-handler (users :uri "/users") ()
+;; FIXME エラーになってる。2018-11-10
+;; midterm はなんだっけ？
+(define-easy-handler (users :uri "/others") ()
   (page
-    (:p (:img :src "/guernica.jpg" :width "100%"))
-    (:h2 "誰が何問?")
-    (let* ((n 0)
-           (recent
-            (dbi:fetch
-             (query "select myid, num, update_at::text from answers
+   (:p (:img :src "/guernica.jpg" :width "100%"))
+   (:h2 "誰が何問?")
+   (let* ((n 0)
+          (recent
+           (dbi:fetch
+            (query "select myid, num, update_at::text from answers
  order by update_at desc limit 1")))
-           (results
-            (query "select users.myid, users.midterm, count(distinct answer)
- from users
- inner join answers
- on users.myid=answers.myid
- group by users.myid, users.midterm
- order by users.myid"))
+          (results
+           (query "select users.myid, count(distinct answer)
+from users
+inner join answers
+on users.myid=answers.myid
+group by users.myid
+order by users.myid")
+            ;;(query "select users.myid, users.midterm, count(distinct answer)
+            ;; from users
+            ;; inner join answers
+            ;; on users.myid=answers.myid
+            ;; group by users.myid, users.midterm
+            ;; order by users.myid")
+            )
            (working-users
              (mapcar (lambda (x) (getf x :|myid|))
                      (dbi:fetch-all
                       (query  "select distinct(myid) from answers
  where now() - update_at < '48 hours'")))))
-      (htm (:p (format
-                t
-                "myid ~a answered to question <a href='/answer?num=~a'>~a</a> at ~a."
-                (getf recent :|myid|)
-                (getf recent :|num|)
-                (getf recent :|num|)
-                (short (getf recent :|update_at|))))
-           (:p (format
-                t
-                "<span class='yes'>赤</span>
- は過去 48 時間以内にアップデートがあった受講生。全回答数 ~a。"
-                (count-answers)))
-           (:hr))
-      (loop for row = (dbi:fetch results)
+     (htm
+      ;;BUG
+      ;; (:p
+      ;;  (format
+      ;;   t
+      ;;   "myid ~a answered to question <a href='/answer?num=~a'>~a</a> at ~a."
+      ;;   (getf recent :|myid|)
+      ;;   (getf recent :|num|)
+      ;;   (getf recent :|num|)
+      ;;   (short (getf recent :|update_at|))))
+      ;;BUG
+      (:p
+       (format
+        t
+        "<span class='yes'>赤</span> は過去 48 時間以内にアップデートがあった受講生。全回答数 ~a。"
+        (count-answers)))
+      (:hr))
+     (loop for row = (dbi:fetch results)
             while row
             do
                (let* ((myid (getf row :|myid|))
                       (working (if (find myid working-users) "yes" "no")))
                  (format
                   t
-                  "<pre><span class=~a>~A</span> (~2d) ~A<a href='/last?myid=~d'>~d</a></pre>"
+                  ;;"<pre><span class=~a>~A</span> (~2d) ~A<a href='/last?myid=~d'>~d</a></pre>"
+                  "<pre><span class=~a>~A</span> () ~A<a href='/last?myid=~d'>~d</a></pre>"
                   working
                   myid
-                  (getf row :|midterm|)
+;                  (getf row :|midterm|)
                   (stars (getf row :|count|))
                   myid
                   (getf row :|count|)))
            (incf n))
       (htm (:p "受講生 ??? 人、一題以上回答者 " (str n) " 人。")))))
+
 ;;
 ;; /problems
 ;;
 (define-easy-handler (index-alias :uri "/") ()
   (redirect "/problems"))
 
+;; FIXME, (count) をどう表示するか？2017 は複雑な SQL 流してた。
+;; answers テーブルから引けばいいんじゃね？ 2018-11-10
 (define-easy-handler (problems :uri "/problems") ()
   (let ((results
-         (query "select num, detail from problems order by num")))
+         (query "select num, detail from problems order by num")
+;;          (query
+;;           "select answers.num, count(*), problems.detail from answers
+;; inner join problems on answers.num=problems.num
+;; group by answers.num, problems.detail
+;; order by answers.num")
+          ))
     (page
       (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
-      (:h1 :class "warn" "UNDER CONSTRUCTION")
-      (:p "問題も変えます。考え中です。" )
       (:h2 "problems")
       (loop for row = (dbi:fetch results)
          while row
-         do (format t "<p>~a, ~a</p>"
+         do (format t
+                    "<p><a href='/answer?num=~a'>~a</a> ( ) ~a</p>~%"
+                    (getf row :|num|)
                     (getf row :|num|)
                     (getf row :|detail|))))))
 
@@ -337,7 +363,7 @@
       (:form :methopd "post" :action "/add-comment"
              (:input :type "hidden" :name "id" :value id)
              (:textarea :rows 5 :cols 50 :name "comment"
-                        :placeholder "warm comment please.")
+                        :placeholder "暖かいコメントをお願いします。")
              (:p (:input :type "submit" :value "comment")
                  " (your comment is displayed with your myid)")))))
 
@@ -391,11 +417,11 @@
       (format
        t
        "<b>nakadouzono:</b><pre class='answer'><code>~a</code></pre><hr>"
-       (escape (r99-answer 8001 num)))
+       (escape (r99-answer *nakadouzono* num)))
       (format
        t
        "<b>hkimura:</b><pre class='answer'><code>~a</code></pre>"
-       (escape (r99-answer 8000 num))))))
+       (escape (r99-answer *hkimura* num))))))
 
 (defun exist? (num)
   (let ((sql (format
@@ -405,22 +431,32 @@
               num)))
     (not (null (dbi:fetch (query sql))))))
 
+;; backup to old_answers, 2018-11-10
 (defun update (myid num answer)
-  (let ((sql (format
+  (let ((sql0 (format
+               nil
+               "insert into old_answers (myid, num, answer)
+values ('~a', '~a', '~a')"
+               myid
+               num
+               answer))
+        (sql (format
               nil
               "update answers set answer='~a', update_at=now()
  where myid='~a' and num='~a'"
               (escape-apos answer)
               myid
               num)))
+    (query sql0)
     (query sql)
-    (redirect "/users")))
+    (redirect "/others")))
 
+;;change: update_at -> create_at
 (defun insert (myid num answer)
   (let ((sql (format
               nil
-              "insert into answers (myid, num, answer, update_at)
- values ('~a','~a', '~a', now())"
+              "insert into answers (myid, num, answer, create_at, update_at)
+ values ('~a','~a', '~a', now(), now())"
               myid
               num
               (escape-apos answer))))
@@ -552,8 +588,9 @@
           (if (string= new1 new2)
               (query (format
                       nil
-                      "update users set password='~a' where myid='~a'"
-                      new1 myid))
+                      "update users set password='~a', update_at='now()' where myid='~a'"
+                      new1
+                      myid))
               (setf stat "パスワードが一致しません。"))
           (setf stat "現在のパスワードが一致しません"))
       (:p (str stat)))))
@@ -648,6 +685,7 @@
       (parse-integer (myid)))))
    :|jname|))
 
+;;CHECK: work?
 (defun answers-with-comment (id)
   (mapcar
    (lambda (x) (getf x :|num|))
@@ -655,7 +693,8 @@
     (query
      (format
       nil
-      "select num from answers where myid='~a' and answer like '%from 8000%' order by num"
+      "select num from answers where myid='~a' and
+answer like '%/* comment from%' order by num"
       id)))))
 
 (defun status-sub (sc)
@@ -695,22 +734,23 @@
                (htm (:a :href (format nil "/answer?num=~a" n)
                         :class (if (find n sv) "found" "not-found")
                         (str n))))
-          (:p "コメントがついた回答があります --> " (str (answers-with-comment (myid))))
+          (:p "コメントがついた回答があります --> "
+              (str (answers-with-comment (myid))))
           ;; (mapcar
           ;;  (lambda (x) (htm (:p x)))
           ;;  (answers-with-comment (myid)))
           (htm (:p (:img :src image) (str message)))
           (:hr)
           (:h3 "アクティビティ")
-          (:p "毎日ちょっとずつが実力のもと。一度にたくさんはどうかな？")
+          (:p "毎日ちょっとずつが実力のもと。一度にたくさんは身にならんやろ。")
           (:p (:a :href "/activity" "&rArr; activity"))
           (:hr)
           (:h3 "ランキング")
           (:ul
            (:li "氏名: " (str jname))
            (:li "回答数: " (str sc))
-           (:li "ランキング: " (str (ranking (myid))) "位 / 242 人"
-               " (最終ランナーは " (str (- last-runner 1)) "位と表示されます)"))
+           (:li "ランキング: " (str (ranking (myid))) "位 / 246 人"
+                " (最終ランナーは " (str (- last-runner 1)) "位と表示されます)"))
           (:hr)
           (:h3 "自分回答をダウンロード")
           (:p "全回答を問題番号順にコメントも一緒にダウンロードします。")
@@ -772,8 +812,7 @@
            "happiest.png"
            "goku.png"
            "guernica.jpg"
-           "a-gift-of-the-sea.jpg"
-           )))
+           "a-gift-of-the-sea.jpg")))
     (loop for i in entities
        do
          (push (create-static-file-dispatcher-and-handler

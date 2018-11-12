@@ -2,10 +2,34 @@
 
 ## 2018
 
-* version 1.0
-  新しく 2018 用のを準備始めたというだけで、完成度が 1.0 な訳ではない。
-  逆に 0.
+### 2018-11-12
 
+* r99/src に降りて M-x-slime すれば working directory 問題は出ないか？
+* ~/quicklisp は r99 バイナリを作るときだけに必要？なのであれば、開発
+  機にはいらないな。
+* 1.1 を目指す。
+
+### 2018-11-11
+
+* 問題をポリッシュアップする。
+* make seed 時に回答もひとつ、二ついれておくように。
+
+### [1.0.1] 2018-11-10
+
+* シンプルな SQL --- 回答カウントしていない。なんとかしないと。
+* create_at/update_at を正しく使う
+* [DONE] defvar hkimura
+* [DONE] update の際にコピーを old_answers にとる。
+* 一番の問題は問題。
+* [BUG] answers がひとつもない時、エラー。
+* answers は内容を表していない。
+* [DONE] コメントはどうつけるんだっけ？
+* [DONE] status にコメントのついた回答を表示のはずか？
+* status/ranking が表示されない。
+
+### [1.0]
+
+新しく 2018 用のを準備始めたというだけで、完成度が 1.0 な訳ではない。
 
 ### FIXME
 
@@ -15,7 +39,7 @@
     別にテーブル用意して、アップデートの際はそっちにコピーしてから
     アップデートしよう。
 
-```
+```sql
 create table old_answers (
        id serial primary key,
        myid       integer not null,
@@ -27,14 +51,11 @@ create table old_answers (
 * make drop  create init でエラー
 * gem update
 
-
-
 ---
 
 # 2017
 
 robocar-2017 用、簡単 C の 99 題。
-
 
 ## FIXME
 
@@ -61,7 +82,7 @@ Postgres との接続のため、次の環境変数をセット。
 
 db フォルダにてデータベースの作成とシード。
 
-```
+```sh
 $ cd db
 $ make create
 $ make migrate
@@ -69,7 +90,7 @@ $ make migrate
 
 src フォルダに移り、環境変数を確認して、
 
-```
+```sh
 $ cd ../src
 $ make install
 ```

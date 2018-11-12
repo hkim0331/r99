@@ -7,7 +7,7 @@ DB = Sequel.postgres("r99",
 
 now = Time.now()
 problems = DB[:problems]
-(1..99).each do |num|
+(1..120).each do |num|
    problems.insert(num: num, detail: "",
                   update_at: now, create_at: now)
 end
