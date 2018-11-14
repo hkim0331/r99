@@ -216,7 +216,6 @@ order by users.myid"))
             ;; on users.myid=answers.myid
             ;; group by users.myid, users.midterm
             ;; order by users.myid")
-
           (working-users
             (mapcar (lambda (x) (getf x :|myid|))
                     (dbi:fetch-all
@@ -246,11 +245,9 @@ order by users.myid"))
                       (working (if (find myid working-users) "yes" "no")))
                  (format
                   t
-                  ;;"<pre><span class=~a>~A</span> (~2d) ~A<a href='/last?myid=~d'>~d</a></pre>"
                   "<pre><span class=~a>~A</span> () ~A<a href='/last?myid=~d'>~d</a></pre>"
                   working
                   myid
-;                  (getf row :|midterm|)
                   (stars (getf row :|count|))
                   myid
                   (getf row :|count|)))
@@ -263,11 +260,18 @@ order by users.myid"))
 (define-easy-handler (index-alias :uri "/") ()
   (redirect "/problems"))
 
-;; FIXME, (count) をどう表示するか？2017 は複雑な SQL 流してた。
-;; * 別にanswers テーブルから引けばいいんじゃね？ 2018-11-10
+;; CHANGED: (count) をどう表示するか？2017 は複雑な SQL 流してた。
+;; answers テーブルから別に引くように。2018-11-14
 (define-easy-handler (problems :uri "/problems") ()
   (let ((results
-         (query "select num, detail from problems order by num")))
+         (query "select num, detail from problems order by num"))
+        (answers
+         (query "select num, count(*) from answers group by num"))
+        (nums (make-hash-table)))
+    (loop for row = (dbi:fetch answers)
+       while row
+       do
+         (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
     (page
      (:h1 :class "warn" "UNDER CONSTRUCTION")
      (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
@@ -275,11 +279,13 @@ order by users.myid"))
      (:p "番号をクリックして回答提出。ビルドできない回答は受け取らないよ。")
      (loop for row = (dbi:fetch results)
         while row
-        do (format t
-                   "<p><a href='/answer?num=~a'>~a</a>, ~a</p>~%"
-                   (getf row :|num|)
-                   (getf row :|num|)
-                   (getf row :|detail|))))))
+        do
+          (let ((num (getf row :|num|)))
+            (format t "<p><a href='/answer?num=~a'>~a</a>(~a) ~a</p>~%"
+                    num
+                    num
+                    (gethash num nums)
+                    (getf row :|detail|)))))))
 ;;
 ;; r99 2017 version
 ;;
