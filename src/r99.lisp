@@ -222,20 +222,21 @@ order by users.myid"))
                      (query  "select distinct(myid) from answers
  where now() - update_at < '48 hours'")))))
      (htm
-      ;;BUG
-      ;; (:p
-      ;;  (format
-      ;;   t
-      ;;   "myid ~a answered to question <a href='/answer?num=~a'>~a</a> at ~a."
-      ;;   (getf recent :|myid|)
-      ;;   (getf recent :|num|)
-      ;;   (getf recent :|num|)
-      ;;   (short (getf recent :|update_at|))))
-      ;;BUG
       (:p
        (format
         t
-        "<span class='yes'>赤</span> は過去 48 時間以内にアップデートがあった受講生。全回答数 ~a。"
+        "[いちばん最近] ~a さんが ~a、
+<a href='/answer?num=~a'>~a</a> に回答しました。"
+        (getf recent :|myid|)
+        (short (getf recent :|update_at|))
+        (getf recent :|num|)
+        (getf recent :|num|)
+        ))
+      (:p
+       (format
+        t
+        "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
+があった受講生です。全回答数 ~a。"
         (count-answers)))
       (:hr))
      (loop for row = (dbi:fetch results)
