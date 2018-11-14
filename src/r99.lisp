@@ -208,7 +208,7 @@
          (ret (query q)))
     (page
       (:pre
-       (format t "~a" (dbi:fetch ret)))
+       (format t "~a" (second (dbi:fetch ret))))
       (:p (:a :href "/admin" "back to admin")))))
 
 (define-easy-handler (admin :uri "/admin") ()
@@ -228,7 +228,7 @@
                   (getf row :|myid|)
                   (getf row :|num|)
                   (subseq (getf row :|answer|) 0 40)
-                  (setf row :|id|)))))
+                  (getf row :|id|)))))
         (redirect "/login"))))
 ;;
 ;; answers
