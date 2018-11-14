@@ -192,8 +192,8 @@
 (define-easy-handler (users-alias :uri "/answers") ()
   (redirect "/others"))
 
-;; FIXME エラーになってる。2018-11-10
-;; midterm はなんだっけ？
+;; FIX: エラーになってる。2018-11-10
+;; midterm がない。
 (define-easy-handler (users :uri "/others") ()
   (page
    (:p (:img :src "/guernica.jpg" :width "100%"))
@@ -264,7 +264,7 @@ order by users.myid"))
   (redirect "/problems"))
 
 ;; FIXME, (count) をどう表示するか？2017 は複雑な SQL 流してた。
-;; answers テーブルから引けばいいんじゃね？ 2018-11-10
+;; * 別にanswers テーブルから引けばいいんじゃね？ 2018-11-10
 (define-easy-handler (problems :uri "/problems") ()
   (let ((results
          (query "select num, detail from problems order by num")))
