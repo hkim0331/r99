@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# coding: utf-8
 # just a try
 # make start will clear this.
 
@@ -13,22 +14,26 @@ DB = Sequel.postgres("r99",
 
 num = 0
 now = Time.now
-File.foreach(ARGV[0], "\n\n", encoding: "utf-8") do |line|
-  next if line =~ /^;/
-  num += 1
-  DB[:problems].insert(num: num, detail: line,
-    create_at: now, update_at: now)
-#  puts "#{num} #{line[0..30]}"
-end
 
-File.foreach(ARGV[1], "\n\n", encoding: "utf-8") do |line|
-  next if line =~ /^;/
-  num += 1
-  DB[:problems].insert(num: num, detail: "[extra] "+ line,
-    create_at: now, update_at: now)
-#  puts "#{num} #{line[0..30]}"
-end
+# transaction で囲んでも処理時間は変わらない。
+DB.transaction do
+  File.foreach(ARGV[0], "\n\n", encoding: "utf-8") do |line|
+    next if line =~ /^;/
+    num += 1
+    DB[:problems].insert(num: num, detail: line,
+                         create_at: now, update_at: now)
+    #  puts "#{num} #{line[0..30]}"
+  end
 
+  File.foreach(ARGV[1], "\n\n", encoding: "utf-8") do |line|
+    next if line =~ /^;/
+    num += 1
+    DB[:problems].insert(num: num, detail: "[extra] "+ line,
+                         create_at: now, update_at: now)
+    #  puts "#{num} #{line[0..30]}"
+  end
+
+end
 puts "total #{num} problems inserted"
 
 # File.foreach(ARGV[0],"\n\n", encoding: "utf-8") do |line|

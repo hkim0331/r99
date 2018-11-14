@@ -287,8 +287,10 @@ order by users.myid"))
                     num
                     (gethash num nums)
                     (getf row :|detail|)))))))
-;;
+
+;; FIXME:
 ;; r99 2017 version
+;; これだと problems.num=answers.num が成立しないデータは拾えない、か？
 ;;
 ;; (define-easy-handler (problems :uri "/problems") ()
 ;;   (let ((results
@@ -312,10 +314,9 @@ order by users.myid"))
 ;;              (getf row :|count|)
 ;;              (getf row :|detail|))))))
 
-
 ;;
 ;; add-comment
-;;
+;; update_at は変えない。
 (define-easy-handler (add-comment :uri "/add-comment") (id comment)
   (let* ((a (dbi:fetch
              (query (format
@@ -434,12 +435,12 @@ order by users.myid"))
               num)))
     (not (null (dbi:fetch (query sql))))))
 
-;; backup to old_answers, 2018-11-10
+;; CHANGED: backup to old_answers, 2018-11-10
 (defun update (myid num answer)
   (let ((sql0 (format
                nil
-               "insert into old_answers (myid, num, answer)
-values ('~a', '~a', '~a')"
+               "insert into old_answers (myid, num, answer, create_at)
+values ('~a', '~a', '~a', now())"
                myid
                num
                answer))
@@ -454,7 +455,7 @@ values ('~a', '~a', '~a')"
     (query sql)
     (redirect "/others")))
 
-;;change: update_at -> create_at
+;;CHANGED: update_at -> create_at
 (defun insert (myid num answer)
   (let ((sql (format
               nil
