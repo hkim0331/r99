@@ -1,0 +1,39 @@
+;; 整数二つを引数にとり、そのうちの偶数である数をプリントする関数。
+;; 偶数がなかったら "見つかりません" をプリント。
+;; void evens_p(int x, int y).
+
+;; 正の整数二つを引数にとり、偶数である数を戻り値とする関数。
+;; 偶数がなかったら -1 を返せ。
+;; int evens2(int x, int y).
+
+;; 正整数三つを引数にとり、そのうちの最初の偶数を戻りとする関数。
+;; 偶数なかったら -1 を返す。
+;; int evens3(int x, int y, int z).
+
+;; 二桁の整数 x について
+;; ゾロ目（つまり 11 とか 22 とか）だったら
+;; "ゾロ目です"
+;; をプリントする関数
+;; void zorome_p(int x).
+
+;; 二桁の整数についてゾロ目となる数は何個あるかを返す関数
+;; void zorome2(void).
+
+;; from &le; x &le; to の範囲の整数 x について、
+;; ゾロ目となる数は何個あるかを返す関数
+;; void zorome(int from, int to).
+
+;; rev3(n) == n かつ is_prime(n) を満たす最大の数を返す
+;; int max_rev3_and_prime(int n).
+
+;; あと4つ
+10 以下の素数は何個あるかをプリントする関数
+void primes10_p(void).
+
+n 以上 m 未満の素数の和を求める関数
+int sum_primes_between(int n, int m).
+
+fibo(n) が最初に m を超える n を返す関数
+int fibo_over(int m).
+
+
