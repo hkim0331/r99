@@ -76,12 +76,20 @@
 ;; answer から ' をエスケープしないとな。
 ;; 本来はプリペアドステートメント使って処理するべき。
 ;; bugfix: 0.8.8
+;; "？"は全角だけど ? => $1 に変換してしまうのだった！
 (defun escape-apos (answer)
-  (regex-replace-all
-   "\\?"
+    (regex-replace-all
+     "\\?"
    (regex-replace-all
     "\""
     (regex-replace-all "'" answer "&apos;") "&quot;") "？"))
+
+;; 全角 ？ は積み残し。
+(defun unescape-apos (s)
+  (regex-replace-all
+   "&apos;"
+   (regex-replace-all "&quot;" s "\"")
+   "'"))
 
 (defun check (answer)
   (and
@@ -113,7 +121,9 @@
      " | "
      (:a :href "/login" "login")
      " / "
-     (:a :href "/logout" "logout"))))
+     (:a :href "/logout" "logout")
+     "|"
+     (:a :href "/admin" "admin"))))
 
 (defmacro page (&body body)
   `(with-html-output-to-string
@@ -163,6 +173,7 @@
         "sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
         :crossorigin "anonymous")))))
 
+
 (defun stars-aux (n ret)
   (if (zerop n) ret
     (stars-aux (- n 1) (concatenate 'string ret "*"))))
@@ -187,73 +198,93 @@
    :|count|))
 
 ;;
+;; admin
+;;
+(define-easy-handler (admin :uri "/admin") ()
+  (let ((myid (myid)))
+    (if (and myid (or (= (parse-integer myid) *hkimura*)
+                      (= (parse-integer myid) *nakadouzono*)))
+        (let* ((ret (query "select create_at::text, myid, num, answer from old_answers")))
+          (page
+            (loop for row = (dbi:fetch ret)
+               while row
+               do
+                 (format t "<p> ~a ~a ~a ~a</p>"
+                         (subseq (getf row :|create_at|) 0 19)
+                         (getf row :|myid|)
+                         (getf row :|num|)
+                         (subseq (getf row :|answer|) 0 40)))))
+        (redirect "/login"))))
+;;
 ;; answers
 ;;
+
 (define-easy-handler (users-alias :uri "/answers") ()
   (redirect "/others"))
 
-;; FIX: エラーになってる。2018-11-10
-;; midterm がない。
+  ;; FIX: エラーになってる。2018-11-10
+  ;; midterm がない。
+
 (define-easy-handler (users :uri "/others") ()
   (page
-   (:p (:img :src "/guernica.jpg" :width "100%"))
-   (:h2 "誰が何問?")
-   (let* ((n 0)
-          (recent
-           (dbi:fetch
-            (query "select myid, num, update_at::text from answers
+    (:p (:img :src "/guernica.jpg" :width "100%"))
+    (:h2 "誰が何問?")
+    (let* ((n 0)
+           (recent
+            (dbi:fetch
+             (query "select myid, num, update_at::text from answers
  order by update_at desc limit 1")))
-          (results
-           (query "select users.myid, count(distinct answer)
+           (results
+            (query "select users.myid, count(distinct answer)
 from users
 inner join answers
 on users.myid=answers.myid
 group by users.myid
 order by users.myid"))
-            ;;(query "select users.myid, users.midterm, count(distinct answer)
-            ;; from users
-            ;; inner join answers
-            ;; on users.myid=answers.myid
-            ;; group by users.myid, users.midterm
-            ;; order by users.myid")
-          (working-users
+           ;;(query "select users.myid, users.midterm, count(distinct answer)
+           ;; from users
+           ;; inner join answers
+           ;; on users.myid=answers.myid
+           ;; group by users.myid, users.midterm
+           ;; order by users.myid")
+           (working-users
             (mapcar (lambda (x) (getf x :|myid|))
                     (dbi:fetch-all
                      (query  "select distinct(myid) from answers
  where now() - update_at < '48 hours'")))))
-     (htm
-      (:p
-       (format
-        t
-        "[いちばん最近] ~a さんが ~a、
+      (htm
+       (:p
+        (format
+         t
+         "[いちばん最近] ~a さんが ~a、
 <a href='/answer?num=~a'>~a</a> に回答しました。"
-        (getf recent :|myid|)
-        (short (getf recent :|update_at|))
-        (getf recent :|num|)
-        (getf recent :|num|)
-        ))
-      (:p
-       (format
-        t
-        "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
+         (getf recent :|myid|)
+         (short (getf recent :|update_at|))
+         (getf recent :|num|)
+         (getf recent :|num|)
+         ))
+       (:p
+        (format
+         t
+         "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
 があった受講生です。全回答数 ~a。"
-        (count-answers)))
-      (:hr))
-     (loop for row = (dbi:fetch results)
-            while row
-            do
-               (let* ((myid (getf row :|myid|))
-                      (working (if (find myid working-users) "yes" "no")))
-                 (format
-                  t
-                  "<pre><span class=~a>~A</span> () ~A<a href='/last?myid=~d'>~d</a></pre>"
-                  working
-                  myid
-                  (stars (getf row :|count|))
-                  myid
-                  (getf row :|count|)))
+         (count-answers)))
+       (:hr))
+      (loop for row = (dbi:fetch results)
+         while row
+         do
+           (let* ((myid (getf row :|myid|))
+                  (working (if (find myid working-users) "yes" "no")))
+             (format
+              t
+              "<pre><span class=~a>~A</span> () ~A<a href='/last?myid=~d'>~d</a></pre>"
+              working
+              myid
+              (stars (getf row :|count|))
+              myid
+              (getf row :|count|)))
            (incf n))
-     (htm (:p "受講生 246 人、一題以上回答者 " (str n) " 人。")))))
+      (htm (:p "受講生 246 人、一題以上回答者 " (str n) " 人。")))))
 
 ;;
 ;; /problems
@@ -435,22 +466,29 @@ order by users.myid"))
               num)))
     (not (null (dbi:fetch (query sql))))))
 
+;; BUG? 古いデータではなく新しい方を old_answers に入れてないか？
 ;; CHANGED: backup to old_answers, 2018-11-10
 (defun update (myid num answer)
-  (let ((sql0 (format
+  (let* ((old (format
                nil
-               "insert into old_answers (myid, num, answer, create_at)
-values ('~a', '~a', '~a', now())"
+               "select answer from answers where myid='~a' and num='~a'"
                myid
-               num
-               answer))
-        (sql (format
-              nil
-              "update answers set answer='~a', update_at=now()
+               num))
+         (old-answer (unescape-apos (second (dbi:fetch (query old)))))
+         (sql0 (format
+                nil
+                "insert into old_answers (myid, num, answer, create_at)
+values ('~a', '~a', '~a', now())"
+                myid
+                num
+                old-answer))
+         (sql (format
+               nil
+               "update answers set answer='~a', update_at=now()
  where myid='~a' and num='~a'"
-              (escape-apos answer)
-              myid
-              num)))
+               (escape-apos answer)
+               myid
+               num)))
     (query sql0)
     (query sql)
     (redirect "/others")))
