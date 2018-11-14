@@ -1,10 +1,10 @@
 all: make-db make-src
 
 make-db:
-	cd db && make start
+	cd db && make init
 
 make-src:
-	cd src && make r99 install
+	cd src && make clean r99 install
 
 clean:
 	${RM} *~ *.bak

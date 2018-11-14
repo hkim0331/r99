@@ -11,10 +11,10 @@ seed-problems: problems-2018.txt problems-extra.txt
 	${RUBY} seed-problems.rb $^
 
 seed-users: sid-uid-myid-jname.txt
-	${RUBY} seed-users.rb
+	time ${RUBY} seed-users.rb
 
 seed-answers:
-	${RUBY} seed-answers.rb
+	time ${RUBY} seed-answers.rb
 
 # r99-2018.md:
 # 	${RUBY} make-r99-2018.rb > $@
