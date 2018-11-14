@@ -107,7 +107,6 @@
      (delete-file pathname)
      (= 0 (sb-ext:process-exit-code ret)))))
 
-
 (defmacro navi ()
   '(htm
     (:p
@@ -200,20 +199,36 @@
 ;;
 ;; admin
 ;;
+
+(define-easy-handler (show-old :uri "/show-old") (id)
+  (let* ((q (format
+             nil
+             "select answer from old_answers where id='~a'"
+             id))
+         (ret (query q)))
+    (page
+      (:pre
+       (format t "~a" (dbi:fetch ret)))
+      (:p (:a :href "/admin" "back to admin")))))
+
 (define-easy-handler (admin :uri "/admin") ()
   (let ((myid (myid)))
     (if (and myid (or (= (parse-integer myid) *hkimura*)
                       (= (parse-integer myid) *nakadouzono*)))
-        (let* ((ret (query "select create_at::text, myid, num, answer from old_answers")))
+        (let* ((ret (query "select id, create_at::text, myid, num,
+  answer from old_answers order by id desc")))
           (page
             (loop for row = (dbi:fetch ret)
                while row
                do
-                 (format t "<p> ~a ~a ~a ~a</p>"
-                         (subseq (getf row :|create_at|) 0 19)
-                         (getf row :|myid|)
-                         (getf row :|num|)
-                         (subseq (getf row :|answer|) 0 40)))))
+                 (format
+                  t
+                  "<p> ~a ~a ~a ~a <a href='/show-old?id=~a'>show</a></p>"
+                  (subseq (getf row :|create_at|) 0 19)
+                  (getf row :|myid|)
+                  (getf row :|num|)
+                  (subseq (getf row :|answer|) 0 40)
+                  (setf row :|id|)))))
         (redirect "/login"))))
 ;;
 ;; answers
