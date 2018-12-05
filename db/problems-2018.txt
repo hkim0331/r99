@@ -4,7 +4,7 @@
 ;;
 ;; 2018-11-10, 2018-11-11, 2018-11-12
 
-;;;;;;;;;;;;;;;;;;
+;;
 ;; printf と戻り値
 ;;
 
@@ -108,6 +108,10 @@ int is_square(int n).
 int is_cubic(int n).
 9663597 は立方数である。
 
+1000000 以下の整数で、平方数かつ立方数でもある最大の数を探す関数。
+int square_cubic(int n).
+実行は square_cubic(1000000)、きっと。
+
 ;;
 ;; 時間で演習
 ;;
@@ -121,10 +125,6 @@ int sec_between(int h1, int m1, int s1, int h2, int m2, int s3).
 
 時刻 h1:m1:s1 と 時刻 h2:m2:s2 の間の時間をプリントする関数
 void times_between_p(int h1, int m1, int s1, int h2, int m2, int s3).
-
-(*)時刻 h1:m1:s1 と 時刻 h2:m2:s2 をそれぞれ文字列として受け取り、
-それらの時間差を文字列で戻す関数
-char * times_between_string(char time1[], char time2[]).
 
 ;;
 ;; 西暦を平成に
@@ -142,11 +142,15 @@ int leap(int year).
 ;; 日数計算
 ;;
 
-m1 月 d1 日から m2 月 d2 月までの日数を返す関数
+m1 月 d1 日から 同年 m2 月 d2 月までの日数を返す関数
 int days(int m1, int d1, int m2, int m2).
 
 y1 年 m1 月 d1 日から y2 年 m2 月 d2 月までの日数を返す関数
 int days_between(int y1, int m1, int d1, int y2, int m2, int m2).
+
+;;
+;; 再び整数
+;;
 
 3 桁の整数の桁を入れ替えた整数を返す関数
 int rev3(int n).
@@ -187,7 +191,7 @@ int triangle(int x, int y, int z).
 int normal(int x, int y, int z).
 ヒント:前問
 
-整数 n を引数とし、それが 3 の倍数だったら1、
+整数 n を引数とし、それが 3 の倍数だったら 1、
 5 の倍数だったら 2、
 3 の倍数でもあり、かつ、5 の倍数でもあったら 3、
 いずれでもなかったら 0 を返す関数
@@ -195,7 +199,7 @@ int fz(int n).
 
 100 以下の整数のうち、もっとも約数の多い数を返す関数
 int most_divisors100(void).
-複数あるときはそのうちの一つを返せば OKとする。
+複数あるときはそのうちの一つを返せば OK とする。
 
 整数 n から m までの総和を求める関数
 int sum(int n, int m).
@@ -322,7 +326,6 @@ n 未満の素数の和を求める関数
 int sum_primes_under(int n).
 sum_primes_under(1000) は 76127 のはず。
 
-
 関数 int factorial(int n) を定義せよ。
 factorial(5) は 5! の値を戻り値とする。
 一般に factoria(n) = n * factorial(n-1).
@@ -353,7 +356,7 @@ int sum_of_fibo_between(int n, int m).
 ;;
 
 文字列 s が空文字列("")かどうかを判定する関数
-int str_empty(char s[ ]).
+int is_empty(char s[ ]).
 
 文字列 s の長さを返す関数
 int str_len(char s[ ]).
