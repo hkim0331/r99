@@ -320,7 +320,6 @@ order by users.myid"))
        do
          (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
     (page
-     (:h1 :class "warn" "UNDER CONSTRUCTION")
      (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
      (:h2 "problems")
      (:p "番号をクリックして回答提出。ビルドできない回答は受け取らないよ。")
