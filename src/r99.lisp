@@ -243,6 +243,7 @@
 (define-easy-handler (users :uri "/others") ()
   (page
 ;;    (:p (:img :src "/guernica.jpg" :width "100%"))
+    (:p (:img :src "/hakone.jpg" :width "100%"))
     (:h2 "誰が何問?")
     (let* ((n 0)
            (recent
@@ -320,7 +321,7 @@ order by users.myid"))
        do
          (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
     (page
-;;     (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
+     (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
      (:h2 "problems")
      (:p "番号をクリックして回答提出。ビルドできない回答は受け取らないよ。")
      (loop for row = (dbi:fetch results)
