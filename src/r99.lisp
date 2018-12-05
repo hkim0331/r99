@@ -242,8 +242,9 @@
 
 (define-easy-handler (users :uri "/others") ()
   (page
-;;    (:p (:img :src "/guernica.jpg" :width "100%"))
-    (:p (:img :src "/hakone.jpg" :width "100%"))
+   ;;    (:p (:img :src "/guernica.jpg" :width "100%"))
+   ;;    (:p (:img :src "/hakone.jpg" :width "100%"))
+   (:p (:img :src "/kutsugen.jpg" :width "100%"))
     (:h2 "誰が何問?")
     (let* ((n 0)
            (recent
@@ -870,6 +871,7 @@ answer like '%/* comment from%' order by num"
            "happiest.png"
            "goku.png"
            "guernica.jpg"
+           "kutsugen.jpg"
            "a-gift-of-the-sea.jpg")))
     (loop for i in entities
        do
