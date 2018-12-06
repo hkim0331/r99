@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "1.3")
+(defvar *version* "1.3.2")
 
 (defvar *nakadouzono* 8998)
 (defvar *hkimura* 8999)
@@ -238,7 +238,7 @@
   (redirect "/others"))
 
   ;; FIX: エラーになってる。2018-11-10
-  ;; midterm がない。
+  ;; 原因：midterm がない。
 
 (define-easy-handler (users :uri "/others") ()
   (page
@@ -273,7 +273,7 @@ order by users.myid"))
        (:p
         (format
          t
-         "[いちばん最近] ~a さんが ~a、
+         "[いちばん最近] ~a さんが ~a（世界標準時間）、
 <a href='/answer?num=~a'>~a</a> に回答しました。"
          (getf recent :|myid|)
          (short (getf recent :|update_at|))
@@ -309,6 +309,11 @@ order by users.myid"))
 (define-easy-handler (index-alias :uri "/") ()
   (redirect "/problems"))
 
+(defun zero_or_num (num)
+  (if (null num)
+      0
+      num))
+
 ;; CHANGED: (count) をどう表示するか？2017 は複雑な SQL 流してた。
 ;; answers テーブルから別に引くように。2018-11-14
 (define-easy-handler (problems :uri "/problems") ()
@@ -324,7 +329,8 @@ order by users.myid"))
     (page
      (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
      (:h2 "problems")
-     (:p "番号をクリックして回答提出。ビルドできない回答は受け取らないよ。")
+     (:p "番号をクリックして回答提出。ビルドできない回答は受け取らない。"
+         "上の方で定義した関数を利用する場合、上の関数定義は回答に含めないでOK。")
      (loop for row = (dbi:fetch results)
         while row
         do
@@ -332,7 +338,7 @@ order by users.myid"))
             (format t "<p><a href='/answer?num=~a'>~a</a>(~a) ~a</p>~%"
                     num
                     num
-                    (gethash num nums)
+                    (zero_or_num (gethash num nums))
                     (getf row :|detail|)))))))
 
 ;; FIXME:
@@ -676,19 +682,21 @@ values ('~a', '~a', '~a', now())"
 }")))
       (redirect "/login")))
 
+;;; hotfix 1.3.1
+;;; このままでいいや。
 (defun ranking (id)
-  (if (<= 8000 (parse-integer id))
-      0
-      (let* ((q "select distinct myid, count(myid) from answers
- where not (myid='8000') and not (myid='8001')
+  (let ((uid (parse-integer id)))
+    (if (<= uid 8500)
+        -1
+        (let* ((q "select distinct myid, count(myid) from answers
  group by myid order by count(myid) desc")
-             (ret (query q))
-             (n 1))
-        (loop for row = (dbi:fetch ret)
-           while (and row (not (= (parse-integer id) (getf row :|myid|))))
-           do
-             (incf n))
-        n)))
+               (ret (query q))
+               (n 1))
+          (loop for row = (dbi:fetch ret)
+             while (and row (not (= uid (getf row :|myid|))))
+             do
+               (incf n))
+          n))))
 ;;;
 ;;; status
 ;;;
@@ -808,7 +816,8 @@ answer like '%/* comment from%' order by num"
           (:li "氏名: " (str jname))
           (:li "回答数: " (str sc))
           (:li "ランキング: " (str (ranking (myid))) "位 / 246 人"
-               " (最終ランナーは " (str (- last-runner 1)) "位と表示されます)"))
+               " (最終ランナーは " (str last-runner) "位と表示されます
+  (無回答者を除く))"))
          (:hr)
          (:h3 "自分回答をダウンロード")
          (:p "全回答を問題番号順にコメントも一緒にダウンロードします。")
