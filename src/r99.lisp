@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "1.3")
+(defvar *version* "1.3.1")
 
 (defvar *nakadouzono* 8998)
 (defvar *hkimura* 8999)
@@ -676,7 +676,7 @@ values ('~a', '~a', '~a', now())"
 }")))
       (redirect "/login")))
 
-;;FIXME:
+;;; hotfix 1.3.1
 (defun ranking (id)
   (if (<= (parse-integer id) 8500)
       -1
