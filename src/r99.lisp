@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "1.2.2")
+(defvar *version* "1.3")
 
 (defvar *nakadouzono* 8998)
 (defvar *hkimura* 8999)
@@ -242,7 +242,9 @@
 
 (define-easy-handler (users :uri "/others") ()
   (page
-    (:p (:img :src "/guernica.jpg" :width "100%"))
+   ;;    (:p (:img :src "/guernica.jpg" :width "100%"))
+   ;;    (:p (:img :src "/hakone.jpg" :width "100%"))
+   (:p (:img :src "/kutsugen.jpg" :width "100%"))
     (:h2 "誰が何問?")
     (let* ((n 0)
            (recent
@@ -320,7 +322,6 @@ order by users.myid"))
        do
          (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
     (page
-     (:h1 :class "warn" "UNDER CONSTRUCTION")
      (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
      (:h2 "problems")
      (:p "番号をクリックして回答提出。ビルドできない回答は受け取らないよ。")
@@ -864,11 +865,13 @@ answer like '%/* comment from%' order by num"
            "cat2.png"
            "fight.png"
            "sakura.png"
+           "hakone.jpg"
            "happy.png"
            "happier.png"
            "happiest.png"
            "goku.png"
            "guernica.jpg"
+           "kutsugen.jpg"
            "a-gift-of-the-sea.jpg")))
     (loop for i in entities
        do
