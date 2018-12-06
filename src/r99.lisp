@@ -809,7 +809,8 @@ answer like '%/* comment from%' order by num"
           (:li "氏名: " (str jname))
           (:li "回答数: " (str sc))
           (:li "ランキング: " (str (ranking (myid))) "位 / 246 人"
-               " (最終ランナーは " (str (- last-runner 1)) "位と表示されます)"))
+               " (最終ランナーは " (str last-runner) "位と表示されます
+  (無回答者を除く))"))
          (:hr)
          (:h3 "自分回答をダウンロード")
          (:p "全回答を問題番号順にコメントも一緒にダウンロードします。")

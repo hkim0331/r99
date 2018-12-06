@@ -1,4 +1,4 @@
-all: make-db make-src
+all: make-src
 
 make-db:
 	cd db && make init
