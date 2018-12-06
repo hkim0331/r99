@@ -309,6 +309,11 @@ order by users.myid"))
 (define-easy-handler (index-alias :uri "/") ()
   (redirect "/problems"))
 
+(defun zero_or_num (num)
+  (if (null num)
+      0
+      num))
+
 ;; CHANGED: (count) をどう表示するか？2017 は複雑な SQL 流してた。
 ;; answers テーブルから別に引くように。2018-11-14
 (define-easy-handler (problems :uri "/problems") ()
@@ -333,7 +338,7 @@ order by users.myid"))
             (format t "<p><a href='/answer?num=~a'>~a</a>(~a) ~a</p>~%"
                     num
                     num
-                    (gethash num nums);;if nil? 0 else it
+                    (zero_or_num (gethash num nums))
                     (getf row :|detail|)))))))
 
 ;; FIXME:
@@ -678,19 +683,20 @@ values ('~a', '~a', '~a', now())"
       (redirect "/login")))
 
 ;;; hotfix 1.3.1
+;;; このままでいいや。
 (defun ranking (id)
-  (if (<= (parse-integer id) 8500)
-      -1
-      (let* ((q "select distinct myid, count(myid) from answers
- where not (myid='8999') and not (myid='8998')
+  (let ((uid (parse-integer id)))
+    (if (<= uid 8500)
+        -1
+        (let* ((q "select distinct myid, count(myid) from answers
  group by myid order by count(myid) desc")
-             (ret (query q))
-             (n 1))
-        (loop for row = (dbi:fetch ret)
-           while (and row (not (= (parse-integer id) (getf row :|myid|))))
-           do
-             (incf n))
-        n)))
+               (ret (query q))
+               (n 1))
+          (loop for row = (dbi:fetch ret)
+             while (and row (not (= uid (getf row :|myid|))))
+             do
+               (incf n))
+          n))))
 ;;;
 ;;; status
 ;;;
