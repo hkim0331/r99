@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "1.3")
+(defvar *version* "1.3.1")
 
 (defvar *nakadouzono* 8998)
 (defvar *hkimura* 8999)
@@ -273,7 +273,7 @@ order by users.myid"))
        (:p
         (format
          t
-         "[いちばん最近] ~a さんが ~a、
+         "[いちばん最近] ~a さんが ~a（世界標準時間）、
 <a href='/answer?num=~a'>~a</a> に回答しました。"
          (getf recent :|myid|)
          (short (getf recent :|update_at|))
@@ -676,11 +676,11 @@ values ('~a', '~a', '~a', now())"
 }")))
       (redirect "/login")))
 
+;;あれ？さっきの修正は？
 (defun ranking (id)
-  (if (<= 8000 (parse-integer id))
-      0
+  (if (<= (parse-integer id) 8500)
+      -1
       (let* ((q "select distinct myid, count(myid) from answers
- where not (myid='8000') and not (myid='8001')
  group by myid order by count(myid) desc")
              (ret (query q))
              (n 1))
