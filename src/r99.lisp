@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "1.3.1")
+(defvar *version* "1.3.2")
 
 (defvar *nakadouzono* 8998)
 (defvar *hkimura* 8999)
@@ -333,7 +333,7 @@ order by users.myid"))
             (format t "<p><a href='/answer?num=~a'>~a</a>(~a) ~a</p>~%"
                     num
                     num
-                    (gethash num nums)
+                    (gethash num nums);;if nil? 0 else it
                     (getf row :|detail|)))))))
 
 ;; FIXME:
