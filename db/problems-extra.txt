@@ -2,6 +2,10 @@
 それらの時間差を文字列で戻す関数
 char * times_between_string(char time1[], char time2[]).
 
+(*) 1000000 以下の整数で、平方数かつ立方数でもある最大の数を探す関数。
+int square_cubic(int n).
+実行は square_cubic(1000000)、きっと。
+
 (*) 引数の整数の全ての約数の配列を配列 ret に入れる関数
 void divisors_array(int n, int ret[ ]).
 
