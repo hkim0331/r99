@@ -8,7 +8,7 @@ init: drop create seed-problems seed-users seed-answers
 
 # simply insert one answer.
 # FIXME: before make seed problems,
-# psql> delete * from problems;
+# psql> delete from problems;
 # is required.
 seed-problems: problems-2018.txt problems-extra.txt
 
