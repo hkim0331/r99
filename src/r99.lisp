@@ -325,6 +325,7 @@ order by users.myid"))
      (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
      (:h2 "problems")
      (:p "番号をクリックして回答提出。ビルドできない回答は受け取らないよ。")
+     (:p "上の方で定義した関数を利用する場合、上の関数定義は回答に含めないでOK。")
      (loop for row = (dbi:fetch results)
         while row
         do
