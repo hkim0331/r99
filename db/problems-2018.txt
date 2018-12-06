@@ -113,9 +113,11 @@ int is_square(int n).
 int is_cubic(int n).
 9663597 は立方数である。
 
-1000000 以下の整数で、平方数かつ立方数でもある最大の数を探す関数。
-int square_cubic(int n).
-実行は square_cubic(1000000)、きっと。
+;; 30
+
+整数 n が 二つの整数の2乗の和として表されるかどうかを判定する関数
+int is_squeare_sum(int n).
+is_square_sum(452) は 1 を返す。452= 14<sup>2</sup>+16<sup>2</sup>.
 
 ;;
 ;; 時間で演習
