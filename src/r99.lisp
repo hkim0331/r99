@@ -238,7 +238,7 @@
   (redirect "/others"))
 
   ;; FIX: エラーになってる。2018-11-10
-  ;; midterm がない。
+  ;; 原因：midterm がない。
 
 (define-easy-handler (users :uri "/others") ()
   (page
@@ -273,7 +273,7 @@ order by users.myid"))
        (:p
         (format
          t
-         "[いちばん最近] ~a さんが ~a、
+         "[いちばん最近] ~a さんが ~a（世界標準時間）、
 <a href='/answer?num=~a'>~a</a> に回答しました。"
          (getf recent :|myid|)
          (short (getf recent :|update_at|))
@@ -676,11 +676,12 @@ values ('~a', '~a', '~a', now())"
 }")))
       (redirect "/login")))
 
+;;FIXME:
 (defun ranking (id)
-  (if (<= 8000 (parse-integer id))
-      0
+  (if (<= (parse-integer id) 8500)
+      -1
       (let* ((q "select distinct myid, count(myid) from answers
- where not (myid='8000') and not (myid='8001')
+ where not (myid='8999') and not (myid='8998')
  group by myid order by count(myid) desc")
              (ret (query q))
              (n 1))
