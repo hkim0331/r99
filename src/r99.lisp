@@ -54,6 +54,10 @@
 (defun short (datetime)
   (subseq datetime 0 19))
 
+;; to jst
+;; (defun jst (utc)
+;;   )
+
 (defun yyyy-mm-dd (iso)
   (let ((ans (multiple-value-list (decode-universal-time iso))))
     (format
