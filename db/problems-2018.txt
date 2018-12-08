@@ -117,7 +117,8 @@ int is_cubic(int n).
 
 整数 n が 二つの整数の2乗の和として表されるかどうかを判定する関数
 int is_squeare_sum(int n).
-is_square_sum(452) は 1 を返す。452= 14<sup>2</sup>+16<sup>2</sup>.
+is_square_sum(452) は 1 を返す。
+452 = 14<sup>2</sup>+16<sup>2</sup>.
 
 ;;
 ;; 時間で演習
@@ -141,8 +142,8 @@ void times_between_p(int h1, int m1, int s1, int h2, int m2, int s3).
 int to_heisei(int year).
 
 西暦 year を引数にとり、閏年であれば 1、そうでなければ 0 を返す関数。
-西暦が4で割り切れれば閏年。ただし、100で割り切れる時は平年。
-ただし、400で割り切れる時は閏年。
+西暦が 4 で割り切れれば閏年。ただし、100 で割り切れる時は平年。
+ただし、400 で割り切れる時は閏年。
 int leap(int year).
 
 ;;
@@ -191,11 +192,11 @@ int root(int n).
 3つの整数を引数とし、
 それらの長さを各辺とする三角形がありうるかどうかを判定する関数
 int triangle(int x, int y, int z).
-ヒント：一番長い辺の長さ &lt; 短い辺二つの長さ
+ヒント：一番長い辺の長さ &lt; 短い辺二つの長さの和
 
 3つの整数を引数とし、
 それらの長さを各辺とする直角三角形がありうるかどうかを判定する関数
-int normal(int x, int y, int z).
+int right_angle(int x, int y, int z).
 ヒント:前問
 
 整数 n を引数とし、それが 3 の倍数だったら 1、
@@ -238,11 +239,11 @@ int f_to_i(float x).
 かっこの付け方が妙だけど、こう書く。(int)3.5 は 3 だ。4ではない。
 
 float x を小数点第 2 位で四捨五入した float を返す関数
-int f_to_f1(float x).
+float f_to_f1(float x).
 f_to_f1(3.14159265) の戻り値は 3.100000 になる。
 
 float x を小数点第 n 位で四捨五入した float を返す関数
-int f_to_f(float x, int n).
+float f_to_f(float x, int n).
 f_to_f(3.14159265, 4) の戻り値は 3.141600
 になる。
 

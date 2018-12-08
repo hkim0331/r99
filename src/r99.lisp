@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "1.3.3")
+(defvar *version* "1.3.4")
 
 (defvar *nakadouzono* 8998)
 (defvar *hkimura* 8999)
@@ -53,6 +53,10 @@
 ;; trim datetme
 (defun short (datetime)
   (subseq datetime 0 19))
+
+;; to jst
+;; (defun jst (utc)
+;;   )
 
 (defun yyyy-mm-dd (iso)
   (let ((ans (multiple-value-list (decode-universal-time iso))))
@@ -211,6 +215,11 @@
        (format t "~a" (second (dbi:fetch ret))))
       (:p (:a :href "/admin" "back to admin")))))
 
+(defun my-subseq (n s)
+  (if (< (length s) n)
+      s
+      (concatenate 'string (subseq s 0 n) "...")))
+
 (define-easy-handler (admin :uri "/admin") ()
   (let ((myid (myid)))
     (if (and myid (or (= (parse-integer myid) *hkimura*)
@@ -223,12 +232,14 @@
                do
                  (format
                   t
-                  "<p> ~a ~a ~a ~a <a href='/show-old?id=~a'>show</a></p>"
+                  "<p><a href='/show-old?id=~a'>~a</a> [~a] ~a ~a</p>"
+                  (getf row :|id|)
                   (subseq (getf row :|create_at|) 0 19)
                   (getf row :|myid|)
                   (getf row :|num|)
-                  (subseq (getf row :|answer|) 0 40)
-                  (getf row :|id|)))))
+                  ;; fix. 2018-12-08.
+                  (my-subseq 60 (getf row :|answer|))
+                  ))))
         (redirect "/login"))))
 ;;
 ;; answers

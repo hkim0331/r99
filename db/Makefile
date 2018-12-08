@@ -4,21 +4,21 @@ DB=r99
 USER=user1
 PSQL=psql -h localhost -U ${USER} -W ${DB}
 
-init: drop create seed-problems seed-users seed-answers
+# dangerous! init
+#init: drop create seed-problems seed-users seed-answers
 
 # simply insert one answer.
 # FIXME: before make seed problems,
-# psql> delete * from problems;
+# psql> delete from problems;
 # is required.
 seed-problems: problems-2018.txt problems-extra.txt
-
 	${RUBY} seed-problems.rb $^
 
 seed-users: sid-uid-myid-jname.txt
-	time ${RUBY} seed-users.rb
+	${RUBY} seed-users.rb
 
 seed-answers:
-	time ${RUBY} seed-answers.rb
+	${RUBY} seed-answers.rb
 
 # r99-2018.md:
 # 	${RUBY} make-r99-2018.rb > $@
