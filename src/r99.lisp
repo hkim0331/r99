@@ -248,8 +248,9 @@
 (define-easy-handler (users-alias :uri "/answers") ()
   (redirect "/others"))
 
-;; FIXME: UTC => JST
+;; FIXED: UTC => JST
 ;; 2018-12-08 以降、記録が JST になる。
+;; () は中間試験成績を出していた。
 (define-easy-handler (users :uri "/others") ()
   (page
    ;;    (:p (:img :src "/guernica.jpg" :width "100%"))
