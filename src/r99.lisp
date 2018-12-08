@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "1.3.4")
+(defvar *version* "1.3.5")
 
 (defvar *nakadouzono* 8998)
 (defvar *hkimura* 8999)
@@ -248,13 +248,11 @@
 (define-easy-handler (users-alias :uri "/answers") ()
   (redirect "/others"))
 
-  ;; FIX: エラーになってる。2018-11-10
-  ;; 原因：midterm がない。
-
+;; FIXME: UTC => JST
+;; 2018-12-08 以降、記録が JST になる。
 (define-easy-handler (users :uri "/others") ()
   (page
    ;;    (:p (:img :src "/guernica.jpg" :width "100%"))
-   ;;    (:p (:img :src "/hakone.jpg" :width "100%"))
    (:p (:img :src "/kutsugen.jpg" :width "100%"))
     (:h2 "誰が何問?")
     (let* ((n 0)
@@ -269,12 +267,6 @@ inner join answers
 on users.myid=answers.myid
 group by users.myid
 order by users.myid"))
-           ;;(query "select users.myid, users.midterm, count(distinct answer)
-           ;; from users
-           ;; inner join answers
-           ;; on users.myid=answers.myid
-           ;; group by users.myid, users.midterm
-           ;; order by users.myid")
            (working-users
             (mapcar (lambda (x) (getf x :|myid|))
                     (dbi:fetch-all
@@ -284,7 +276,7 @@ order by users.myid"))
        (:p
         (format
          t
-         "[いちばん最近] ~a さんが ~a（世界標準時間）、
+         "[いちばん最近] ~a さんが ~a、
 <a href='/answer?num=~a'>~a</a> に回答しました。"
          (getf recent :|myid|)
          (short (getf recent :|update_at|))
