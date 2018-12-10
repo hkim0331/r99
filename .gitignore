@@ -15,4 +15,5 @@ develop.fish
 develop.env
 production.env
 src/.nrepl-history
-solutions/
+solutions/*
+
