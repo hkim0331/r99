@@ -2,6 +2,19 @@
 
 ## 2018
 
+### 2018-12-08
+
+* 記録されたデータをJSTに変換する
+
+* 設定以降、記録するデータを JST にする
+
+https://qiita.com/zkangaroo/items/93be2d4504c3d1d5f185
+
+```sql
+ALTER DATABASE r99 SET timezone TO 'Asia/Tokyo';
+SELECT pg_reload_conf();
+```
+
 ### 2018-11-12
 
 * r99/src に降りて M-x-slime すれば working directory 問題は出ないか？

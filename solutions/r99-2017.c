@@ -126,48 +126,32 @@ int divide(int x, int y) {
   return x%y==0;
 }
 
-//23
+void divisors_p(int n) {
+  int i;
+
+  for (i=1; i<=n; i++) {
+    if (divide(n,i)) {
+      printf("%i ",i);
+    }
+  }
+  printf("\n");
+}
+
+//20
 int sum_of_divisors(int n) {
   int i;
   int sum = 0;
 
-  for (i=1; 2*i<=n; i++) {
-    if (n % i == 0) {
+  for (i=1; i<=n; i++) {
+    if (divide(n,i)) {
       sum += i;
     }
   }
-  return sum + n;
+  return sum;
 }
-
-//21
-void between_p(int m, int n, int k) {
-  int i;
-
-  for (i = m; i <= n; i++) {
-    if (i % k == 0) {
-      break;
-    }
-  }
-  for (; i <= n; i += k) {
-    printf("%i\n", i);
-  }
-}
-
-//22
-void divisors_p(int n) {
-  int i;
-
-  for (i=1; i*2 <= n; i++) {
-    if (n % i == 0) {
-      printf("%i ",i);
-    }
-  }
-  printf("%i\n", n);
-}
-
 
 int is_perfect(int n) {
-  return 2*n == sum_of_divisors(n);
+  return n == sum_of_divisors(n)-n;
 }
 
 int is_prime(int n) {
@@ -175,7 +159,7 @@ int is_prime(int n) {
   //
   // 上は手抜き。
   // 手抜きしないでやってみる。この新しい is_prime() は速いよ。
-  // 次の long int の理由がわかる受講生は情報応用(hkimura)のレベルを超えている。
+  // 次の log int の理由がわかる受講生は情報応用(hkimura)のレベルを超えている。
   // さらに精進すべし。
   long int i;
   long int nn = n;
@@ -198,30 +182,20 @@ int is_prime(int n) {
 
 long int sum_of_primes(void) {
   long int sum=2;
-void hello_p(void) {
-  printf("hello, robocar!\n");
-}
-
-void hellos_p(int n) {
   int i;
 
-  for (i = 0; i < n; i++) {
-    printf("hello, robocar!\n");
-  }
-}
-
-
-//27
-int primes(int n) {
-  int i;
-  int count = 0;
-
-  for (i=3; i*i<=n; i += 2) {
-    if (is_prime(n)) {
-      count++;
+  for (i=3;i<=2147483647;i+=2) {
+    if (is_prime(i)) {
+      sum+=i;
     }
   }
-  return count;
+  return sum;
+}
+
+void is_prime_p(int n) {
+  if (is_prime(n)) {
+    printf("%i は素数です。\n",n);
+  }
 }
 
 void primes_p(void) {
@@ -358,6 +332,19 @@ void sevens_between_p(int m, int n) {
     }
   }
   for ( ; i<=n; i += 7) {
+    printf("%i\n",i);
+  }
+}
+
+void between_p(int m, int n, int k) {
+  int i;
+
+  for (i=m; i<i+k; i++) {
+    if (i%k==0) {
+      break;
+    }
+  }
+  for ( ; i<=n; i += k) {
     printf("%i\n",i);
   }
 }
@@ -614,55 +601,296 @@ int sum_primes_under(int n) {
 
 int sum_primes_beween(int n, int m) {
   return sum_primes_under(n) - sum_primes_under(m);
-=======
-void add1_p(void) {
-  int n;
-
-  scanf("%i", &n);
-  printf("%i\n",n+1);
->>>>>>> 394f701fa5cfb920c25730da2f10ed54c5177ca5
 }
 
-int add1(int x) {
-  return x + 1;
-}
-
-void en_p(void) {
-  float r;
-
-  scanf("%f", &r);
-  printf("%f\n", r*r*3.14);
-}
-
-int is_square_sum(int n) {
+//75
+int factorial(int n) {
   int i;
-  int j;
+  int ret=1;
 
-  for (i = 1; i*i <= n; i++) {
-    for (j = 1; j*j <= n-i*i; j++) {
-      if (j*j == n-i*i) {
-        return 1;
-      }
+  for (i=1; i<=n; i++) {
+    ret *= i;
+  }
+  return ret;
+}
+
+int factorial_overflow(void) {
+  int i;
+
+  for (i=0;;i++) {
+    if (factorial(i)<0) {
+      break;
     }
   }
-  return 0;
+  return i;
 }
 
-int square_cubic(int n)  {
-  
+int fibo(n) {
+  if (n<2) {
+    return n;
+  } else {
+    return fibo(n-1)+fibo(n-2);
+  }
 }
 
+int fibo_over1000(void) {
+  int i;
+
+  for (i=0; ;i++) {
+    if (fibo(i)>1000) {
+      return i;
+    }
+  }
+}
+
+int fibo_over(int m){
+  int i;
+
+  for (i=0; ;i++) {
+    if (fibo(i)>m) {
+      return i;
+    }
+  }
+}
+
+int sum_of_fibo_between(int n, int m) {
+  int from = fibo_over(n);
+  int to = fibo_over(m);
+  int i;
+  int sum=0;
+
+  for (i=from; i<to; i++) {
+    sum += fibo(i);
+  }
+  return sum;
+}
+
+//81
+int str_len(char s[]) {
+  int i;
+
+  for (i=0; s[i]!='\0'; i++) {
+    ;
+  }
+  return i;
+}
+
+int count_chars(char s[], char c) {
+  int i;
+  int n=0;
+
+  for (i=0; s[i]!='\0'; i++) {
+    if (s[i]==c) {
+      n++;
+    }
+  }
+  return n;
+}
+
+int str_eql(char s1[], char s2[]) {
+  int i;
+
+  for (i=0; s1[i]!='\0'; i++) {
+    if (s2[i]=='\0') {
+      return 0;
+    } else if (s1[i]!=s2[i]) {
+      return 0;
+    }
+  }
+  return s1[i]==s2[i];
+}
+
+int str_eql_n(char s1[], char s2[], int n) {
+  int i;
+
+  for (i=0; i<n; i++) {
+    if (s1[i]=='\0' || s2[i]=='\0') {
+      return 0;
+    } else if (s1[i]!=s2[i]) {
+      return 0;
+    }
+  }
+  return 1;
+}
+
+void str_copy(char s1[], char s2[]) {
+  int i;
+
+  for (i=0; s1[i]!='\0'; i++) {
+    s2[i]=s1[i];
+  }
+  s2[i]='\0';
+}
+
+void str_append(char s1[], char s2[]) {
+  int i = str_len(s1);
+  int j;
+
+  for (j=0; s2[j]!='\0'; j++) {
+    s1[i] = s2[j];
+    i++;
+  }
+  s1[i]='\0';
+}
+
+void str_take(char s1[], int n, int m, char s2[]) {
+  int i,j;
+
+  j=0;
+  for (i=n;i<n+m;i++) {
+    s2[j]=s1[i];
+    j++;
+  }
+  s2[j]='\0';
+}
+
+int str_search(char s1[], char s2[]) {
+  int len1= str_len(s1);
+  int len2= str_len(s2);
+  char s3[len2 + 1]; // 1 for '\0'
+  int i;
+
+  for (i=0; i+len2<len1; i++) {
+    str_take(s1,i,len2,s3);
+    if (str_eql(s2,s3)) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+void str_remove(char s1[], int n, int m) {
+
+  int i;
+
+  for (i=n; s1[i]!='\0';i++) {
+    s1[i] = s1[i+m];
+  }
+  s1[i]='\0';
+}
+
+//90
+void str_remove_str(char s1[], char s2[]) {
+  int i;
+
+  i = str_search(s1, s2);
+  if (i>0) {
+    str_remove(s1, i, str_len(s2));
+  }
+}
+
+void str_insert(char s1[], int n, char s2[]) {
+  int len1 = str_len(s1);
+  char s3[len1+1]; // 1 for '\0'
+
+  str_take(s1,n,len1-n, s3);
+  s1[n] = '\0';
+  str_append(s1,s2);
+  str_append(s1,s3);
+}
+//92
+void str_subst(char s1[], char s2[], char s3[]) {
+  int found = str_search(s1,s2);
+  int len = str_len(s2);
+
+  if (found != -1) {
+    str_remove(s1, found, len);
+    str_insert(s1, found, s3);
+  }
+}
+
+void str_reverse(char s1[], char s2[]) {
+  int i=str_len(s1)-1; // 1 for '\0'
+  int j;
+
+  for (j=0; 0<=i ;j++) {
+    s2[j] = s1[i];
+    i--;
+  }
+  s2[j] = '\0';
+}
+
+void toUpper(char s1[], char s2[]) {
+  int d = 'A'-'a';
+  int i;
+
+  for (i=0; s1[i]!='\0'; i++) {
+    if ('a'<= s1[i] && s1[i]<='z') {
+      s2[i] = s1[i]+d;
+    } else {
+      s2[i] = s1[i];
+    }
+  }
+}
+
+int str_to_int(char s1[]) {
+  int i = 0;
+  int n = 0;
+
+  for (i=0; s1[i]!='\0'; i++) {
+    n = (n*10 + s1[i]-'0');
+    printf("%i\n", n);
+  }
+  return n;
+}
+
+void int_to_str(int n, char s[]) {
+  int len = str_len(s);
+  char s2[len+1];
+  int i=0;
+
+  for (; n>0; n/=10) {
+    printf("%i\n",n);
+    s2[i] = '0' + n%10;
+    i++;
+  }
+  s2[i]='\0';
+  str_reverse(s2,s);
+}
+
+//97
+void init_randoms_99(int a[], int n) {
+    int i;
+
+    for (i=0; i<n; i++) {
+        a[i] = rand_between(0,100); // 問題60
+    }
+}
+
+void sort(int a[], int b[], int n) {
+    int i;
+    int j;
+    int k=0;
+
+    for (i=0; i<100; i++) {
+        for (j=0; j<n; j++) {
+            if (a[j]==i) {
+                b[k] = a[j];
+                k++;
+            }
+        }
+    }
+}
+
+int is_sorted(int b[], int n) {
+    int i;
+
+    for (i=0;i<n-1;i++) {
+        if (b[i]>b[i+1]) {
+            return 0;
+        }
+    }
+    return 1;
+}
 int main(void) {
   /* int p = 2147483647; */
-  //int p = 104729;
-  //printf("%i is prime?  %i\n",p, is_prime(p));
-  printf("primes(10000)%i\n", primes(10000));
+  /* printf("%i, %i\n",is_prime(p),is_prime(p-1)); */
   /* printf("%li\n",sum_of_primes()); */
-  //  char s1[20]="abcdef";
-  //  char s2[]="12345";
-  //  printf("%s %s\n",s1,s2);
-  //  str_append(s1,s2);
-  //  printf("%s %s\n",s1,s2);
+  char s1[20]="abcdef";
+  char s2[]="12345";
+  printf("%s %s\n",s1,s2);
+  str_append(s1,s2);
+  printf("%s %s\n",s1,s2);
     /* int a[100]; */
     /* int b[100]; */
 
@@ -720,8 +948,7 @@ int main(void) {
   //  evens_p(33,45);
   //printf("even? %i\n", evens2(x,y));
   //divisors_p(128);
-  //printf("%i\n", sum_of_divisors(128));
-  printf("is_perfect(28)? %i\n",is_perfect(28));
+  //printf("is_perfect(28)? %i\n",is_perfect(28));
   /* for (int i=1; i<10; i++) { */
     /*   is_prime_p(i); */
   /* } */
@@ -736,12 +963,5 @@ int main(void) {
   //sevens_between_p(100,200);
   //printf("root(2000) is %i\n",root(2000));
   //printf("m10:%i",most_divisors10());
-  printf("%i\n", is_square_sum(452));
-  printf("%i\n", is_square_sum(453));
-  //en_p();
-  //add1_p();
-  //hellos_p(10);
-  //  hello_p();
   return 0;
 }
-

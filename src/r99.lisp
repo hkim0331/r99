@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "1.3.3")
+(defvar *version* "1.3.5")
 
 (defvar *nakadouzono* 8998)
 (defvar *hkimura* 8999)
@@ -53,6 +53,10 @@
 ;; trim datetme
 (defun short (datetime)
   (subseq datetime 0 19))
+
+;; to jst
+;; (defun jst (utc)
+;;   )
 
 (defun yyyy-mm-dd (iso)
   (let ((ans (multiple-value-list (decode-universal-time iso))))
@@ -211,6 +215,11 @@
        (format t "~a" (second (dbi:fetch ret))))
       (:p (:a :href "/admin" "back to admin")))))
 
+(defun my-subseq (n s)
+  (if (< (length s) n)
+      s
+      (concatenate 'string (subseq s 0 n) "...")))
+
 (define-easy-handler (admin :uri "/admin") ()
   (let ((myid (myid)))
     (if (and myid (or (= (parse-integer myid) *hkimura*)
@@ -223,12 +232,14 @@
                do
                  (format
                   t
-                  "<p> ~a ~a ~a ~a <a href='/show-old?id=~a'>show</a></p>"
+                  "<p><a href='/show-old?id=~a'>~a</a> [~a] ~a ~a</p>"
+                  (getf row :|id|)
                   (subseq (getf row :|create_at|) 0 19)
                   (getf row :|myid|)
                   (getf row :|num|)
-                  (subseq (getf row :|answer|) 0 40)
-                  (getf row :|id|)))))
+                  ;; fix. 2018-12-08.
+                  (my-subseq 60 (getf row :|answer|))
+                  ))))
         (redirect "/login"))))
 ;;
 ;; answers
@@ -237,13 +248,11 @@
 (define-easy-handler (users-alias :uri "/answers") ()
   (redirect "/others"))
 
-  ;; FIX: エラーになってる。2018-11-10
-  ;; 原因：midterm がない。
-
+;; FIXME: UTC => JST
+;; 2018-12-08 以降、記録が JST になる。
 (define-easy-handler (users :uri "/others") ()
   (page
    ;;    (:p (:img :src "/guernica.jpg" :width "100%"))
-   ;;    (:p (:img :src "/hakone.jpg" :width "100%"))
    (:p (:img :src "/kutsugen.jpg" :width "100%"))
     (:h2 "誰が何問?")
     (let* ((n 0)
@@ -258,12 +267,6 @@ inner join answers
 on users.myid=answers.myid
 group by users.myid
 order by users.myid"))
-           ;;(query "select users.myid, users.midterm, count(distinct answer)
-           ;; from users
-           ;; inner join answers
-           ;; on users.myid=answers.myid
-           ;; group by users.myid, users.midterm
-           ;; order by users.myid")
            (working-users
             (mapcar (lambda (x) (getf x :|myid|))
                     (dbi:fetch-all
@@ -273,7 +276,7 @@ order by users.myid"))
        (:p
         (format
          t
-         "[いちばん最近] ~a さんが ~a（世界標準時間）、
+         "[いちばん最近] ~a さんが ~a、
 <a href='/answer?num=~a'>~a</a> に回答しました。"
          (getf recent :|myid|)
          (short (getf recent :|update_at|))
