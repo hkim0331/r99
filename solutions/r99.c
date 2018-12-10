@@ -126,32 +126,48 @@ int divide(int x, int y) {
   return x%y==0;
 }
 
-void divisors_p(int n) {
-  int i;
-
-  for (i=1; i<=n; i++) {
-    if (divide(n,i)) {
-      printf("%i ",i);
-    }
-  }
-  printf("\n");
-}
-
-//20
+//23
 int sum_of_divisors(int n) {
   int i;
   int sum = 0;
 
-  for (i=1; i<=n; i++) {
-    if (divide(n,i)) {
+  for (i=1; 2*i<=n; i++) {
+    if (n % i == 0) {
       sum += i;
     }
   }
-  return sum;
+  return sum + n;
 }
 
+//21
+void between_p(int m, int n, int k) {
+  int i;
+
+  for (i = m; i <= n; i++) {
+    if (i % k == 0) {
+      break;
+    }
+  }
+  for (; i <= n; i += k) {
+    printf("%i\n", i);
+  }
+}
+
+//22
+void divisors_p(int n) {
+  int i;
+
+  for (i=1; i*2 <= n; i++) {
+    if (n % i == 0) {
+      printf("%i ",i);
+    }
+  }
+  printf("%i\n", n);
+}
+
+
 int is_perfect(int n) {
-  return n == sum_of_divisors(n)-n;
+  return 2*n == sum_of_divisors(n);
 }
 
 int is_prime(int n) {
@@ -159,7 +175,7 @@ int is_prime(int n) {
   //
   // 上は手抜き。
   // 手抜きしないでやってみる。この新しい is_prime() は速いよ。
-  // 次の log int の理由がわかる受講生は情報応用(hkimura)のレベルを超えている。
+  // 次の long int の理由がわかる受講生は情報応用(hkimura)のレベルを超えている。
   // さらに精進すべし。
   long int i;
   long int nn = n;
@@ -196,6 +212,20 @@ void is_prime_p(int n) {
   if (is_prime(n)) {
     printf("%i は素数です。\n",n);
   }
+}
+
+
+//27
+int primes(int n) {
+  int i;
+  int count = 0;
+
+  for (i=3; i*i<=n; i += 2) {
+    if (is_prime(n)) {
+      count++;
+    }
+  }
+  return count;
 }
 
 void primes_p(void) {
@@ -332,19 +362,6 @@ void sevens_between_p(int m, int n) {
     }
   }
   for ( ; i<=n; i += 7) {
-    printf("%i\n",i);
-  }
-}
-
-void between_p(int m, int n, int k) {
-  int i;
-
-  for (i=m; i<i+k; i++) {
-    if (i%k==0) {
-      break;
-    }
-  }
-  for ( ; i<=n; i += k) {
     printf("%i\n",i);
   }
 }
@@ -884,13 +901,15 @@ int is_sorted(int b[], int n) {
 }
 int main(void) {
   /* int p = 2147483647; */
-  /* printf("%i, %i\n",is_prime(p),is_prime(p-1)); */
+  //int p = 104729;
+  //printf("%i is prime?  %i\n",p, is_prime(p));
+  printf("primes(10000)%i\n", primes(10000));
   /* printf("%li\n",sum_of_primes()); */
-  char s1[20]="abcdef";
-  char s2[]="12345";
-  printf("%s %s\n",s1,s2);
-  str_append(s1,s2);
-  printf("%s %s\n",s1,s2);
+  //  char s1[20]="abcdef";
+  //  char s2[]="12345";
+  //  printf("%s %s\n",s1,s2);
+  //  str_append(s1,s2);
+  //  printf("%s %s\n",s1,s2);
     /* int a[100]; */
     /* int b[100]; */
 
@@ -948,7 +967,8 @@ int main(void) {
   //  evens_p(33,45);
   //printf("even? %i\n", evens2(x,y));
   //divisors_p(128);
-  //printf("is_perfect(28)? %i\n",is_perfect(28));
+  //printf("%i\n", sum_of_divisors(128));
+  printf("is_perfect(28)? %i\n",is_perfect(28));
   /* for (int i=1; i<10; i++) { */
     /*   is_prime_p(i); */
   /* } */
