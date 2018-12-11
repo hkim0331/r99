@@ -254,7 +254,8 @@
 (define-easy-handler (users :uri "/others") ()
   (page
    ;;    (:p (:img :src "/guernica.jpg" :width "100%"))
-   (:p (:img :src "/kutsugen.jpg" :width "100%"))
+    (:p (:img :src "/kutsugen.jpg" :width "100%"))
+    (:p :align "right" "「屈原」横山大観(1868-1958), 1898.")
     (:h2 "誰が何問いった?")
     (let* ((n 0)
            (recent
@@ -332,6 +333,7 @@ order by users.myid"))
          (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
     (page
      (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
+     (:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
      (:h2 "problems")
      (:ul
       (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
