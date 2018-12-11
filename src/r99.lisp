@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "1.3.5")
+(defvar *version* "1.3.6")
 
 (defvar *nakadouzono* 8998)
 (defvar *hkimura* 8999)
@@ -255,7 +255,7 @@
   (page
    ;;    (:p (:img :src "/guernica.jpg" :width "100%"))
    (:p (:img :src "/kutsugen.jpg" :width "100%"))
-    (:h2 "誰が何問?")
+    (:h2 "誰が何問いった?")
     (let* ((n 0)
            (recent
             (dbi:fetch
@@ -274,17 +274,17 @@ order by users.myid"))
                      (query  "select distinct(myid) from answers
  where now() - update_at < '48 hours'")))))
       (htm
-       (:p
+       (:li
         (format
          t
-         "[いちばん最近] ~a さんが ~a、
+         " ~a、~a さんが
 <a href='/answer?num=~a'>~a</a> に回答しました。"
-         (getf recent :|myid|)
          (short (getf recent :|update_at|))
+         (getf recent :|myid|)
          (getf recent :|num|)
          (getf recent :|num|)
          ))
-       (:p
+       (:li
         (format
          t
          "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
@@ -333,8 +333,9 @@ order by users.myid"))
     (page
      (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
      (:h2 "problems")
-     (:p "番号をクリックして回答提出。ビルドできない回答は受け取らない。"
-         "上の方で定義した関数を利用する場合、上の関数定義は回答に含めないでOK。")
+     (:ul
+      (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
+      (:li "上の方で定義した関数を利用する場合、上の関数定義は回答に含めないでOK。"))
      (loop for row = (dbi:fetch results)
         while row
         do
@@ -591,7 +592,9 @@ values ('~a', '~a', '~a', now())"
            (:p (:input :type "text" :name "id"))
            (:p "password")
            (:p (:input :type "password" :name "pass"))
-           (:p (:input :type "submit" :value "login")))))
+           (:p (:input :type "submit" :value "login"))
+           (:ul (:li "myid の保存にクッキーを利用しています。
+ログインできない時はクッキー有効にして再挑戦してください。")))))
 
 (define-easy-handler (logout :uri "/logout") ()
   (set-cookie *myid* :max-age 0)
