@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "1.3.6")
+(defvar *version* "1.3.7")
 
 (defvar *nakadouzono* 8998)
 (defvar *hkimura* 8999)
@@ -204,15 +204,28 @@
 ;; admin
 ;;
 
+;; (define-easy-handler (show-old :uri "/show-old") (id)
+;;   (let* ((q (format
+;;              nil
+;;              "select answer from old_answers where id='~a'"
+;;              id))
+;;          (ret (query q)))
+;;     (page
+;;       (:pre
+;;        (format t "~a" (escape (second (dbi:fetch ret)))))
+;;       (:p (:a :href "/admin" "back to admin")))))
+
 (define-easy-handler (show-old :uri "/show-old") (id)
   (let* ((q (format
              nil
-             "select answer from old_answers where id='~a'"
+             "select myid,num,answer,create_at::text from old_answers where id='~a'"
              id))
-         (ret (query q)))
+         (ret (dbi:fetch (query q))))
     (page
+      (:h3 (str (getf ret :|myid|)) " [" (str (getf ret :|num|)) "]")
+      (:p (str (getf ret :|create_at|)))
       (:pre
-       (format t "~a" (second (dbi:fetch ret))))
+       (format t "~a" (escape (getf ret :|answer|))))
       (:p (:a :href "/admin" "back to admin")))))
 
 (defun my-subseq (n s)
