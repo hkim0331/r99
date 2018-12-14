@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "1.3.7")
+(defvar *version* "1.3.9")
 
 (defvar *nakadouzono* 8998)
 (defvar *hkimura* 8999)
@@ -504,13 +504,16 @@ order by users.myid"))
                myid
                num))
          (old-answer (unescape-apos (second (dbi:fetch (query old)))))
+         ;; bug fix, bu escape-apos
          (sql0 (format
                 nil
                 "insert into old_answers (myid, num, answer, create_at)
 values ('~a', '~a', '~a', now())"
                 myid
                 num
-                old-answer))
+                (escape-apos old-answer)
+                ))
+         ;;
          (sql (format
                nil
                "update answers set answer='~a', update_at=now()
