@@ -522,7 +522,6 @@ values ('~a', '~a', '~a', now())"
                myid
                num)))
     (query sql0)
-    (print sql0)
     (query sql)
     (redirect "/others")))
 
