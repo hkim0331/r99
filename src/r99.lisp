@@ -504,13 +504,16 @@ order by users.myid"))
                myid
                num))
          (old-answer (unescape-apos (second (dbi:fetch (query old)))))
+         ;; bug fix, bu escape-apos
          (sql0 (format
                 nil
                 "insert into old_answers (myid, num, answer, create_at)
 values ('~a', '~a', '~a', now())"
                 myid
                 num
-                old-answer))
+                (escape-apos old-answer)
+                ))
+         ;;
          (sql (format
                nil
                "update answers set answer='~a', update_at=now()
@@ -519,6 +522,7 @@ values ('~a', '~a', '~a', now())"
                myid
                num)))
     (query sql0)
+    (print sql0)
     (query sql)
     (redirect "/others")))
 
