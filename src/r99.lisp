@@ -293,7 +293,7 @@ order by users.myid"))
          "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
 があった受講生です。全回答数 ~a。"
          (count-answers)))
-       (:li "() は中間テスト、個人ペーパーの点数。")
+       (:li "( ) は中間テスト、個人ペーパーの点数。")
        (:hr))
       (loop for row = (dbi:fetch results)
          while row
