@@ -262,13 +262,14 @@
 
 ;; FIXED: UTC => JST
 ;; 2018-12-08 以降、記録が JST になる。
+;; どうやったんだっけ？
 ;; () は中間試験成績を出していた。
 (define-easy-handler (users :uri "/others") ()
   (page
    ;;    (:p (:img :src "/guernica.jpg" :width "100%"))
     (:p (:img :src "/kutsugen.jpg" :width "100%"))
     (:p :align "right" "「屈原」横山大観(1868-1958), 1898.")
-    (:h2 "誰が何問いった?")
+    (:h2 "誰が何問?")
     (let* ((n 0)
            (recent
             (dbi:fetch
