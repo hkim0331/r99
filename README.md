@@ -1,5 +1,15 @@
 # R99
 
+## 2019-01-16
+
+* ローカルな postgres と接続できること。
+* postgres はポートフォワードが便利。
+  $ ssh -fN -L 5432:localhost:5432 ubuntu@db.melt.kyutech.ac.jp
+* src に降りて、ros emacs -nw する。
+* M-x sly
+* (ql:quickload :r99)
+
+
 ## 2018
 
 ### 2018-12-08
