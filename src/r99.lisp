@@ -2,10 +2,20 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "1.3.9")
+(defvar *version* "1.4.0")
 
 (defvar *nakadouzono* 8998)
 (defvar *hkimura* 8999)
+
+(defun read-midterm (fname)
+  (with-open-file (in fname)
+    (let ((ret nil))
+      (loop for line = (read-line in nil)
+         while line do
+           (destructuring-bind (f s) (ppcre:split " " line)
+             (push (cons (parse-integer f) (parse-integer s)) ret)))
+      ret)))
+(defparameter *mt* (read-midterm "midterm.txt"))
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -303,9 +313,10 @@ order by users.myid"))
                   (working (if (find myid working-users) "yes" "no")))
              (format
               t
-              "<pre><span class=~a>~A</span> () ~A<a href='/last?myid=~d'>~d</a></pre>"
+              "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
               working
               myid
+              (cdr (assoc myid *mt*))
               (stars (getf row :|count|))
               myid
               (getf row :|count|)))
