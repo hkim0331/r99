@@ -17,3 +17,5 @@ production.env
 src/.nrepl-history
 solutions/*
 !solutions/.placeholder
+db-2017
+db-2018
