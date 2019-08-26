@@ -2,10 +2,15 @@
 
 ## 2018
 
+### FIXME: 2019-02-11
+
+slime や lisp-repl が
+中間テストの結果を記録した midterm.txt のセーブ場所からスタートしないと
+クラッシュする。
+
 ### 2018-12-08
 
 * 記録されたデータをJSTに変換する
-
 * 設定以降、記録するデータを JST にする
 
 https://qiita.com/zkangaroo/items/93be2d4504c3d1d5f185
