@@ -1,13 +1,22 @@
 # R99
 
+## 2019-08-26, restart for robocar-2019
+
+* postgres 11(macos), r99.melt は postgres 10.
+
 ## 2019-01-16
 
 * ローカルな postgres と接続できること。
 * postgres はポートフォワードが便利。
   $ ssh -fN -L 5432:localhost:5432 ubuntu@db.melt.kyutech.ac.jp
 * src に降りて、ros emacs -nw する。
-* M-x sly
-* (ql:quickload :r99)
+
+1. cd ${r99}
+1. ros emacs -nw
+1. M-x sly
+1. (ql:quickload :r99)
+1. (in-package :r99)
+1. (start-server)
 
 
 ## 2018
@@ -28,8 +37,8 @@ SELECT pg_reload_conf();
 ### 2018-11-12
 
 * r99/src に降りて M-x-slime すれば working directory 問題は出ないか？
-* ~/quicklisp は r99 バイナリを作るときだけに必要？なのであれば、開発
-  機にはいらないな。
+* `~/quicklisp` は r99 バイナリを作るときだけに必要？
+  なのであれば、開発機にはいらないな。
 * 1.1 を目指す。
 
 ### 2018-11-11

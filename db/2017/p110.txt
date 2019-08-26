@@ -1,3 +1,0 @@
-110, (悪ふざけ)int sum_of_digits(int n) をできるだけ、{} や変数を使わずに書け。hkimura は苦手です。hkimura を超える回答を待つ。
-
-
