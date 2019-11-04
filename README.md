@@ -1,11 +1,42 @@
 # R99
 
+## 2019-11-04
+
+[1.5.1] under construction for 2019
+
+* sid は整数ではなくなった。
+* 問題を改良すること。文字列をポインタに。
+
+## 2019-08-26, restart for robocar-2019
+
+* postgres 11(macos), r99.melt は postgres 10.
+
+## 2019-01-16
+
+* ローカルな postgres と接続できること。
+* postgres はポートフォワードが便利。
+  $ ssh -fN -L 5432:localhost:5432 ubuntu@db.melt.kyutech.ac.jp
+* src に降りて、ros emacs -nw する。
+
+1. cd ${r99}
+1. ros emacs -nw
+1. M-x sly
+1. (ql:quickload :r99)
+1. (in-package :r99)
+1. (start-server)
+
+
 ## 2018
+
+### FIXME: 2019-02-11
+
+slime や lisp-repl が
+中間テストの結果を記録した midterm.txt のセーブ場所からスタートしないと
+クラッシュする。
 
 ### 2018-12-08
 
 * 記録されたデータをJSTに変換する
-
 * 設定以降、記録するデータを JST にする
 
 https://qiita.com/zkangaroo/items/93be2d4504c3d1d5f185
@@ -18,8 +49,8 @@ SELECT pg_reload_conf();
 ### 2018-11-12
 
 * r99/src に降りて M-x-slime すれば working directory 問題は出ないか？
-* ~/quicklisp は r99 バイナリを作るときだけに必要？なのであれば、開発
-  機にはいらないな。
+* `~/quicklisp` は r99 バイナリを作るときだけに必要？
+  なのであれば、開発機にはいらないな。
 * 1.1 を目指す。
 
 ### 2018-11-11
