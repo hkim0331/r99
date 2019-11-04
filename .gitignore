@@ -19,3 +19,4 @@ solutions/*
 !solutions/.placeholder
 db-2017
 db-2018
+db/.cpcache
