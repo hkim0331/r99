@@ -1,5 +1,11 @@
 all: r99
 
+run:
+	ros r99.ros
+
+build:
+	ros build r99.ros
+
 r99: r99.lisp
 	sbcl \
 		--eval "(ql:quickload '(hunchentoot cl-who cl-dbi))"\
