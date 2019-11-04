@@ -1,5 +1,12 @@
 # R99
 
+## 2019-11-04
+
+[1.5.1] under construction for 2019
+
+* sid は整数ではなくなった。
+* 問題を改良すること。文字列をポインタに。
+
 ## 2019-08-26, restart for robocar-2019
 
 * postgres 11(macos), r99.melt は postgres 10.
