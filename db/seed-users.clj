@@ -1,23 +1,49 @@
-#!/usr/bin/env ruby
-# coding: utf-8
-require 'sequel'
+(ns seed-users
+  (:require [clojure.string :refer [split]]
+            [clojure.java.jdbc :as j]))
 
-DB = Sequel.postgres("r99",
-                   username: (ENV["R99_USER"] or "user1"),
-                   password: (ENV["R99_PASS"] or "pass1"),
-                   host: (ENV["R99_HOST"] or "localhost"))
+(def uid-myid
+  (map (fn [a] {:uid (first a) :myid (Integer/parseInt (second a))})
+       (map (fn [s] (split s #" "))
+            (split (slurp "data/icome9.txt") #"\n"))))
 
-num = 0
-now = Time.now
-users = DB[:users]
-# transaction で囲んでも処理時間は変わらない。
-DB.transaction do
-  File.foreach("sid-uid-myid-jname.txt", encoding: "utf-8") do |line|
-    next if line =~ /^\*$/
-    sid, _, myid, jname =  line.chomp.split(/\s+/,4)
-    users.insert(myid: myid, sid: sid, jname: jname, password: "robocar",
-                 create_at: now, update_at: now)
-    num += 1
-  end
-end
-puts "total #{num} users inserted"
+(defn third [x]
+  (first (next (next x))))
+
+(def sid-jname
+  (map (fn [a] {:jname (second a) :sid (third a)})
+       (map (fn [s]  (split s #","))
+            (remove (fn [s] (re-find #"^#" s))
+                    (split (slurp "data/students.txt") #"\n")))))
+
+(defn uid->sid [u]
+  (let [body (apply str (take 4 (drop 3 u)))]
+    (cond
+      (re-find #"^s1a" u) (str "181A" body)
+      (re-find #"^r10" u) (str "1710" body)
+      (re-find #"^p10" u) (str "1510" body)
+      :else :dunno)))
+
+(def sid-uid-myid
+  (map (fn [e] (assoc e :sid (uid->sid (:uid e)))) uid-myid))
+
+(defn jname [sid]
+  (:jname
+   (first
+    (filter #(= sid (:sid %)) sid-jname))))
+
+(def sid-uid-myid-jname
+  (filter #(:jname %) 
+          (map (fn [e] (assoc e :jname (jname (:sid e)))) sid-uid-myid)))
+
+(def pg {:dbtype "postgresql"
+         :dbname "r99"
+         :host "localhost"
+         :user "user1"
+         :password "pass1"})
+
+(def sid-myid-jname
+  (map #(dissoc % :uid) sid-uid-myid-jname))
+
+(j/insert-multi! pg :users sid-myid-jname)
+
