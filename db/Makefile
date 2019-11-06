@@ -5,51 +5,21 @@ USER=user1
 PSQL=psql -h localhost -U ${USER} -W ${DB}
 
 # dangerous! init
-#init: drop create seed-problems seed-users seed-answers
+#init: create-tabless
 
-# simply insert one answer.
-# FIXME: before make seed problems,
-# psql> delete from problems;
-# is required.
-seed-problems: problems-2018.txt problems-extra.txt
-	${RUBY} seed-problems.rb $^
+seed-problems: problems.txt
+	clj seed-problems.clj
 
-seed-users: sid-uid-myid-jname.txt
-	${RUBY} seed-users.rb
+# requires data/icome9.txt and data/students.txt
+seed-users: 
+	clj seed-users.clj
 
-seed-answers:
-	${RUBY} seed-answers.rb
+# seed-answers:
+# 	${RUBY} seed-answers.rb
 
-# r99-2018.md:
-# 	${RUBY} make-r99-2018.rb > $@
-# 	cat problem* >> $@
+create-tables:
+	${PSQL} < create-tables.sql
 
 backup:
 	pg_dump -h ${DBSERVER} -U ${USER} -W ${DB} > backups/`date +%F`.sql
 
-drop:
-	${PSQL} < drop-all.postgres
-
-create:
-	${PSQL} < create-all.postgres
-
-# nouse in 1.1
-#init:
-#	${RUBY} init-problems.rb
-
-uid.txt: sid-uid-myid-jname.txt
-	gawk '{print $$2}' $^ > $@
-
-# before restore, must drop database r99.
-# if dropped, vanish grant.
-# is this right? -- no.
-# WARNING:  no privileges could be revoked for "public"
-# REVOKE
-# ERROR:  role "postgres" does not exist
-# ERROR:  role "postgres" does not exist
-# WARNING:  no privileges were granted for "public"
-# GRANT
-
-restore:
-	${PSQL} < drop-tables.postgres
-	${PSQL} < backups/last.sql

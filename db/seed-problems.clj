@@ -4,12 +4,11 @@
 
 (def problems
   (remove #(str/starts-with? % ";")
-          (str/split (slurp "problems.txt") #"\n\n")))
-
-(second (last (zipmap (range) problems)))
+          (str/split (slurp "data/problems.txt") #"\n\n")))
 
 (def with-number
-  (map (fn [x]  {:num (first x) :detail (second x)}) (zipmap (range 1 300) problems)))
+  (map (fn [x]  {:num (first x) :detail (second x)})
+       (zipmap (range 1 300) problems)))
 
 (def pg {:dbtype "postgresql"
          :dbname "r99"

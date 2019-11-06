@@ -7,13 +7,8 @@
 *~
 .#*
 src/r99
-develop.fish
-production.fish
-db/sid-uid-myid-jname.txt
+!db/*.sql
 !/db/migrations/*.sql
-develop.fish
-develop.env
-production.env
 src/.nrepl-history
 solutions/*
 !solutions/.placeholder
