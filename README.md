@@ -1,5 +1,12 @@
 # R99
 
+## 2019-11-04
+
+[1.5.1] under construction for 2019
+
+* sid は整数ではなくなった。
+* 問題を改良すること。文字列をポインタに。
+
 ## 2019-08-26, restart for robocar-2019
 
 * postgres 11(macos), r99.melt は postgres 10.
@@ -21,10 +28,15 @@
 
 ## 2018
 
+### FIXME: 2019-02-11
+
+slime や lisp-repl が
+中間テストの結果を記録した midterm.txt のセーブ場所からスタートしないと
+クラッシュする。
+
 ### 2018-12-08
 
 * 記録されたデータをJSTに変換する
-
 * 設定以降、記録するデータを JST にする
 
 https://qiita.com/zkangaroo/items/93be2d4504c3d1d5f185
