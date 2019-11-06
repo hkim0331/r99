@@ -1,25 +1,22 @@
-RUBY=/usr/bin/env ruby
-DBSERVER=db.melt.kyutech.ac.jp
+HOST=localhost
 DB=r99
-USER=user1
-PSQL=psql -h localhost -U ${USER} -W ${DB}
+PSQL=psql -h ${HOST} ${DB}
 
-# dangerous! init
-#init: create-tabless
+all: drop create problems users backup
 
-seed-problems: problems.txt
+drop:
+	${PSQL} < tables-drop.sql
+
+create:
+	${PSQL} < tables-create.sql
+	sh grants.sh
+
+problems: data/problems.txt
 	clj seed-problems.clj
 
-# requires data/icome9.txt and data/students.txt
-seed-users: 
+users: 
 	clj seed-users.clj
 
-# seed-answers:
-# 	${RUBY} seed-answers.rb
-
-create-tables:
-	${PSQL} < create-tables.sql
-
 backup:
-	pg_dump -h ${DBSERVER} -U ${USER} -W ${DB} > backups/`date +%F`.sql
+	pg_dump -h ${HOST} ${DB} > backups/`date +%F`.sql
 
