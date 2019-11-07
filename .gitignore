@@ -11,6 +11,8 @@ db-2018
 db/.cpcache
 db/.nrepl-port
 !db/*.sql
+db/backups/*
+!db/backups/.placeholder
 solutions/*
 !solutions/.placeholder
 src/.nrepl-history
