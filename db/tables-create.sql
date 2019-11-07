@@ -23,7 +23,7 @@ create table problems (
 create table users (
        id serial primary key,
        myid       integer not null unique,
-       sid        integer not null unique,
+       sid        varchar(8) not null unique,
        jname      varchar(30),
        password   varchar(30),
        create_at  timestamp,

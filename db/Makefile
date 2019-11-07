@@ -1,55 +1,26 @@
-RUBY=/usr/bin/env ruby
-DBSERVER=db.melt.kyutech.ac.jp
+HOST=localhost
 DB=r99
-USER=user1
-PSQL=psql -h localhost -U ${USER} -W ${DB}
+PSQL=psql -h ${HOST} ${DB}
 
-# dangerous! init
-#init: drop create seed-problems seed-users seed-answers
-
-# simply insert one answer.
-# FIXME: before make seed problems,
-# psql> delete from problems;
-# is required.
-seed-problems: problems-2018.txt problems-extra.txt
-	${RUBY} seed-problems.rb $^
-
-seed-users: sid-uid-myid-jname.txt
-	${RUBY} seed-users.rb
-
-seed-answers:
-	${RUBY} seed-answers.rb
-
-# r99-2018.md:
-# 	${RUBY} make-r99-2018.rb > $@
-# 	cat problem* >> $@
-
-backup:
-	pg_dump -h ${DBSERVER} -U ${USER} -W ${DB} > backups/`date +%F`.sql
+all: drop create problems users admins backup
 
 drop:
-	${PSQL} < drop-all.postgres
+	${PSQL} < tables-drop.sql
 
 create:
-	${PSQL} < create-all.postgres
+	${PSQL} < tables-create.sql
+	sh grants.sh
 
-# nouse in 1.1
-#init:
-#	${RUBY} init-problems.rb
+problems: data/problems.md
+	clj seed-problems.clj
 
-uid.txt: sid-uid-myid-jname.txt
-	gawk '{print $$2}' $^ > $@
+users: 
+	clj seed-users.clj
 
-# before restore, must drop database r99.
-# if dropped, vanish grant.
-# is this right? -- no.
-# WARNING:  no privileges could be revoked for "public"
-# REVOKE
-# ERROR:  role "postgres" does not exist
-# ERROR:  role "postgres" does not exist
-# WARNING:  no privileges were granted for "public"
-# GRANT
+admins:
+	clj delete-admins.clj
+	clj seed-admins.clj
 
-restore:
-	${PSQL} < drop-tables.postgres
-	${PSQL} < backups/last.sql
+backup:
+	pg_dump -h ${HOST} ${DB} > backups/`date +%F`.sql
+

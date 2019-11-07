@@ -1,4 +1,0 @@
-delete from answers;
-delete from users;
-delete from problems;
-delete from old_answers;

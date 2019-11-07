@@ -1,6 +1,4 @@
-;;
-;; printf と戻り値
-;;
+### printf と戻り値
 
 "hello, robocar!" をプリントする関数
 void hello_p(void).
@@ -58,17 +56,14 @@ int triple(int n).
 整数 n の m 乗を返す関数
 int power(int n, int m). C言語では n^m を n\^m では計算できない。
 
-;;;
-;;; 条件分岐
-;;;
+### 条件分岐
 
 彼・彼女の年齢を y とする。彼・彼女がティーンエイジャーだったら
 真、そうでなければ偽を返す関数
 int teenage(int y).
 
-;;;
-;;; max
-;;;
+
+### max
 
 整数 x, y を引数にとり、大きい方の整数を戻り値とする関数
 int max2(int x, int y).
@@ -92,9 +87,25 @@ int triangle(int x, int y, int z).
 int right_angle(int x, int y, int z).
 ヒント:前問の回答を参考にせよ
 
-;;
-;;; 素数、約数
-;;;
+### ループ
+
+整数 n を引数とし、それが 3 の倍数だったら 1、
+5 の倍数だったら 2、
+3 の倍数でもあり、かつ、5 の倍数でもあったら 3、
+いずれでもなかったら 0 を返す関数
+int fz(int n).
+
+整数 n から m までの総和を求める関数
+int sum(int n, int m).
+
+正の整数 n から m までの整数の積を求める関数
+int product(int n, int m).
+
+整数 n の各桁の総和を返す関数
+int sum_of_digits(int n).
+sum_of_digits(12345) の戻り値は 15 。
+
+### 素数、約数
 
 整数一つを引数とし、その約数を全てプリントする関数
 void divisors_p(int n).
@@ -118,9 +129,7 @@ n 以下の素数(nは整数)は何個あるかを戻り値とする関数
 int primes(int n).
 primes(10000) の戻り値は多分 1229。
 
-;;;
-;;; 完全数
-;;;
+### 完全数
 
 整数一つを引数とし、その数が完全数かどうかを判定する関数
 int is_perfect(int n).
@@ -138,9 +147,8 @@ int is_squeare_sum(int n).
 is_square_sum(452) は 1 を返す。
 452 = 14<sup>2</sup>+16<sup>2</sup>.
 
-;;
-;; 西暦を和暦に
-;;
+
+### 時刻西暦を和暦に
 
 西暦 year を引数にとり昭和、平成、令和の和暦をプリントする関数。
 void jear(int year).
@@ -150,20 +158,12 @@ void jear(int year).
 ただし、400 で割り切れる時は閏年。
 int leap(int year).
 
-;;
-;; 時間計算
-;;
-
 hh 時 mm 分 ss 秒の hh, mm, ss を引数にとり、0 時 0 分 0 秒からの通
 算秒に変換した整数を戻り値とする関数
 int time_to_int(int h, int m, int s).
 
 時刻 h1:m1:s1 と 時刻 h2:m2:s2 の間の秒数を整数で返す関数
 int sec_between(int h1, int m1, int s1, int h2, int m2, int s3).
-
-;;
-;; 日数計算
-;;
 
 1 月 1 日から同年 mm 月 dd 日までの日数を返す関数
 int days(int mm, int dd).
@@ -172,9 +172,11 @@ y1 年 m1 月 d1 日から y2 年 m2 月 d2 月までの日数を返す関数
 int days_between(int y1, int m1, int d1, int y2, int m2, int m2).
 自分は今日まで何日生きてきましたか？ 
 
-;;
-;; 再び整数
-;;
+（文字列）時刻 h1:m1:s1 と 時刻 h2:m2:s2 をそれぞれ文字列として受け取り、
+それらの時間差を文字列で戻す関数
+char * times_between_string(char time1[], char time2[]).
+
+### 再び整数
 
 3 桁の整数の桁を入れ替えた整数を返す関数
 int rev3(int n).
@@ -191,29 +193,7 @@ int int_sqrt(int n).
 ヒントは前問。ライブラリ sqrt を使うことは反則とする。
 
 
-;;
-;; ループ
-;;
-
-整数 n を引数とし、それが 3 の倍数だったら 1、
-5 の倍数だったら 2、
-3 の倍数でもあり、かつ、5 の倍数でもあったら 3、
-いずれでもなかったら 0 を返す関数
-int fz(int n).
-
-整数 n から m までの総和を求める関数
-int sum(int n, int m).
-
-正の整数 n から m までの整数の積を求める関数
-int product(int n, int m).
-
-整数 n の各桁の総和を返す関数
-int sum_of_digits(int n).
-sum_of_digits(12345) の戻り値は 15 。
-
-;;
-;; float
-;;
+### float
 
 float x を四捨五入した int を返す関数
 int f_to_i(float x).
@@ -229,9 +209,7 @@ float f_to_f(float x, int n).
 f_to_f(3.14159265, 4) の戻り値は 3.141600
 になる。
 
-;;
-;; 乱数
-;;
+### 乱数
 
 関数 long random(void) を呼ぶとすごく大きい整数乱数が返ってくる。
 random( ) を利用し、0 以上 n 未満の正の整数乱数を返す関数
@@ -257,9 +235,7 @@ x^2 + y^2 &le; 1 となるものを数える。多分それは 785 近辺の数�
 とすると円周率 pi は  (785/1000)*4 と推定できる。
 n を増やすと pi の精度は上がるはず。
 
-;;
-;; ファイル
-;;
+### ファイル I/O
 
 ファイル
 "/home/t/hkimura/integers.txt"
@@ -292,9 +268,7 @@ int sum_n(int n).
 の最後の n 行に含まれる整数の総和を返す関数
 int sum_tail(int n).
 
-;;
-;; 整数論
-;;
+### 三度、整数
 
 n 以上 m 未満の奇数の和を求める関数
 int sum_odds(int n, int m).
@@ -308,9 +282,7 @@ n 未満の素数の和を求める関数
 int sum_primes_under(int n).
 sum_primes_under(1000) は 76127 のはず。
 
-;;
-;; 再帰関数ちょっとだけ
-;;
+### 再帰関数ちょっとだけ
 
 関数 int factorial(int n) を定義せよ。
 factorial(5) は 5! の値を戻り値とする。
@@ -336,9 +308,7 @@ int fibo_over(n).　fibo_over(20000) の戻り値はきっと 23 だ。
 n 以上 m 未満となるフィボナッチ数の総和を返す関数
 int sum_of_fibo_between(int n, int m).
 
-;;
-;; 配列
-;; malloc or static
+### 配列
 
 サイズ n の整数配列 a[ ] に 0 ~ 99 の乱数をセットする関数
 void init_randoms_99(int a[ ] , int n).
@@ -349,9 +319,7 @@ sort(int a[,], int n, int b[ ]).
 上で並べ替えた配列 b[ ] が正しく要素順になっているかを確認する関数
 int is_sorted(int b[ ], int n).
 
-;;
-;; 文字列
-;; char*
+### 文字列
 
 文字列 s が空文字列("")かどうかを判定する関数
 int is_empty(char* s).
@@ -369,13 +337,14 @@ int str_eql(char* s1 char* s2).
 int str_eql_n(char* s1, char*s2, int n).
 
 文字列 s1 を文字列 s2 にコピーする関数
-void str_copy(char s1[ ], char s2[ ]).
+void str_copy(char* s1, char* s2).
 s2 は s1 をコピーするに十分な長さがあると仮定してよい。
 以下同様。
+str_copy(s1,s2) の後、str_sql(s1,　s2) が真になること。
 
 文字列 s1 の後ろに文字列 s2 を連結する関数
-void str_append(char* s1, char* s2).
-str_append("abc", "def") を呼び出したあと、s1 は "abcdef" となる。
+char* str_append(char* s1, char* s2).
+str_append("abc", "def") の戻り値は文字列 s1 のポインタとせよ。
 
 文字列 s1 の n 文字目からの m 文字を s2 の先頭にコピーする関数
 void str_take(char s1[ ], int n, int m, char s2[ ]).
@@ -384,40 +353,38 @@ str_take("0123456", 1, 3, s2) の呼び出しのあと、s2 は "234" となる�
 文字列 s1 中に文字列 s2 が出現するかどうかを判定する関数
 int str_search(char s1[ ], char s2[ ]).
 s2 が s1 の何文字目から出現しているかを返そう。見つからなかった時は -1 を返せ。
+戻り値 が　0 の時は「s1 の先頭に s2 は見つかる」の意味になる。
 
 文字列 s1 の n 文字目からの m 文字を削除する
-void str_remove(char s1[ ], int n, int m).
+char* str_remove(char* s1, int n, int m).
 
-文字列 s1 中に文字列 s2 が見つかる場合、s1 から s2 を削除する
-void str_remove_str(char s1[ ], char s2[ ]).
+文字列 s1 中に文字列 s2 が見つかる場合、s1 から s2 を削除し、s1 ポインタを返す。
+char* str_remove_str(char s1[ ], char s2[ ]).
 見つからない時？なにも削除しないよ。
 
 文字列 s1 の n 文字目に文字列 s2 を挿入する
-void str_insert(char s1[ ], int n, char s2[ ]).
+char* str_insert(char* s1, int n, char* s2).
 
 文字列 s1 中に現れる文字列 s2 を文字列 s3 で置き換える
-void str_subst(char s1[ ], char s2[ ], char s3[ ]).
+char* str_subst(char* s1, char* s2, char* s3).
 
 文字列 s1 を全て大文字にして文字列 s2 にコピーする関数
-toUpper(char s1[ ], char s2[ ]).
+void toUpper(char* s1, char* s2).
 
 文字列 s1 を整数に変換して返す関数
-int str_to_int(char s1[ ]).
+int str_to_int(char* s1).
 str_to_int("314")の戻り値は 214 になる。
 
 整数 n を文字列 s[ ] に変換する関数
 void int_to_str(int n, char s[ ]).
 int_to_str(1023, s) の呼び出しによって 文字列 "1023" が s にコピーされる。
 
-文字列 s1[ ] を逆にした文字列 s2[ ] を作る関数
-void str_reverse(char s1[ ], char s2[ ]).
+文字列 s1[ ] を逆にした文字列を返す関数
+char* str_reverse(char* s1).
 
-;;
-;; 数値積分
-;;
-時刻 h1:m1:s1 と 時刻 h2:m2:s2 をそれぞれ文字列として受け取り、
-それらの時間差を文字列で戻す関数
-char * times_between_string(char time1[], char time2[]).
+## 数値積分
+
+
 
 1000000 以下の整数で、平方数かつ立方数でもある最大の数を探す関数。
 int square_cubic(int n).
@@ -438,7 +405,7 @@ int * divisors(int n).
 それはたぶん 3682913.
 
 1000 未満の素数 p1, p2, p3 で、
-p1<sup>2</sup>+p2<sup>2</sup>=p3<sup>2</sup>
+p1<sup>2</sup> + p2<sup>2</sup> = p3<sup>2</sup>
 を満たすものはあるでしょうか？
 
 n を整数とする。factorial(n)+2 が立方数となるような n を全て求めよ。
@@ -459,9 +426,9 @@ int_to_str(1234,s) の結果、s には文字列 "1234" がセットされる。
 
 600851475143 の素因数のうち最大のものを求めよ。
 
+### プログラミング, stoic
+
 n * m と同じ計算をする関数 int stoic_times(int n, int m) を定義せよ。
 times 中で * を使うのは反則とする。
 
 ++ と -- のみを使い、x + y と同じ計算をする関数 int stoic_add(int x, int y) を定義せよ。
-
-
