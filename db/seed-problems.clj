@@ -12,8 +12,8 @@
 
 (def pg {:dbtype "postgresql"
          :dbname "r99"
-         :dbuser "user1"
-         :dbpassword "pass1"
-         :dbhost "localhost"})
+         :user "user1"
+         :password "pass1"
+         :host "localhost"})
 
 (j/insert-multi! pg :problems with-number)
