@@ -3,7 +3,7 @@
 |#
 
 (defsystem "r99"
-:version "1.5.4"
+:version "1.6"
   :author "Hiroshi Kimura"
   :license ""
   :depends-on ("cl-dbi"
