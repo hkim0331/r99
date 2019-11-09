@@ -62,7 +62,6 @@ int power(int n, int m). C言語では n^m を n\^m では計算できない。
 真、そうでなければ偽を返す関数
 int teenage(int y).
 
-
 ### max
 
 整数 x, y を引数にとり、大きい方の整数を戻り値とする関数
@@ -89,12 +88,6 @@ int right_angle(int x, int y, int z).
 
 ### ループ
 
-整数 n を引数とし、それが 3 の倍数だったら 1、
-5 の倍数だったら 2、
-3 の倍数でもあり、かつ、5 の倍数でもあったら 3、
-いずれでもなかったら 0 を返す関数
-int fz(int n).
-
 整数 n から m までの総和を求める関数
 int sum(int n, int m).
 
@@ -105,6 +98,12 @@ int product(int n, int m).
 int sum_of_digits(int n).
 sum_of_digits(12345) の戻り値は 15 。
 
+整数 n を引数とし、それが 3 の倍数だったら 1、
+5 の倍数だったら 2、
+3 の倍数でもあり、かつ、5 の倍数でもあったら 3、
+いずれでもなかったら 0 を返す関数
+int fz(int n).
+
 ### 素数、約数
 
 整数一つを引数とし、その約数を全てプリントする関数
@@ -113,9 +112,9 @@ void divisors_p(int n).
 整数一つを引数とし、その約数の合計を戻り値とする関数
 int sum_of_divisors(int n).
 
-100 以下の整数のうち、もっとも約数の多い数を返す関数
-int most_divisors100(void).
-複数あるときはそのうちの一つを返せば OK とする。
+n 以下の素数(nは整数)は何個あるかを戻り値とする関数
+int primes(int n).
+primes(10000) の戻り値は多分 1229。
 
 n 以下の整数のうち、もっとも約数の多い数を返す関数
 int most_divisors(int n).
@@ -124,10 +123,8 @@ int most_divisors(int n).
 整数一つを引数とし、
 その数が素数だったら1、素数でなかったら 0 を返す関数
 int is_prime(int n).
-
-n 以下の素数(nは整数)は何個あるかを戻り値とする関数
-int primes(int n).
-primes(10000) の戻り値は多分 1229。
+約数が何個あるかを数えて素数判定するのは遅い。
+速い素数判定を望む。
 
 ### 完全数
 
@@ -147,11 +144,10 @@ int is_squeare_sum(int n).
 is_square_sum(452) は 1 を返す。
 452 = 14<sup>2</sup>+16<sup>2</sup>.
 
-
-### 時刻西暦を和暦に
+### 時刻、西暦を和暦に
 
 西暦 year を引数にとり昭和、平成、令和の和暦をプリントする関数。
-void jear(int year).
+void j_era(int year).
 
 西暦 year を引数にとり、閏年であれば 1、そうでなければ 0 を返す関数。
 西暦が 4 で割り切れれば閏年。ただし、100 で割り切れる時は平年。
@@ -191,7 +187,6 @@ void squares_p(void).
 整数 n のルートを超えない最大の整数を返す関数
 int int_sqrt(int n).
 ヒントは前問。ライブラリ sqrt を使うことは反則とする。
-
 
 ### float
 
@@ -268,6 +263,12 @@ int sum_n(int n).
 の最後の n 行に含まれる整数の総和を返す関数
 int sum_tail(int n).
 
+ファイル名を文字列 fname として引数にとり、そのファイルの中身を
+表示する関数 void cat(char *fname)
+
+ファイル名を文字列 fname として引数にとり、そのファイルの中身を
+行番号つきで表示する関数 void n_cat(char *fname)
+
 ### 三度、整数
 
 n 以上 m 未満の奇数の和を求める関数
@@ -310,18 +311,24 @@ int sum_of_fibo_between(int n, int m).
 
 ### 配列
 
-サイズ n の整数配列 a[ ] に 0 ~ 99 の乱数をセットする関数
+サイズ n の整数配列 a[ ] に 0~99 の乱数をセットする関数
 void init_randoms_99(int a[ ] , int n).
 
+上で作った乱数配列 a[ ] 中にみつからない 0~99 の数をプリントする関数
+void find_not(int a[ ]).
+
+上で作った乱数配列 a[ ] 中に一番たくさん重複して現れる数を返す関数
+int find_max_dupli(int a[ ]).
+
 上で作った乱数配列 a[ ] を要素の大きさ順に並べ替え、b[ ] にセットする関数
-sort(int a[,], int n, int b[ ]).
+sort(int a[ ], int n, int b[ ]).
 
 上で並べ替えた配列 b[ ] が正しく要素順になっているかを確認する関数
 int is_sorted(int b[ ], int n).
 
 ### 文字列
 
-文字列 s が空文字列("")かどうかを判定する関数
+文字列 s が空文字列 "" かどうかを判定する関数
 int is_empty(char* s).
 
 文字列 s の長さを返す関数
@@ -331,7 +338,7 @@ int str_len(char* s).
 int count_chars(char* s, char c).
 
 文字列 s1 と文字列 s2 が等しいかどうかを判定する関数
-int str_eql(char* s1 char* s2).
+int str_eql(char* s1, char* s2).
 
 二つの文字列 s1, s2 の先頭の n 文字が等しいかどうかを判定する関数
 int str_eql_n(char* s1, char*s2, int n).
@@ -340,19 +347,19 @@ int str_eql_n(char* s1, char*s2, int n).
 void str_copy(char* s1, char* s2).
 s2 は s1 をコピーするに十分な長さがあると仮定してよい。
 以下同様。
-str_copy(s1,s2) の後、str_sql(s1,　s2) が真になること。
+str_copy(s1,s2) の実行後、str_sql(s1,　s2) が真になること。
 
 文字列 s1 の後ろに文字列 s2 を連結する関数
 char* str_append(char* s1, char* s2).
-str_append("abc", "def") の戻り値は文字列 s1 のポインタとせよ。
+str_append("abc", "def") の実行後、str_eql(s1, "abcdef")は真になる。
 
 文字列 s1 の n 文字目からの m 文字を s2 の先頭にコピーする関数
-void str_take(char s1[ ], int n, int m, char s2[ ]).
+void str_take(char* s1, int n, int m, char s2).
 str_take("0123456", 1, 3, s2) の呼び出しのあと、s2 は "234" となる。
 
 文字列 s1 中に文字列 s2 が出現するかどうかを判定する関数
-int str_search(char s1[ ], char s2[ ]).
-s2 が s1 の何文字目から出現しているかを返そう。見つからなかった時は -1 を返せ。
+int str_search(char s1*, char* s2).
+s2 が s1 の何文字目から出現しているかを返す。見つからなかった時は -1 を返せ。
 戻り値 が　0 の時は「s1 の先頭に s2 は見つかる」の意味になる。
 
 文字列 s1 の n 文字目からの m 文字を削除する
@@ -375,20 +382,25 @@ void toUpper(char* s1, char* s2).
 int str_to_int(char* s1).
 str_to_int("314")の戻り値は 214 になる。
 
-整数 n を文字列 s[ ] に変換する関数
-void int_to_str(int n, char s[ ]).
+整数 n を文字列 s に変換する関数
+void int_to_str(int n, char* s).
 int_to_str(1023, s) の呼び出しによって 文字列 "1023" が s にコピーされる。
 
-文字列 s1[ ] を逆にした文字列を返す関数
-char* str_reverse(char* s1).
+文字列 *s を逆にした文字列を返す関数
+char* str_reverse(char* s).
+printf("%s\n", str_reverse("abcdef")) がプリントするのは
+"fedcba\n"
 
-## 数値積分
+文字列 *s1 が日本語文字列の場合、js を逆順にした文字列を返す関数
+char *jstr_reverse(char(js)).
+printf("%s\n", jstr_reverse("おはようございます。")) がプリントするのは
+"。すまいざごうよはお\n"
 
-
+##
 
 1000000 以下の整数で、平方数かつ立方数でもある最大の数を探す関数。
 int square_cubic(int n).
-実行は square_cubic(1000000)、きっと。
+square_cubic(1000000) の戻り値はきっと、
 
 引数の整数の全ての約数の配列を配列 ret に入れる関数
 void divisors_array(int n, int ret[ ]).
@@ -408,7 +420,7 @@ int * divisors(int n).
 p1<sup>2</sup> + p2<sup>2</sup> = p3<sup>2</sup>
 を満たすものはあるでしょうか？
 
-n を整数とする。factorial(n)+2 が立方数となるような n を全て求めよ。
+n を整数とする。factorial(n) + 2 が立方数となるような n を全て求めよ。
 
 3 で割って1余り、5 で割って2余り、7 で割って 3 余る正の整数の最小のものはなにか？
 （孫子の問題）
@@ -416,17 +428,13 @@ n を整数とする。factorial(n)+2 が立方数となるような n を全て
 2520 は 1 から 10 の数字のすべての整数で割り切れる最小の整数である。
 1 から 20 までの整数すべてで割り切れる最小の整数は何か？
 
-整数 n を文字列 s に変換する関数 int_to_str(int n, char s[]).
-s[ ] は十分な長さがあると仮定してよい。
-int_to_str(1234,s) の結果、s には文字列 "1234" がセットされる。
+整数 n を文字列に変換し、戻り値とする関数 char* int_to_str(int n).
 
 左右どちらから読んでも同じ値になる数を回文数という。
 2桁の数の積で表される回文数のうち、最大のものは 9009 = 91 × 99 である。
 3桁の数の積で表される回文数の最大値を求めよ。
 
 600851475143 の素因数のうち最大のものを求めよ。
-
-### プログラミング, stoic
 
 n * m と同じ計算をする関数 int stoic_times(int n, int m) を定義せよ。
 times 中で * を使うのは反則とする。
