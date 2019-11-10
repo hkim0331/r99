@@ -124,7 +124,7 @@
 (defmacro navi ()
   '(htm
     (:p
-     (:a :href "http://robocar.melt.kyutech.ac.jp" "robocar")
+     (:a :href "https://r.hkim.jp" "robocar")
      " | "
      (:a :href "/problems" "problems")
      " | "
