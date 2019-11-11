@@ -1,6 +1,6 @@
 HOST=localhost
 DB=r99
-PSQL=psql -h ${HOST} ${DB}
+PSQL=psql -U user1 -W -h ${HOST} ${DB}
 
 all: drop create problems users admins backup
 
