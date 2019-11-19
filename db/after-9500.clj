@@ -45,6 +45,9 @@
 (def sid-myid-jname
   (map #(dissoc % :uid) sid-uid-myid-jname))
 
-(j/insert-multi! pg :users sid-myid-jname)
+(def sid-myid-jname-password
+  (map #(assoc % :password "robocar") sid-myid-jname))
+
+(j/insert-multi! pg :users sid-myid-jname-password)
 
 
