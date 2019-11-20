@@ -33,7 +33,7 @@
     (filter #(= sid (:sid %)) sid-jname))))
 
 (def sid-uid-myid-jname
-  (filter #(:jname %) 
+  (filter #(:jname %)
           (map (fn [e] (assoc e :jname (jname (:sid e)))) sid-uid-myid)))
 
 (def pg {:dbtype "postgresql"
