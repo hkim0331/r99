@@ -9,7 +9,7 @@
          :user "user1"
          :password "pass1"})
 
-(defn update [n]
+(defn r99-update [n]
   (let [detail (first (j/find-by-keys pg :problems {:num n}))
         renew (input "r99" :value (:detail detail))]
     (if-not (empty? renew)
@@ -18,4 +18,4 @@
         (str "update as " renew)))))
 
 (defn -main [num & args]
-  (update num))
+  (r99-update (Integer. num)))
