@@ -342,9 +342,15 @@ int leap(int year) {
 }
 
 int time_to_int(int hh, int mm, int ss) {
-
+  return hh*3600 + mm*60 +ss;
 }
 
+int sec_between(int h1, int m1, int s1, int h2, int m2, int s2){
+  int time1 = time_to_int(h1,m1,s1);
+  int time2 = time_to_int(h2,m2,s2);
+
+  return time2-time1;
+}
 int main(void) {
 
 //  hello_p();

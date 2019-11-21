@@ -24,3 +24,6 @@ admins:
 backup:
 	pg_dump -h ${HOST} ${DB} > backups/`date +%F`.sql
 
+update:
+	@echo "clj -m update-r99 <num>"
+
