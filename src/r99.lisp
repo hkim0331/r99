@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "1.6.3.1")
+(defvar *version* "1.16.2")
 
 (defvar *nakadouzono* 8998)
 (defvar *hkimura* 8999)
@@ -906,7 +906,8 @@ answer like '%/* comment from%' order by num"
            "goku.png"
            "guernica.jpg"
            "kutsugen.jpg"
-           "a-gift-of-the-sea.jpg")))
+           "a-gift-of-the-sea.jpg"
+           "integers.txt")))
     (loop for i in entities
        do
          (push (create-static-file-dispatcher-and-handler
