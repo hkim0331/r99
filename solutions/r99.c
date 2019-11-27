@@ -351,8 +351,135 @@ int sec_between(int h1, int m1, int s1, int h2, int m2, int s2){
 
   return time2-time1;
 }
-int main(void) {
 
+//assume plain year
+int days(int mm, int dd) {
+  int month[]={0,31,28,30,31,30,31,31,30,31,30,31};
+  int i;
+  int days = dd;
+
+  for (i=0; i<mm; i++) {
+    days += month[i];
+  }
+  return days;
+}
+
+//42
+/*
+int days_between(int y1, int m1, int d1, int y2, int m2, int d2) {
+
+}
+*/
+
+
+//44
+int rev3(int n) {
+  int d0 = n%10;
+  int d1 = (n%100)/10;
+  int d2 = n/100;
+  return d0*100 + d1*10 + d2;
+}
+
+int how_many_rev3(void) {
+  int i;
+  int c=0;
+
+  for (i=100;i<1000;i++) {
+    if (i==rev3(i)) {
+      c++;
+    }
+  }
+  return c;
+}
+
+//46
+void squares_p(void) {
+  int i;
+
+  for (i=1; i<21; i++) {
+    printf("%i,", i*i);
+  }
+  printf("\n");
+}
+
+int int_sqrt(int n) {
+  int i;
+
+  for (i=0;i*i<=n;i++) {
+    ;
+  }
+  return i-1;
+}
+
+//48
+int f_to_i(float x) {
+  return (int)(x+0.5);
+}
+
+float f_to_f1(float x) {
+  return f_to_i(x*10)/10.0;
+}
+
+float f_to_f(float x, int n) {
+  int i;
+  int p=1;
+
+  for (i=0;i<n;i++) {
+    p *= 10;
+  }
+  return f_to_i(x*p)/(float)p;
+}
+
+
+#include <sys/types.h>
+#include <unistd.h>
+
+int rand_n(int n) {
+  return random()%n;
+}
+
+int rand_between(int n, int m) {
+  return n + rand_n(m-n);
+}
+
+float randf(void) {
+  int big=1000000;
+  return rand_n(big)/(float)big;
+}
+
+void randf_p(int n) {
+  int i;
+
+  for (i=0; i<n; i++) {
+    printf("%f\n", randf());
+  }
+}
+
+float pi(int n) {
+  int i;
+  float x, y;
+  int c = 0;
+
+  for (i=0; i<n; i++) {
+    x = randf();
+    y = randf();
+    if (x*x + y*y <= 1) {
+      c++;
+    }
+  }
+  return ((float)c)/n*4;
+}
+
+int main(void) {
+  int i;
+
+  printf("pi=%f\n",pi(100000));
+  //  randf_p(10);
+  //  for (i=0;i<100;i++) {
+  //    printf("%f\n",randf());
+  //  }
+  //  printf("%f\n", f_to_f(3.14159265,4));
+  //  printf("%i %i\n", f_to_i(3.5),f_to_i(10.499));
 //  hello_p();
 //  add1_p();
 //  en_p();
@@ -365,8 +492,8 @@ int main(void) {
 //  printf("%i\n", is_square(237169));
 //  printf("%i\n", is_cubic(9663597));
 //    printf("%i\n", is_squeare_sum(452));
-  j_era(2019);
-  j_era(1962);
-  j_era(2000);
+//  j_era(2019);
+//  j_era(1962);
+//  j_era(2000);
   return 0;
 }
