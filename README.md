@@ -1,5 +1,10 @@
 # R99
 
+## [1.17] 2019-11-27
+
+tag つけ間違って飛んだ。
+clojure seesaw で db/update 作成。
+
 ## [1.6.2] 2019-11-19
 
 追加の16人分。db/data/after-9500.txt を用意して、db/after-9500.clj から流し込む。
