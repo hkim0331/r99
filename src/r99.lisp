@@ -213,12 +213,20 @@
              nil
              "select myid,num,answer,create_at::text from old_answers where id='~a'"
              id))
-         (ret (dbi:fetch (query q))))
+         (ret (dbi:fetch (query q)))
+         (myid (getf ret :|myid|))
+         (num (getf ret :|num|))
+         (q2 (format
+              nil
+              "select id from answers where myid=~a and num=~a" myid num))
+         (ret2 (dbi:fetch (query q2)))
+         (oid (getf ret2 :|id|)))
     (page
-      (:h3 (str (getf ret :|myid|)) " [" (str (getf ret :|num|)) "]")
+      (:h3 (str myid) " [" (str num) "]")
       (:p (str (getf ret :|create_at|)))
       (:pre
        (format t "~a" (escape (getf ret :|answer|))))
+      (:p (:a :href (format nil "/comment?id=~a" oid) "comment?"))
       (:p (:a :href "/admin" "back to admin")))))
 
 (defun my-subseq (n s)
