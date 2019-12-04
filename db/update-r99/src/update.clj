@@ -23,7 +23,7 @@
               :text "update"
               :listen [:action #(update-r99 % n (value text))])
         f    (frame
-              :title (str "r99: " n)
+              :title (str "r99 " num)
               :on-close :exit
               :width 400
               :height 200
@@ -31,5 +31,5 @@
                         :items [(scrollable text) btn]))]
     (-> f show!)))
 
-(defn -main [n & args]
-  (create (Integer. n)))
+(defn -main [num & args]
+  (create (Integer. num)))
