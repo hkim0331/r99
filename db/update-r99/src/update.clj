@@ -3,11 +3,11 @@
             [clojure.string :as string])
   (:use seesaw.core))
 
-(def pg {:dbtype "postgresql"
-         :dbname "r99"
-         :host   "localhost"
-         :user   "user1"
-         :password "pass1"})
+(def pg {:dbtype   "postgresql"
+         :user     "user1"
+         :password "pass1"
+         :host     "localhost"
+         :dbname   "r99"})
 
 (defn update-r99 [e n text]
   (jdbc/update! pg :problems {:detail text} ["num = ?" n])
