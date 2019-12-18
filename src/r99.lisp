@@ -37,11 +37,11 @@
 ;; (defvar *password* (or (getenv "R99_PASS") "pass1"))
 
 ;; 2019-12-18, 関数に変更。
-(defun host ()
+(defun db-host ()
   (or (getenv "R99_HOST") "localhost"))
-(defun user ()
+(defun db-user ()
   (or (getenv "R99_USER") "user1"))
-(defun pass ()
+(defun db-pass ()
   (or (getenv "R99_PASS") "pass1"))
 
 (defvar *db* "r99")
@@ -51,12 +51,12 @@
 
 (defun query (sql)
   (dbi:with-connection
-      (conn :postgres
-            :host (host)
-            :username (user)
-            :password (pass)
-            :database-name *db*)
-    (dbi:execute (dbi:prepare conn sql))))
+   (conn :postgres
+         :host (db-host)
+         :username (db-user)
+         :password (db-pass)
+         :database-name *db*)
+   (dbi:execute (dbi:prepare conn sql))))
 
 (defun password (myid)
   (let ((sql (format
