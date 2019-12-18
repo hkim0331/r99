@@ -2,7 +2,7 @@ all: run
 
 run:
 	cd src && ros r99.ros
-	
+
 make-db:
 	cd db && make init
 

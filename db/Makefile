@@ -14,7 +14,7 @@ create:
 problems: data/problems.md
 	clj seed-problems.clj
 
-users: 
+users:
 	clj seed-users.clj
 
 admins:

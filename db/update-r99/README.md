@@ -6,7 +6,7 @@
 ## usage
 
 ```sh
-$ clj -m core <num>
+$ clj -m update <num>
 ```
 
 ---
