@@ -1,0 +1,10 @@
+[Unit]
+Description = r99 backup timer
+
+[Timer]
+OnStartupSec = 15min
+OnCalendar = *-*-* 8:00
+Persistent = true
+
+[Install]
+WantedBy = timers.target
