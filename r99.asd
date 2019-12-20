@@ -3,7 +3,11 @@
 |#
 
 (defsystem "r99"
+<<<<<<< HEAD
 :version "1.20"
+=======
+:version "1.19"
+>>>>>>> 42f1bbfa9532f3b2fbe397a5ed53e381502d24af
   :author "Hiroshi Kimura"
   :license ""
   :depends-on ("cl-dbi"

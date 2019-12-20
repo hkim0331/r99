@@ -1,0 +1,7 @@
+[Unit]
+Description = backup r99 daily
+
+[Service]
+Type = oneshot
+WorkingDirectory = /home/hkim/r99/db
+ExecStart = /usr/bin/pg_dump -U user1 -W -h localhost r99 
