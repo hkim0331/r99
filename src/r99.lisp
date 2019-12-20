@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "1.19")
+(defvar *version* "1.20")
 
 (defvar *nakadouzono* 8998)
 (defvar *hkimura* 8999)
@@ -250,9 +250,10 @@
         (let* ((ret (query "select id, create_at::text, myid, num,
   answer from old_answers order by id desc")))
           (page
-            (loop for row = (dbi:fetch ret)
-               while row
-               do
+	   (:p "db-host: " (str (db-host)))
+	   (loop for row = (dbi:fetch ret)
+		 while row
+		 do
                  (format
                   t
                   "<p><a href='/show-old?id=~a'>~a</a> [~a] ~a ~a</p>"
