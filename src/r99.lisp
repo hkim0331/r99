@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "1.18")
+(defvar *version* "1.19")
 
 (defvar *nakadouzono* 8998)
 (defvar *hkimura* 8999)
@@ -32,9 +32,18 @@
         default)))
 
 ;;これだとコンパイル時に決定する、なのか？
-(defvar *host* (or (getenv "R99_HOST") "localhost"))
-(defvar *user* (or (getenv "R99_USER") "user1"))
-(defvar *password* (or (getenv "R99_PASS") "pass1"))
+;; (defvar *host* (or (getenv "R99_HOST") "localhost"))
+;; (defvar *user* (or (getenv "R99_USER") "user1"))
+;; (defvar *password* (or (getenv "R99_PASS") "pass1"))
+
+;; 2019-12-18, 関数に変更。
+(defun db-host ()
+  (or (getenv "R99_HOST") "localhost"))
+(defun db-user ()
+  (or (getenv "R99_USER") "user1"))
+(defun db-pass ()
+  (or (getenv "R99_PASS") "pass1"))
+
 (defvar *db* "r99")
 (defvar *server* nil)
 (defvar *http-port* 3030)
@@ -42,12 +51,12 @@
 
 (defun query (sql)
   (dbi:with-connection
-      (conn :postgres
-            :host *host*
-            :username *user*
-            :password *password*
-            :database-name *db*)
-    (dbi:execute (dbi:prepare conn sql))))
+   (conn :postgres
+         :host (db-host)
+         :username (db-user)
+         :password (db-pass)
+         :database-name *db*)
+   (dbi:execute (dbi:prepare conn sql))))
 
 (defun password (myid)
   (let ((sql (format
