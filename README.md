@@ -1,5 +1,7 @@
 # R99
 
+make dump, make restore で
+
 ## [1.19] 2019-12-18
 
 環境変数を実行時に読み込む。db-host, db-user, db-pass 関数。を追加。
