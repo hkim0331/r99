@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "1.19")
+(defvar *version* "1.21")
 
 (defvar *nakadouzono* 8998)
 (defvar *hkimura* 8999)
@@ -250,19 +250,20 @@
         (let* ((ret (query "select id, create_at::text, myid, num,
   answer from old_answers order by id desc")))
           (page
-            (loop for row = (dbi:fetch ret)
-               while row
-               do
-                 (format
-                  t
-                  "<p><a href='/show-old?id=~a'>~a</a> [~a] ~a ~a</p>"
-                  (getf row :|id|)
-                  (subseq (getf row :|create_at|) 0 19)
-                  (getf row :|myid|)
-                  (getf row :|num|)
-                  ;; fix. 2018-12-08.
-                  (my-subseq 60 (getf row :|answer|))
-                  ))))
+           (:p "db-host: " (str (db-host)))
+           (loop for row = (dbi:fetch ret)
+              while row
+              do
+                (format
+                 t
+                 "<p><a href='/show-old?id=~a'>~a</a> [~a] ~a ~a</p>"
+                 (getf row :|id|)
+                 (subseq (getf row :|create_at|) 0 19)
+                 (getf row :|myid|)
+                 (getf row :|num|)
+                 ;; fix. 2018-12-08.
+                 (my-subseq 60 (getf row :|answer|))
+                 ))))
         (redirect "/login"))))
 ;;
 ;; answers
@@ -277,26 +278,26 @@
 ;; () は中間試験成績を出していた。
 (define-easy-handler (users :uri "/others") ()
   (page
-   ;;    (:p (:img :src "/guernica.jpg" :width "100%"))
+    ;;    (:p (:img :src "/guernica.jpg" :width "100%"))
     (:p (:img :src "/kutsugen.jpg" :width "100%"))
     (:p :align "right" "「屈原」横山大観(1868-1958), 1898.")
     (:h2 "誰が何問?")
     (let* ((n 0)
            (recent
-            (dbi:fetch
-             (query "select myid, num, update_at::text from answers
+             (dbi:fetch
+              (query "select myid, num, update_at::text from answers
  order by update_at desc limit 1")))
            (results
-            (query "select users.myid, count(distinct answer)
+             (query "select users.myid, count(distinct answer)
 from users
 inner join answers
 on users.myid=answers.myid
 group by users.myid
 order by users.myid"))
            (working-users
-            (mapcar (lambda (x) (getf x :|myid|))
-                    (dbi:fetch-all
-                     (query  "select distinct(myid) from answers
+             (mapcar (lambda (x) (getf x :|myid|))
+                     (dbi:fetch-all
+                      (query  "select distinct(myid) from answers
  where now() - update_at < '48 hours'")))))
       (htm
        (:li
@@ -307,8 +308,7 @@ order by users.myid"))
          (short (getf recent :|update_at|))
          (getf recent :|myid|)
          (getf recent :|num|)
-         (getf recent :|num|)
-         ))
+         (getf recent :|num|)))
        (:li
         (format
          t
@@ -318,27 +318,35 @@ order by users.myid"))
        (:li "( ) は中間テスト、個人ペーパーの点数。")
        (:hr))
       (loop for row = (dbi:fetch results)
-         while row
-         do
-           (let* ((myid (getf row :|myid|))
-                  (working (if (find myid working-users) "yes" "no")))
-             (format
-              t
-              "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
-              working
-              myid
-              (cdr (assoc myid *mt*))
-              (stars (getf row :|count|))
-              myid
-              (getf row :|count|)))
-           (incf n))
+            while row
+            do
+               (let* ((myid (getf row :|myid|))
+                      (working (if (find myid working-users) "yes" "no")))
+                 (format
+                  t
+                  "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
+                  working
+                  myid
+                  (cdr (assoc myid *mt*))
+                  (stars (getf row :|count|))
+                  myid
+                  (getf row :|count|)))
+               (incf n))
       (htm (:p "受講生 246 人、一題以上回答者 " (str n) " 人。")))))
 
 ;;
 ;; /problems
 ;;
 (define-easy-handler (index-alias :uri "/") ()
-  (redirect "/problems"))
+  (page
+   (redirect "/problems")))
+   ;; (:h1 "I'M SORRY")
+   ;; (:p "ごめんなさい。r99 のプログラムをアップデート中に、データベースの一部を壊しました。")
+   ;; (:p "12/18 21:00 ~ 12/20 22:00 の間にアップロードしてもらった回答（とコメント）がなくなったと思います。")
+   ;; (:p "もう数時間、復旧に力をかけますが、日付が変わったらギブアップ。")
+   ;; (:p "やろうと思ったのは、提出された回答をチェックし、「一字一句、内容が同一の回答があります」って警告出すこと。R99 は自力で解かんと力にならんよ。インチキで点数取ろうと思ってる人を驚かそうと思ってさ。労力の割にはムダかな、そんなチェックは。")
+   ;; (:p "ほんとにごめんな。")
+   ;; (:p (:a :href "/problems" "問題ページ"))))
 
 (defun zero_or_num (num)
   (if (null num)
