@@ -1,3 +1,7 @@
+## Unrelease
+
+* 一問修正で終わらない
+
 ## synopsis
 
 問題文が長いとき、input だと編集しにくい。
