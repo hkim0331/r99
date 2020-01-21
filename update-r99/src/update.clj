@@ -1,6 +1,7 @@
 (ns update
   (:require [clojure.java.jdbc :as jdbc]
-            [clojure.string :as string])
+            [clojure.string :as string]
+            [clojure.edn :as edn])
   (:use seesaw.core))
 
 (def pg {:dbtype   "postgresql"
@@ -14,8 +15,8 @@
 (defn update-r99 [e n text]
   (jdbc/update! pg :problems {:detail text} ["num = ?" n])
   (dispose! (.getSource e))
-  (when-let [n (input "Next problem?")]
-    (create (Integer. n))))
+  (when-let [n (edn/read-string (input "Next problem?"))]
+    (create n)))
 
 (defn create [n]
   (let [detail (:detail (first (jdbc/find-by-keys pg :problems {:num n})))
