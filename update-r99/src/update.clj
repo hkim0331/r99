@@ -14,7 +14,7 @@
 (defn update-r99 [e n text]
   (jdbc/update! pg :problems {:detail text} ["num = ?" n])
   (dispose! (.getSource e))
-  (when-let [n (input "next problem? or cancel.")]
+  (when-let [n (input "Next problem?")]
     (create (Integer. n))))
 
 (defn create [n]
