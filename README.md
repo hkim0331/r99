@@ -1,6 +1,10 @@
 # R99
 
-make dump, make restore で
+## [1.22.5] 2020-01-21
+
+* db/update-r99 を 上位フォルダに移す。
+* 複数の問題修正を連続してできるように。declare を覚えた。あと、input、Integer.
+  (require '[clojure.edn :as edn]) しておいて、(edn/read-string "32") も覚えよう。
 
 ## [1.19] 2019-12-18
 

@@ -9,9 +9,13 @@
          :host     "localhost"
          :dbname   "r99"})
 
+(declare create)
+
 (defn update-r99 [e n text]
   (jdbc/update! pg :problems {:detail text} ["num = ?" n])
-  (dispose! (.getSource e)))
+  (dispose! (.getSource e))
+  (when-let [n (input "next problem? or cancel.")]
+    (create (Integer. n))))
 
 (defn create [n]
   (let [detail (:detail (first (jdbc/find-by-keys pg :problems {:num n})))
