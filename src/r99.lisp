@@ -101,11 +101,11 @@
 ;; bugfix: 0.8.8
 ;; "？"は全角だけど ? => $1 に変換してしまうのだった！
 (defun escape-apos (answer)
-    (regex-replace-all
+  (regex-replace-all
      "\\?"
-   (regex-replace-all
-    "\""
-    (regex-replace-all "'" answer "&apos;") "&quot;") "？"))
+     (regex-replace-all
+      "\""
+      (regex-replace-all "'" answer "&apos;") "&quot;") "？"))
 
 ;; 全角 ？ は積み残し。
 (defun unescape-apos (s)
@@ -955,3 +955,4 @@ answer like '%/* comment from%' order by num"
 (defun main ()
   (start-server)
   (loop (sleep 60)))
+
