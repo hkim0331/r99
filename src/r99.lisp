@@ -99,13 +99,18 @@
 ;; answer から ' をエスケープしないとな。
 ;; 本来はプリペアドステートメント使って処理するべき。
 ;; bugfix: 0.8.8
-;; "？"は全角だけど ? => $1 に変換してしまうのだった！
+;;
+;; 2020-01-24
+;; ??? を $1$2$3 に変換してしまうのはだれ？
+;; ?=>？はその変換を抑制するため。
 (defun escape-apos (answer)
   (regex-replace-all
-     "\\?"
-     (regex-replace-all
-      "\""
-      (regex-replace-all "'" answer "&apos;") "&quot;") "？"))
+   "\\?"
+   (regex-replace-all
+    "\""
+    (regex-replace-all "'" answer "&apos;")
+    "&quot;")
+   "？"))
 
 ;; 全角 ？ は積み残し。
 (defun unescape-apos (s)
@@ -498,20 +503,24 @@ order by users.myid"))
                         (str (escape my-answer)))
              (:br)
              (:input :type "submit" :value "update"))
+      (:p :class "warn" "全角？の学生に: 上で書き換えてアップデートよりも、
+プログラムをいったん外部のエディタ等にコピーして書き換え、
+動作を確認したあとペースト戻ししてみてくれ。
+時間あったら r.hkim.jp の FAQ にでも理由書く。")
       (:br)
       (:h3 "others")
       (loop for row = (dbi:fetch other-answers)
-         while row
-         do (format
-             t
-             "<b>~a</b>
+            while row
+            do (format
+                t
+                "<b>~a</b>
  at ~a,
  <a href='/comment?id=~a'> comment</a>
  <pre class='answer'><code>~a</code></pre><hr>"
-             (getf row :|myid|)
-             (short (getf row :|update_at|))
-             (getf row :|id|)
-             (escape (getf row :|answer|))))
+                (getf row :|myid|)
+                (short (getf row :|update_at|))
+                (getf row :|id|)
+                (escape (getf row :|answer|))))
       (format
        t
        "<b>nakadouzono:</b><pre class='answer'><code>~a</code></pre><hr>"
@@ -538,7 +547,6 @@ order by users.myid"))
                myid
                num))
          (old-answer (unescape-apos (second (dbi:fetch (query old)))))
-         ;; bug fix, bu escape-apos
          (sql0 (format
                 nil
                 "insert into old_answers (myid, num, answer, create_at)
