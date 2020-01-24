@@ -615,12 +615,23 @@ values ('~a', '~a', '~a', now())"
   (set-cookie *myid* :max-age 0)
   (redirect "/problems"))
 
+(defun check-time (myid num)
+  (let* ((now (getf (dbi:fetch (query "select now()")) :|now|))
+         (q (format nil "select update_at from answers where myid='~a' and num='~a'" myid num))
+         (update_at (getf (dbi:fetch (query q)) :|update_at|)))
+    (< (* 60 60 24) (- now update_at))))
+
+;;1.23.3
 (define-easy-handler (update-answer :uri "/update-answer") (num answer)
-  (if (check answer)
-      (update (myid) num answer)
+  (if (check-time (myid) num)
+      (if (check answer)
+          (update (myid) num answer)
+          (page
+            (:h3 "error")
+            (:p "ビルドできない。バグ混入？")))
       (page
-        (:h3 "error")
-        (:p "ビルドできない。バグ混入？"))))
+        (:h2 "too early")
+        (:p "他人の回答をコピって出す技が目に付くので、24時間以内のアップデートは禁止にしました。"))))
 
 (define-easy-handler (submit :uri "/submit") (num answer)
   (if (myid)
@@ -691,7 +702,7 @@ values ('~a', '~a', '~a', now())"
                "select num, answer from answers where myid='~a' order by num"
                (myid)))))
         (page
-          (:pre "#include &lt;stdio.h>
+          (:pre "#include &lt)))))));stdio.h>
 #include &lt;stdlib.h>")
           (loop for row = (dbi:fetch ret)
                 while row
