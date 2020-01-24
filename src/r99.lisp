@@ -91,28 +91,19 @@
 (defun escape (string)
   (regex-replace-all "<" string "&lt;"))
 
-;; answer から ' をエスケープしないとな。
-;; 本来はプリペアドステートメント使って処理するべき。
-;; bugfix: 0.8.8
-;;
-;; 2020-01-24
-;; ??? を $1$2$3 に変換してしまうのはだれ？
-;; ?=>？はその変換を抑制するため。
+;; fix:[1.23] 2020-01-24
+;; 対称的な escape/unescape
 (defun escape-apos (answer)
-  (regex-replace-all
-   "\\?"
-   (regex-replace-all
-    "\""
-    (regex-replace-all "'" answer "&apos;")
-    "&quot;")
-   "？"))
+  (let* ((s1 (regex-replace-all "'"   answer "&apos;"))
+         (s2 (regex-replace-all "\""  s1     "&quot;"))
+         (s3 (regex-replace-all "\\?" s2     "？")))
+    s3))
 
-;; 全角 ？ は積み残し。
 (defun unescape-apos (s)
-  (regex-replace-all
-   "&apos;"
-   (regex-replace-all "&quot;" s "\"")
-   "'"))
+  (let* ((s1 (regex-replace-all "&quot;" s  "\""))
+         (s2 (regex-replace-all "&apos;" s1 "'"))
+         (s3 (regex-replace-all "？"     s2 "?")))
+    s3))
 
 (defun check (answer)
   (and
@@ -199,11 +190,11 @@
 
 (define-easy-handler (last-answer :uri "/last") (myid)
   (let* ((q
-          (format
-           nil
-           "select num from answers where myid='~a'
+           (format
+            nil
+            "select num from answers where myid='~a'
  order by update_at desc limit 1"
-           myid))
+            myid))
          (ret (dbi:fetch (query q)))
          (num (getf ret :|num|)))
     (redirect (format nil "/answer?num=~a" num))))
@@ -382,32 +373,6 @@ order by users.myid"))
                     (zero_or_num (gethash num nums))
                     (getf row :|detail|)))))))
 
-;; FIXME:
-;; r99 2017 version
-;; これだと problems.num=answers.num が成立しないデータは拾えない、か？
-;;
-;; (define-easy-handler (problems :uri "/problems") ()
-;;   (let ((results
-;;          (query
-;;           "select answers.num, count(*), problems.detail from answers
-;; inner join problems on answers.num=problems.num
-;; group by answers.num, problems.detail
-;; order by answers.num")))
-;;     (page
-;;       ;;(:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
-;;       (:hr)
-;;       (:h2 "problems")
-;;       (:p "番号をクリックして回答提出。ビルドできない回答は受け取らないよ。(回答数)")
-;;       (loop for row = (dbi:fetch results)
-;;          while row
-;;          do (format
-;;              t
-;;              "<p><a href='/answer?num=~a'>~a</a> (~a) ~a</p>~%"
-;;              (getf row :|num|)
-;;              (getf row :|num|)
-;;              (getf row :|count|)
-;;              (getf row :|detail|))))))
-
 ;;
 ;; add-comment
 ;; update_at は変えない。
@@ -495,13 +460,9 @@ order by users.myid"))
              (:textarea :name "answer"
                         :cols 60
                         :rows (+ 1 (count #\linefeed my-answer :test #'equal))
-                        (str (escape my-answer)))
+                        (str (unescape-apos my-answer)))
              (:br)
              (:input :type "submit" :value "update"))
-      (:p :class "warn" "全角？の学生に: 上で書き換えてアップデートよりも、
-プログラムをいったん外部のエディタ等にコピーして書き換え、
-動作を確認したあとペースト戻ししてみてくれ。
-時間あったら r.hkim.jp の FAQ にでも理由書く。")
       (:br)
       (:h3 "others")
       (loop for row = (dbi:fetch other-answers)
@@ -693,7 +654,8 @@ values ('~a', '~a', '~a', now())"
 
 (define-easy-handler (answer :uri "/answer") (num)
   (if (myid)
-      (if (answered? num) (show-answers num)
+      (if (answered? num)
+          (show-answers num)
           (submit-answer num))
       (redirect "/login")))
 
