@@ -31,11 +31,6 @@
         #+sbcl (sb-ext:posix-getenv name)
         default)))
 
-;;これだとコンパイル時に決定する、なのか？
-;; (defvar *host* (or (getenv "R99_HOST") "localhost"))
-;; (defvar *user* (or (getenv "R99_USER") "user1"))
-;; (defvar *password* (or (getenv "R99_PASS") "pass1"))
-
 ;; 2019-12-18, 関数に変更。
 (defun db-host ()
   (or (getenv "R99_HOST") "localhost"))
