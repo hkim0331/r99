@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "1.22.7")
+(defvar *version* "1.22.8")
 
 (defvar *nakadouzono* 8998)
 (defvar *hkimura* 8999)
@@ -30,11 +30,6 @@
         #+mkcl (mkcl:getenv name)
         #+sbcl (sb-ext:posix-getenv name)
         default)))
-
-;;これだとコンパイル時に決定する、なのか？
-;; (defvar *host* (or (getenv "R99_HOST") "localhost"))
-;; (defvar *user* (or (getenv "R99_USER") "user1"))
-;; (defvar *password* (or (getenv "R99_PASS") "pass1"))
 
 ;; 2019-12-18, 関数に変更。
 (defun db-host ()
