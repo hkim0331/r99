@@ -328,16 +328,16 @@ order by users.myid"))
 ;;
 ;; /problems
 ;;
+;; (define-easy-handler (index-alias :uri "/") ()
+;;   (page
+;;     (:h1 :class "warn" "WARNING")
+;;     (:p "回答にならない回答出して、他人の回答をコピー、自分の回答としてアップデートするの良くない。")
+;;     (:p "下らんやつがいると面倒だよ。わからんと思ってるのか？期末テストはダメだね。")
+;;     (:p "何か対策します。")
+;;     (:p (:a :href "/problems" "問題ページ"))))
+
 (define-easy-handler (index-alias :uri "/") ()
-  (page
-   (redirect "/problems")))
-   ;; (:h1 "I'M SORRY")
-   ;; (:p "ごめんなさい。r99 のプログラムをアップデート中に、データベースの一部を壊しました。")
-   ;; (:p "12/18 21:00 ~ 12/20 22:00 の間にアップロードしてもらった回答（とコメント）がなくなったと思います。")
-   ;; (:p "もう数時間、復旧に力をかけますが、日付が変わったらギブアップ。")
-   ;; (:p "やろうと思ったのは、提出された回答をチェックし、「一字一句、内容が同一の回答があります」って警告出すこと。R99 は自力で解かんと力にならんよ。インチキで点数取ろうと思ってる人を驚かそうと思ってさ。労力の割にはムダかな、そんなチェックは。")
-   ;; (:p "ほんとにごめんな。")
-   ;; (:p (:a :href "/problems" "問題ページ"))))
+  (redirect "/problems"))
 
 (defun zero_or_num (num)
   (if (null num)
@@ -348,30 +348,35 @@ order by users.myid"))
 ;; answers テーブルから別に引くように。2018-11-14
 (define-easy-handler (problems :uri "/problems") ()
   (let ((results
-         (query "select num, detail from problems order by num"))
+          (query "select num, detail from problems order by num"))
         (answers
-         (query "select num, count(*) from answers group by num"))
+          (query "select num, count(*) from answers group by num"))
         (nums (make-hash-table)))
     (loop for row = (dbi:fetch answers)
-       while row
-       do
-         (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
+          while row
+          do
+             (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
     (page
-     (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
-     (:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
-     (:h2 "problems")
-     (:ul
-      (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
-      (:li "上の方で定義した関数を利用する場合、上の関数定義は回答に含めないでOK。"))
-     (loop for row = (dbi:fetch results)
-        while row
-        do
-          (let ((num (getf row :|num|)))
-            (format t "<p><a href='/answer?num=~a'>~a</a>(~a) ~a</p>~%"
-                    num
-                    num
-                    (zero_or_num (gethash num nums))
-                    (getf row :|detail|)))))))
+      ;; (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
+      ;; (:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
+      ;; (:h2 "problems")
+      ;; (:ul
+      ;;  (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
+      ;;  (:li "上の方で定義した関数を利用する場合、上の関数定義は回答に含めないでOK。"))
+      (:h1 :class "warn" "WARNING")
+      (:p :class "warn" "回答にならない回答出して、他人の回答をコピー、自分の回答としてアップデートするの良くない。")
+      (:p :class "warn" "下らんやつがいると面倒だよ。わからんと思ってるのか？ 性能低い。")
+      (:p :class "warn" "期末テストはダメだね。")
+      (:hr)
+      (loop for row = (dbi:fetch results)
+            while row
+            do
+               (let ((num (getf row :|num|)))
+                 (format t "<p><a href='/answer?num=~a'>~a</a>(~a) ~a</p>~%"
+                         num
+                         num
+                         (zero_or_num (gethash num nums))
+                         (getf row :|detail|)))))))
 
 ;;
 ;; add-comment
