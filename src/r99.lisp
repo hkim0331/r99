@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "1.22.7")
+(defvar *version* "1.23.3")
 
 (defvar *nakadouzono* 8998)
 (defvar *hkimura* 8999)
@@ -30,11 +30,6 @@
         #+mkcl (mkcl:getenv name)
         #+sbcl (sb-ext:posix-getenv name)
         default)))
-
-;;これだとコンパイル時に決定する、なのか？
-;; (defvar *host* (or (getenv "R99_HOST") "localhost"))
-;; (defvar *user* (or (getenv "R99_USER") "user1"))
-;; (defvar *password* (or (getenv "R99_PASS") "pass1"))
 
 ;; 2019-12-18, 関数に変更。
 (defun db-host ()
@@ -96,28 +91,19 @@
 (defun escape (string)
   (regex-replace-all "<" string "&lt;"))
 
-;; answer から ' をエスケープしないとな。
-;; 本来はプリペアドステートメント使って処理するべき。
-;; bugfix: 0.8.8
-;;
-;; 2020-01-24
-;; ??? を $1$2$3 に変換してしまうのはだれ？
-;; ?=>？はその変換を抑制するため。
+;; fix:[1.23] 2020-01-24
+;; 対称的な escape/unescape
 (defun escape-apos (answer)
-  (regex-replace-all
-   "\\?"
-   (regex-replace-all
-    "\""
-    (regex-replace-all "'" answer "&apos;")
-    "&quot;")
-   "？"))
+  (let* ((s1 (regex-replace-all "'"   answer "&apos;"))
+         (s2 (regex-replace-all "\""  s1     "&quot;"))
+         (s3 (regex-replace-all "\\?" s2     "？")))
+    s3))
 
-;; 全角 ？ は積み残し。
 (defun unescape-apos (s)
-  (regex-replace-all
-   "&apos;"
-   (regex-replace-all "&quot;" s "\"")
-   "'"))
+  (let* ((s1 (regex-replace-all "&quot;" s  "\""))
+         (s2 (regex-replace-all "&apos;" s1 "'"))
+         (s3 (regex-replace-all "？"     s2 "?")))
+    s3))
 
 (defun check (answer)
   (and
@@ -204,11 +190,11 @@
 
 (define-easy-handler (last-answer :uri "/last") (myid)
   (let* ((q
-          (format
-           nil
-           "select num from answers where myid='~a'
+           (format
+            nil
+            "select num from answers where myid='~a'
  order by update_at desc limit 1"
-           myid))
+            myid))
          (ret (dbi:fetch (query q)))
          (num (getf ret :|num|)))
     (redirect (format nil "/answer?num=~a" num))))
@@ -342,16 +328,16 @@ order by users.myid"))
 ;;
 ;; /problems
 ;;
+;; (define-easy-handler (index-alias :uri "/") ()
+;;   (page
+;;     (:h1 :class "warn" "WARNING")
+;;     (:p "回答にならない回答出して、他人の回答をコピー、自分の回答としてアップデートするの良くない。")
+;;     (:p "下らんやつがいると面倒だよ。わからんと思ってるのか？期末テストはダメだね。")
+;;     (:p "何か対策します。")
+;;     (:p (:a :href "/problems" "問題ページ"))))
+
 (define-easy-handler (index-alias :uri "/") ()
-  (page
-   (redirect "/problems")))
-   ;; (:h1 "I'M SORRY")
-   ;; (:p "ごめんなさい。r99 のプログラムをアップデート中に、データベースの一部を壊しました。")
-   ;; (:p "12/18 21:00 ~ 12/20 22:00 の間にアップロードしてもらった回答（とコメント）がなくなったと思います。")
-   ;; (:p "もう数時間、復旧に力をかけますが、日付が変わったらギブアップ。")
-   ;; (:p "やろうと思ったのは、提出された回答をチェックし、「一字一句、内容が同一の回答があります」って警告出すこと。R99 は自力で解かんと力にならんよ。インチキで点数取ろうと思ってる人を驚かそうと思ってさ。労力の割にはムダかな、そんなチェックは。")
-   ;; (:p "ほんとにごめんな。")
-   ;; (:p (:a :href "/problems" "問題ページ"))))
+  (redirect "/problems"))
 
 (defun zero_or_num (num)
   (if (null num)
@@ -362,56 +348,35 @@ order by users.myid"))
 ;; answers テーブルから別に引くように。2018-11-14
 (define-easy-handler (problems :uri "/problems") ()
   (let ((results
-         (query "select num, detail from problems order by num"))
+          (query "select num, detail from problems order by num"))
         (answers
-         (query "select num, count(*) from answers group by num"))
+          (query "select num, count(*) from answers group by num"))
         (nums (make-hash-table)))
     (loop for row = (dbi:fetch answers)
-       while row
-       do
-         (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
+          while row
+          do
+             (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
     (page
-     (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
-     (:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
-     (:h2 "problems")
-     (:ul
-      (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
-      (:li "上の方で定義した関数を利用する場合、上の関数定義は回答に含めないでOK。"))
-     (loop for row = (dbi:fetch results)
-        while row
-        do
-          (let ((num (getf row :|num|)))
-            (format t "<p><a href='/answer?num=~a'>~a</a>(~a) ~a</p>~%"
-                    num
-                    num
-                    (zero_or_num (gethash num nums))
-                    (getf row :|detail|)))))))
-
-;; FIXME:
-;; r99 2017 version
-;; これだと problems.num=answers.num が成立しないデータは拾えない、か？
-;;
-;; (define-easy-handler (problems :uri "/problems") ()
-;;   (let ((results
-;;          (query
-;;           "select answers.num, count(*), problems.detail from answers
-;; inner join problems on answers.num=problems.num
-;; group by answers.num, problems.detail
-;; order by answers.num")))
-;;     (page
-;;       ;;(:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
-;;       (:hr)
-;;       (:h2 "problems")
-;;       (:p "番号をクリックして回答提出。ビルドできない回答は受け取らないよ。(回答数)")
-;;       (loop for row = (dbi:fetch results)
-;;          while row
-;;          do (format
-;;              t
-;;              "<p><a href='/answer?num=~a'>~a</a> (~a) ~a</p>~%"
-;;              (getf row :|num|)
-;;              (getf row :|num|)
-;;              (getf row :|count|)
-;;              (getf row :|detail|))))))
+      ;; (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
+      ;; (:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
+      ;; (:h2 "problems")
+      ;; (:ul
+      ;;  (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
+      ;;  (:li "上の方で定義した関数を利用する場合、上の関数定義は回答に含めないでOK。"))
+      (:h1 :class "warn" "WARNING")
+      (:p :class "warn" "回答にならない回答出して、他人の回答をコピー、自分の回答としてアップデートするの良くない。")
+      (:p :class "warn" "下らんやつがいると面倒だよ。わからんと思ってるのか？ 性能低い。")
+      (:p :class "warn" "期末テストはダメだね。")
+      (:hr)
+      (loop for row = (dbi:fetch results)
+            while row
+            do
+               (let ((num (getf row :|num|)))
+                 (format t "<p><a href='/answer?num=~a'>~a</a>(~a) ~a</p>~%"
+                         num
+                         num
+                         (zero_or_num (gethash num nums))
+                         (getf row :|detail|)))))))
 
 ;;
 ;; add-comment
@@ -500,13 +465,9 @@ order by users.myid"))
              (:textarea :name "answer"
                         :cols 60
                         :rows (+ 1 (count #\linefeed my-answer :test #'equal))
-                        (str (escape my-answer)))
+                        (str (unescape-apos my-answer)))
              (:br)
              (:input :type "submit" :value "update"))
-      (:p :class "warn" "全角？の学生に: 上で書き換えてアップデートよりも、
-プログラムをいったん外部のエディタ等にコピーして書き換え、
-動作を確認したあとペースト戻ししてみてくれ。
-時間あったら r.hkim.jp の FAQ にでも理由書く。")
       (:br)
       (:h3 "others")
       (loop for row = (dbi:fetch other-answers)
@@ -589,14 +550,17 @@ values ('~a', '~a', '~a', now())"
     (page
       (:h2 "submit your answer to " (str num))
       (:p (str d))
-      (:ul :class "warn"
-       (:li "自分の理解を深めようとしない点数稼ぎは教員の労力、"
-            "採点の無駄時間が増えるだけ。<br>"
-            "やめましょう。"
-            "理解が深まらないままじゃ期末テストでも挽回できないよ。")
-       (:li "ビルドできない回答は受け取らない。")
-       (:li "回答を受け取ってもそれが正解とは限らない。")
-       (:li "submit できたら、他の受講生の回答と自分の回答をよく見比べること。"))
+      ;; (:ul :class "warn"
+      ;;  (:li "自分の理解を深めようとしない点数稼ぎは教員の労力、"
+      ;;       "採点の無駄時間が増えるだけ。<br>"
+      ;;       "やめましょう。"
+      ;;       "理解が深まらないままじゃ期末テストでも挽回できないよ。")
+      ;;  (:li "ビルドできない回答は受け取らない。")
+      ;;  (:li "回答を受け取ってもそれが正解とは限らない。")
+      ;;  (:li "submit できたら、他の受講生の回答と自分の回答をよく見比べること。"))
+      (:ul
+       (:li :class "warn" "動作確認していない回答出すな。全部、回答は記録してある。")
+       (:li :class "warn" "回答提出後、24時間は訂正できないようにするので、そのつもりで慎重に回答すること。"))
       (:form :method "post" :action "/submit"
              (:input :type "hidden" :name "num" :value num)
              (:textarea :name "answer" :cols 60 :rows 10
@@ -651,12 +615,23 @@ values ('~a', '~a', '~a', now())"
   (set-cookie *myid* :max-age 0)
   (redirect "/problems"))
 
+(defun check-time (myid num)
+  (let* ((now (getf (dbi:fetch (query "select now()")) :|now|))
+         (q (format nil "select update_at from answers where myid='~a' and num='~a'" myid num))
+         (update_at (getf (dbi:fetch (query q)) :|update_at|)))
+    (< (* 60 60 24) (- now update_at))))
+
+;;1.23.3
 (define-easy-handler (update-answer :uri "/update-answer") (num answer)
-  (if (check answer)
-      (update (myid) num answer)
+  (if (check-time (myid) num)
+      (if (check answer)
+          (update (myid) num answer)
+          (page
+            (:h3 "error")
+            (:p "ビルドできない。バグ混入？")))
       (page
-        (:h3 "error")
-        (:p "ビルドできない。バグ混入？"))))
+        (:h2 "too early")
+        (:p "他人の回答をコピって出す技が目に付くので、24時間以内のアップデートは禁止にしました。"))))
 
 (define-easy-handler (submit :uri "/submit") (num answer)
   (if (myid)
@@ -698,7 +673,8 @@ values ('~a', '~a', '~a', now())"
 
 (define-easy-handler (answer :uri "/answer") (num)
   (if (myid)
-      (if (answered? num) (show-answers num)
+      (if (answered? num)
+          (show-answers num)
           (submit-answer num))
       (redirect "/login")))
 
@@ -726,7 +702,7 @@ values ('~a', '~a', '~a', now())"
                "select num, answer from answers where myid='~a' order by num"
                (myid)))))
         (page
-          (:pre "#include &lt;stdio.h>
+          (:pre "#include &lt)))))));stdio.h>
 #include &lt;stdlib.h>")
           (loop for row = (dbi:fetch ret)
                 while row
