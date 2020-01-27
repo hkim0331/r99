@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "1.23.3")
+(defvar *version* "1.23.5")
 
 (defvar *nakadouzono* 8998)
 (defvar *hkimura* 8999)
@@ -631,7 +631,8 @@ values ('~a', '~a', '~a', now())"
             (:p "ビルドできない。バグ混入？")))
       (page
         (:h2 "too early")
-        (:p "他人の回答をコピって出す技が目に付くので、24時間以内のアップデートは禁止にしました。"))))
+        (:p "他人の回答をコピって出す技が目に付くので、24時間以内のアップデートは禁止にしました。")
+        (:p "バカな野郎が数人いるだけでみんなが迷惑。"))))
 
 (define-easy-handler (submit :uri "/submit") (num answer)
   (if (myid)
