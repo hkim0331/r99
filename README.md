@@ -5,6 +5,11 @@
 * midterm.txt をデータベースに入れないとアップデートがめんどくさい。
 
 ## [1.23.9] 2020-01-30
+### bugfix
+now() だと timezone が余計。
+localtimestamp だと timezone がつかない。
+https://www.postgresql.jp/document/9.3/html/functions-datetime.html
+
 ### add
 * アップデート制限時間(Sin-Bin)を表示
 

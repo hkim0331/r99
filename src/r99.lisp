@@ -615,18 +615,20 @@ values ('~a', '~a', '~a', now())"
   (redirect "/problems"))
 
 ;;1.23.3, 1.23.9
+;;now() が思った通りの値を返さないか？
+;;bugfix: localtimestamp だ。
 (define-easy-handler (update-answer :uri "/update-answer") (num answer)
-  (let* ((now (getf (dbi:fetch (query "select now()")) :|now|))
-         (q (format nil "select update_at from answers where myid='~a' and num='~a'" (myid) num))
-         (update_at (getf (dbi:fetch (query q)) :|update_at|)))
-    (if (< (* 60 60 24) (- now update_at))
+  (let* ((now (getf (dbi:fetch (query "select localtimestamp")) :|localtimestamp|))
+         (q (format nil "select update_at + interval '1 day' from answers where myid='~a' and num='~a'" (myid) num))
+         (after-1-day (second (dbi:fetch (query q)))))
+    (if (< after-1-day now)
         (if (check answer)
             (update (myid) num answer)
             (page
               (:h3 "error")
               (:p "ビルドできない。バグ混入？")))
         (page
-          (:h2 (format t "Sin-Bin: ~a seconds" (- update_at now)))
+          (:h2 (format t "Sin-Bin: ~a seconds" (- after-1-day now)))
           (:p "他人の回答をコピって出すのが目に付く。24時間以内のアップデートは禁止にしました。")
           (:p "バカな野郎が数人いるだけでみんなが迷惑。悪事はバレる。自覚しなさい。")))))
 
