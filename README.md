@@ -1,7 +1,15 @@
 # R99
 
-## [1.22.5] 2020-01-21
+## Unreleased
 
+* midterm.txt をデータベースに入れないとアップデートがめんどくさい。
+
+## [1.23.9]
+
+* アップデート制限時間を表示
+
+## [1.22.5] 2020-01-21
+### change
 * db/update-r99 を 上位フォルダに移す。
 * 複数の問題修正を連続してできるように。declare を覚えた。あと、input、Integer.
   (require '[clojure.edn :as edn]) しておいて、(edn/read-string "32") も覚えよう。
