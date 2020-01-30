@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "1.23.8")
+(defvar *version* "1.23.9")
 
 (defvar *nakadouzono* 8998)
 (defvar *hkimura* 8999)
