@@ -1,15 +1,21 @@
-pre.answer {
-/*
- border: 1pt solid gray;
-*/
-    padding: 5px;
+body { color: black;
+       background: white;
+     }
 
+pre {
     user-select:none;
     -webkit-user-select:none;
     -moz-user-select:none;
     -khtml-user-select:none;
     -webkit-user-drag:none;
     -khtml-user-drag:none;
+}
+
+pre.answer {
+/*
+ border: 1pt solid gray;
+*/
+    padding: 5px;
 }
 
 form.answer {
@@ -35,3 +41,8 @@ span.yes {
 .warn {
     color: red;
 }
+
+.blue {
+    color: blue;
+}
+

@@ -1,7 +1,20 @@
 # R99
 
-## [1.22.5] 2020-01-21
+## Unreleased
 
+* midterm.txt をデータベースに入れないとアップデートがめんどくさい。
+
+## [1.23.9] 2020-01-30
+### bugfix
+now() だと timezone が余計。
+localtimestamp だと timezone がつかない。
+https://www.postgresql.jp/document/9.3/html/functions-datetime.html
+
+### add
+* アップデート制限時間(Sin-Bin)を表示
+
+## [1.22.5] 2020-01-21
+### change
 * db/update-r99 を 上位フォルダに移す。
 * 複数の問題修正を連続してできるように。declare を覚えた。あと、input、Integer.
   (require '[clojure.edn :as edn]) しておいて、(edn/read-string "32") も覚えよう。

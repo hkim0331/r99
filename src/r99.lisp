@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "1.23.5")
+(defvar *version* "1.23.9.1")
 
 (defvar *nakadouzono* 8998)
 (defvar *hkimura* 8999)
@@ -559,7 +559,7 @@ values ('~a', '~a', '~a', now())"
       ;;  (:li "submit できたら、他の受講生の回答と自分の回答をよく見比べること。"))
       (:ul
        (:li :class "warn" "動作確認していない回答出すな。全部、回答は記録してある。")
-       (:li :class "warn" "回答提出後、24時間は訂正できないようにするので、そのつもりで慎重に回答すること。"))
+       (:li :class "warn" "回答提出後24時間は訂正できないよう変更するので、慎重に回答すること。"))
       (:form :method "post" :action "/submit"
              (:input :type "hidden" :name "num" :value num)
              (:textarea :name "answer" :cols 60 :rows 10
@@ -614,24 +614,23 @@ values ('~a', '~a', '~a', now())"
   (set-cookie *myid* :max-age 0)
   (redirect "/problems"))
 
-(defun check-time (myid num)
-  (let* ((now (getf (dbi:fetch (query "select now()")) :|now|))
-         (q (format nil "select update_at from answers where myid='~a' and num='~a'" myid num))
-         (update_at (getf (dbi:fetch (query q)) :|update_at|)))
-    (< (* 60 60 24) (- now update_at))))
-
-;;1.23.3
+;;1.23.3, 1.23.9
+;;now() が思った通りの値を返さないか？
+;;bugfix: localtimestamp だ。
 (define-easy-handler (update-answer :uri "/update-answer") (num answer)
-  (if (check-time (myid) num)
-      (if (check answer)
-          (update (myid) num answer)
-          (page
-            (:h3 "error")
-            (:p "ビルドできない。バグ混入？")))
-      (page
-        (:h2 "too early")
-        (:p "他人の回答をコピって出す技が目に付くので、24時間以内のアップデートは禁止にしました。")
-        (:p "バカな野郎が数人いるだけでみんなが迷惑。"))))
+  (let* ((now (getf (dbi:fetch (query "select localtimestamp")) :|localtimestamp|))
+         (q (format nil "select update_at + interval '1 day' from answers where myid='~a' and num='~a'" (myid) num))
+         (after-1-day (second (dbi:fetch (query q)))))
+    (if (< after-1-day now)
+        (if (check answer)
+            (update (myid) num answer)
+            (page
+              (:h3 "error")
+              (:p "ビルドできない。バグ混入？")))
+        (page
+          (:h2 (format t "Sin-Bin: ~a seconds" (- after-1-day now)))
+          (:p "他人の回答をコピって出すのが目に付く。24時間以内のアップデートは禁止にしました。")
+          (:p "バカな野郎が数人いるだけでみんなが迷惑。悪事はバレる。自覚しなさい。")))))
 
 (define-easy-handler (submit :uri "/submit") (num answer)
   (if (myid)
