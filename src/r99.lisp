@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "1.24.0")
+(defvar *version* "1.24.1")
 
 (defvar *nakadouzono* 8998)
 (defvar *hkimura* 8999)
@@ -366,6 +366,8 @@ order by users.myid"))
      (:h1 :class "warn" "WARNING")
      (:p :class "warn" "回答にならない答を一旦提出、他人の回答をコピーし、自分の回答としてアップデートするの、やめよう。発覚しないと思っていたら大間違い。")
      (:p :class "warn" "正真正銘自分のプログラムでも、動作確認できてないプログラムはゴミです。")
+     (:p :class "warn" "と言ってるのにわからない奴がいるな。myid は 9037。そいつの回答、見てみよう、全部 hello world だから。
+      回答変更できないようパスワード変えた。しばらく晒しとく。単位はあるかな？"
      (:hr)
      (loop for row = (dbi:fetch results)
            while row
