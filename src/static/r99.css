@@ -3,6 +3,14 @@ body { color: black;
      }
 
 pre {
+
+}
+
+pre.answer {
+/*
+ border: 1pt solid gray;
+*/
+    padding: 5px;
     user-select:none;
     -webkit-user-select:none;
     -moz-user-select:none;
@@ -11,11 +19,8 @@ pre {
     -khtml-user-drag:none;
 }
 
-pre.answer {
-/*
- border: 1pt solid gray;
-*/
-    padding: 5px;
+pre.download {
+
 }
 
 form.answer {
