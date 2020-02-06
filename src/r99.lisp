@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "1.23.9.1")
+(defvar *version* "1.24.0")
 
 (defvar *nakadouzono* 8998)
 (defvar *hkimura* 8999)
@@ -415,18 +415,18 @@ order by users.myid"))
 ;;
 (define-easy-handler (comment :uri "/comment") (id)
   (let ((ret
-         (dbi:fetch
-          (query
-           (format
-            nil
-            "select myid, num, answer from answers where id='~a'" id)))))
+          (dbi:fetch
+           (query
+            (format
+             nil
+             "select myid, num, answer from answers where id='~a'" id)))))
     (page
       (:h2 (format
             t
             "Comment to ~a's answer ~a"
             (getf ret :|myid|) (getf ret :|num|)))
       (:p (str (detail (getf ret :|num|))))
-      (:pre (str (escape (getf ret :|answer|))))
+      (:pre :class "answer" (str (escape (getf ret :|answer|))))
       (:form :methopd "post" :action "/add-comment"
              (:input :type "hidden" :name "id" :value id)
              (:textarea :rows 5 :cols 50 :name "comment"
@@ -701,15 +701,15 @@ values ('~a', '~a', '~a', now())"
                "select num, answer from answers where myid='~a' order by num"
                (myid)))))
         (page
-          (:pre "#include &lt)))))));stdio.h>
+         (:pre :class "download" "#include &lt;stdio.h>
 #include &lt;stdlib.h>")
-          (loop for row = (dbi:fetch ret)
-                while row
-                do
-                   (htm
-                    (:pre "//" (str (getf row :|num|)))
-                    (:pre (str (escape (getf row :|answer|))))))
-          (:pre "int main(void) {
+         (loop for row = (dbi:fetch ret)
+            while row
+            do
+              (htm
+               (:pre "//" (str (getf row :|num|)))
+               (:pre (str (escape (getf row :|answer|))))))
+         (:pre "int main(void) {
     // 定義した関数の呼び出しをここに。
     return 0;
 }")))
