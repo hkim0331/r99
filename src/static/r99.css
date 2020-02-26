@@ -47,6 +47,10 @@ span.yes {
     color: red;
 }
 
+.warnwarn {
+    color: white;
+    background-color: red;
+}
 .blue {
     color: blue;
 }
