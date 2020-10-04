@@ -125,8 +125,6 @@
 (defmacro navi ()
   '(htm
     (:p
-     (:a :href "https://r.hkim.jp" "robocar")
-     " | "
      (:a :href "/problems" "problems")
      " | "
      (:a :href "/others" "others")
@@ -194,7 +192,7 @@
            (format
             nil
             "select num from answers where myid='~a'
- order by update_at desc limit 1"
+ order by timestamp desc limit 1"
             myid))
          (ret (dbi:fetch (query q)))
          (num (getf ret :|num|)))
@@ -277,8 +275,8 @@
     (let* ((n 0)
            (recent
              (dbi:fetch
-              (query "select myid, num, update_at::text from answers
- order by update_at desc limit 1")))
+              (query "select myid, num, timestamp::text from answers
+ order by timestamp desc limit 1")))
            (results
              (query "select users.myid, count(distinct answer)
 from users
@@ -290,14 +288,14 @@ order by users.myid"))
              (mapcar (lambda (x) (getf x :|myid|))
                      (dbi:fetch-all
                       (query  "select distinct(myid) from answers
- where now() - update_at < '48 hours'")))))
+ where now() - timestamp < '48 hours'")))))
       (htm
        (:li
         (format
          t
          " ~a、~a さんが
 <a href='/answer?num=~a'>~a</a> に回答しました。"
-         (short (getf recent :|update_at|))
+         (short (getf recent :|timestamp|))
          (getf recent :|myid|)
          (getf recent :|num|)
          (getf recent :|num|)))
@@ -385,7 +383,7 @@ order by users.myid"))
 
 ;;
 ;; add-comment
-;; update_at は変えない。
+;; timestamp は変えない。
 (define-easy-handler (add-comment :uri "/add-comment") (id comment)
   (let* ((a (dbi:fetch
              (query (format
@@ -453,10 +451,10 @@ order by users.myid"))
 (defun r99-other-answers (num)
   (query (format
           nil
-          "select id, myid, answer, update_at::text from answers
+          "select id, myid, answer, timestamp::text from answers
  where not (myid='~a') and not (myid='8000') and not (myid='8001')
  and num='~a'
- order by update_at desc
+ order by timestamp desc
  limit 5" (myid) num)))
 
 (defun show-answers (num)
@@ -484,7 +482,7 @@ order by users.myid"))
  <a href='/comment?id=~a'> comment</a>
  <pre class='answer'><code>~a</code></pre><hr>"
                 (getf row :|myid|)
-                (short (getf row :|update_at|))
+                (short (getf row :|timestamp|))
                 (getf row :|id|)
                 (escape (getf row :|answer|))))
       (format
@@ -524,7 +522,7 @@ values ('~a', '~a', '~a', now())"
          ;;
          (sql (format
                nil
-               "update answers set answer='~a', update_at=now()
+               "update answers set answer='~a', timestamp=now()
  where myid='~a' and num='~a'"
                (escape-apos answer)
                myid
@@ -533,11 +531,11 @@ values ('~a', '~a', '~a', now())"
     (query sql)
     (redirect "/others")))
 
-;;CHANGED: update_at -> create_at
+;;CHANGED: timestamp -> create_at
 (defun insert (myid num answer)
   (let ((sql (format
               nil
-              "insert into answers (myid, num, answer, create_at, update_at)
+              "insert into answers (myid, num, answer, create_at, timestamp)
  values ('~a','~a', '~a', now(), now())"
               myid
               num
@@ -625,7 +623,7 @@ values ('~a', '~a', '~a', now())"
 ;;bugfix: localtimestamp だ。
 (define-easy-handler (update-answer :uri "/update-answer") (num answer)
   (let* ((now (getf (dbi:fetch (query "select localtimestamp")) :|localtimestamp|))
-         (q (format nil "select update_at + interval '1 day' from answers where myid='~a' and num='~a'" (myid) num))
+         (q (format nil "select timestamp + interval '1 day' from answers where myid='~a' and num='~a'" (myid) num))
          (after-1-day (second (dbi:fetch (query q)))))
     (if (< after-1-day now)
         (if (check answer)
@@ -691,7 +689,7 @@ values ('~a', '~a', '~a', now())"
           (if (string= new1 new2)
               (query (format
                       nil
-                      "update users set password='~a', update_at='now()' where myid='~a'"
+                      "update users set password='~a', timestamp='now()' where myid='~a'"
                       new1
                       myid))
               (setf stat "パスワードが一致しません。"))
@@ -883,10 +881,10 @@ answer like '%/* comment from%' order by num"
          (query
           (format
            nil
-           "select date(update_at), count(date(update_at))
+           "select date(timestamp), count(date(timestamp))
  from answers where myid='~a'
- group by date(update_at)
- order by date(update_at) desc" (myid)))))
+ group by date(timestamp)
+ order by date(timestamp) desc" (myid)))))
     (page
       (:h2 (str (myid)) " Activity")
       (:hr)
