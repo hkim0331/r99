@@ -1,5 +1,0 @@
-{:deps
- {org.clojure/java.jdbc {:mvn/version "0.7.10"}
-  org.xerial/sqlite-jdbc {:mvn/version "3.28.0"}
-  org.postgresql/postgresql {:mvn/version "42.2.8"}}}
-

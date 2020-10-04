@@ -6,14 +6,9 @@
 *.x86f
 *~
 .#*
-/db-2017
-/db-2018
+/data
 /db/.cpcache
 /db/.nrepl-port
-!/db/*.sql
-/db/backups/*
-!db/backups/.placeholder
-/solutions/*
-!/solutions/.placeholder
+/db/backups
 /src/.nrepl-history
 /src/r99
