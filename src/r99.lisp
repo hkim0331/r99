@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "2.25.0")
+(defvar *version* "2.25.1")
 
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
@@ -356,8 +356,11 @@ order by users.myid"))
        do
          (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
     (page
-     (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
-     (:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
+     (:h1 :style "color:red; font-size:24pt"
+        "🔥UNDER CONSTRUCTION🔥")
+     (:p "まだ利用できる状態じゃねーです。")
+;     (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
+;     (:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
      (:h2 "problems")
      (:ul
        (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
