@@ -430,10 +430,6 @@ float f_to_f(float x, int n) {
   return f_to_i(x*p)/(float)p;
 }
 
-
-#include <sys/types.h>
-#include <unistd.h>
-
 int rand_n(int n) {
   return random()%n;
 }
