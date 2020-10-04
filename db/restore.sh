@@ -1,2 +1,2 @@
 #!/bin/sh
-psql -h localhost -U user1 -W r99 < $1
+psql -h localhost -U ${R99_USER} -W ${R99_DB} < $1

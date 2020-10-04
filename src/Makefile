@@ -1,5 +1,7 @@
 all: r99
 
+rerun: clean r99 run
+
 run:
 	ros r99.ros
 

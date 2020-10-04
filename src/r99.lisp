@@ -4,9 +4,10 @@
 
 (defvar *version* "2.25.0")
 
-(defvar *nakadouzono* 8998)
-(defvar *hkimura* 8999)
+(defvar *nakadouzono* 2998)
+(defvar *hkimura*     2999)
 
+;; midterm.txt ファイルがないと立ち上がらない、か？
 (defun read-midterm (fname)
   (with-open-file (in fname)
     (let ((ret nil))
@@ -357,19 +358,19 @@ order by users.myid"))
        do
          (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
     (page
-     ;; (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
-     ;; (:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
-     ;; (:h2 "problems")
-     ;; (:ul
-     ;;  (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
-     ;;  (:li "上の方で定義した関数を利用する場合、上の関数定義は回答に含めないでOK。"))
-     (:h1 :class "warn" "WARNING")
-     (:p :class "warn" "回答にならない答を一旦提出、他人の回答をコピーし、自分の回答としてアップデートするの、やめよう。発覚しないと思っていたら大間違い。")
-     (:p :class "warnwarn" "と授業で何度も言っても、ここに書いてもわからない奴がいるな。myid は 9037。
-      <a href='https://r.hkim.jp/9037.html'>そいつの回答</a>、
-      見てみよう、全部 hello, robocar だから。
-      回答変更できないようパスワード変えた。しばらく晒しとく。単位はあるかな？"
-	 (:span :class "warn" "ないでしょ。"))
+     (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
+     (:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
+     (:h2 "problems")
+     (:ul
+       (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
+       (:li "上の方で定義した関数を利用する場合、上の関数定義は回答に含めないでOK。"))
+  ;    (:h1 :class "warn" "WARNING")
+  ;    (:p :class "warn" "回答にならない答を一旦提出、他人の回答をコピーし、自分の回答としてアップデートするの、やめよう。発覚しないと思っていたら大間違い。")
+  ;    (:p :class "warnwarn" "と授業で何度も言っても、ここに書いてもわからない奴がいるな。myid は 9037。
+  ;     <a href='https://r.hkim.jp/9037.html'>そいつの回答</a>、
+  ;     見てみよう、全部 hello, robocar だから。
+  ;     回答変更できないようパスワード変えた。しばらく晒しとく。単位はあるかな？"
+	 ; (:span :class "warn" "ないでしょ。"))
      (:p :class "warn" "正真正銘自分作のプログラムでも、動作を確認してないプログラムはゴミです。")
      (:hr)
      (loop for row = (dbi:fetch results)
@@ -931,7 +932,7 @@ answer like '%/* comment from%' order by num"
 (defun start-server (&optional (port *http-port*))
   (publish-static-content)
   (setf *server* (make-instance 'easy-acceptor
-                              :address "127.0.0.1"
+                              :address "0.0.0.0"
                               :port port
                               :document-root #p "."))
   (start *server*)

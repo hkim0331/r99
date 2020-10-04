@@ -12,3 +12,4 @@
 /db/backups
 /src/.nrepl-history
 /src/r99
+/develop.env

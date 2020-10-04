@@ -1,6 +1,7 @@
 (ns seed-admins
-  (:require [clojure.string :refer [split]]
-            [clojure.java.jdbc :as j]))
+  (:require [clojure.string    :as string :refer [split]]
+            [clojure.java.jdbc :as jdbc]
+            [environ.core      :as environ :refer [env]]))
 
 ;;(defvar *nakadouzono* 8998)
 ;;(defvar *hkimura* 8999)
