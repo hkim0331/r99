@@ -14,10 +14,10 @@ create: drop
 	sh grants.sh
 
 problems: problems.md
-	clj -M init-problems.clj
+	clj init-problems.clj
 
 users:
-	clj -M init-users.clj
+	clj init-users.clj
 
 dump:
 	pg_dump -h ${R99_HOST} -U ${R99_USER} -W ${R99_DB} > backups/`date +%F`.dump
