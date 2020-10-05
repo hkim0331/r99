@@ -2,11 +2,12 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "1.24.2")
+(defvar *version* "2.26.0")
 
-(defvar *nakadouzono* 8998)
-(defvar *hkimura* 8999)
+(defvar *nakadouzono* 2998)
+(defvar *hkimura*     2999)
 
+;; midterm.txt ファイルがないと立ち上がらないか？
 (defun read-midterm (fname)
   (with-open-file (in fname)
     (let ((ret nil))
@@ -124,8 +125,6 @@
 (defmacro navi ()
   '(htm
     (:p
-     (:a :href "https://r.hkim.jp" "robocar")
-     " | "
      (:a :href "/problems" "problems")
      " | "
      (:a :href "/others" "others")
@@ -135,6 +134,8 @@
      (:a :href "/login" "login")
      " / "
      (:a :href "/logout" "logout")
+     " , "
+     (:a :href "/signin" "signin")
      "|"
      (:a :href "/admin" "admin"))))
 
@@ -193,7 +194,7 @@
            (format
             nil
             "select num from answers where myid='~a'
- order by update_at desc limit 1"
+ order by timestamp desc limit 1"
             myid))
          (ret (dbi:fetch (query q)))
          (num (getf ret :|num|)))
@@ -211,7 +212,7 @@
 (define-easy-handler (show-old :uri "/show-old") (id)
   (let* ((q (format
              nil
-             "select myid,num,answer,create_at::text from old_answers where id='~a'"
+             "select myid,num,answer,timestamp::text from old_answers where id='~a'"
              id))
          (ret (dbi:fetch (query q)))
          (myid (getf ret :|myid|))
@@ -223,7 +224,7 @@
          (oid (getf ret2 :|id|)))
     (page
       (:h3 (str myid) " [" (str num) "]")
-      (:p (str (getf ret :|create_at|)))
+      (:p (str (getf ret :|timestamp|)))
       (:pre
        (format t "~a" (escape (getf ret :|answer|))))
       (:p (:a :href (format nil "/comment?id=~a" oid) "comment?"))
@@ -238,7 +239,7 @@
   (let ((myid (myid)))
     (if (and myid (or (= (parse-integer myid) *hkimura*)
                       (= (parse-integer myid) *nakadouzono*)))
-        (let* ((ret (query "select id, create_at::text, myid, num,
+        (let* ((ret (query "select id, timestamp::text, myid, num,
   answer from old_answers order by id desc")))
           (page
            (:p "db-host: " (str (db-host)))
@@ -249,7 +250,7 @@
                  t
                  "<p><a href='/show-old?id=~a'>~a</a> [~a] ~a ~a</p>"
                  (getf row :|id|)
-                 (subseq (getf row :|create_at|) 0 19)
+                 (subseq (getf row :|timestamp|) 0 19)
                  (getf row :|myid|)
                  (getf row :|num|)
                  ;; fix. 2018-12-08.
@@ -267,73 +268,79 @@
 ;; 2018-12-08 以降、記録が JST になる。
 ;; どうやったんだっけ？
 ;; () は中間試験成績を出していた。
+
 (define-easy-handler (users :uri "/others") ()
   (page
-    ;;    (:p (:img :src "/guernica.jpg" :width "100%"))
-    (:p (:img :src "/kutsugen.jpg" :width "100%"))
-    (:p :align "right" "「屈原」横山大観(1868-1958), 1898.")
-    (:h2 "誰が何問?")
-    (let* ((n 0)
-           (recent
-             (dbi:fetch
-              (query "select myid, num, update_at::text from answers
- order by update_at desc limit 1")))
-           (results
-             (query "select users.myid, count(distinct answer)
+   ;;    (:p (:img :src "/guernica.jpg" :width "100%"))
+   (:p (:img :src "/kutsugen.jpg" :width "100%"))
+   (:p :align "right" "「屈原」横山大観(1868-1958), 1898.")
+   (:h2 "誰が何問?")
+   (let* ((n 0)
+          (recent
+           (dbi:fetch
+            (query "select myid, num, timestamp::text from answers
+ order by timestamp desc limit 1")))
+          (results
+           (query "select users.myid, count(distinct answer)
 from users
 inner join answers
 on users.myid=answers.myid
 group by users.myid
 order by users.myid"))
-           (working-users
-             (mapcar (lambda (x) (getf x :|myid|))
-                     (dbi:fetch-all
-                      (query  "select distinct(myid) from answers
- where now() - update_at < '48 hours'")))))
-      (htm
-       (:li
-        (format
-         t
-         " ~a、~a さんが
-<a href='/answer?num=~a'>~a</a> に回答しました。"
-         (short (getf recent :|update_at|))
-         (getf recent :|myid|)
-         (getf recent :|num|)
-         (getf recent :|num|)))
-       (:li
-        (format
-         t
-         "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
-があった受講生です。全回答数 ~a。"
-         (count-answers)))
-       (:li "( ) は中間テスト、個人ペーパーの点数。")
-       (:hr))
-      (loop for row = (dbi:fetch results)
-            while row
-            do
-               (let* ((myid (getf row :|myid|))
-                      (working (if (find myid working-users) "yes" "no")))
-                 (format
-                  t
-                  "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
-                  working
-                  myid
-                  (cdr (assoc myid *mt*))
-                  (stars (getf row :|count|))
-                  myid
-                  (getf row :|count|)))
-               (incf n))
-      (htm (:p "受講生 246 人、一題以上回答者 " (str n) " 人。")))))
+          (working-users
+           (mapcar (lambda (x) (getf x :|myid|))
+                   (dbi:fetch-all
+                    (query  "select distinct(myid) from answers
+ where now() - timestamp < '48 hours'")))))
 
-;;
+     ;; BUG: 回答が一つもないとエラーになる、かな。
+     (htm
+      (:li
+       (format
+        t
+        " ~a、~a さんが
+      <a href='/answer?num=~a'>~a</a> に回答しました。"
+        (short (getf recent :|timestamp|))
+        (getf recent :|myid|)
+        (getf recent :|num|)
+        (getf recent :|num|)))
+      (:li
+       (format
+        t
+        "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
+      があった受講生です。全回答数 ~a。"
+        (count-answers)))
+      (:li "( ) は中間テスト、個人ペーパーの点数。")
+      (:hr))
+
+     (loop for row = (dbi:fetch results)
+        while row
+        do
+          (let* ((myid (getf row :|myid|))
+                 (working (if (find myid working-users) "yes" "no")))
+            (format
+             t
+             "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
+             working
+             myid
+             (cdr (assoc myid *mt*))
+             (stars (getf row :|count|))
+             myid
+             (getf row :|count|)))
+          (incf n))
+
+     (htm (:p "受講生 210 人、一題以上回答者 " (str n) " 人。")))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; /problems
 ;;
 ;; (define-easy-handler (index-alias :uri "/") ()
 ;;   (page
 ;;     (:h1 :class "warn" "WARNING")
-;;     (:p "回答にならない回答出して、他人の回答をコピー、自分の回答としてアップデートするの良くない。")
-;;     (:p "下らんやつがいると面倒だよ。わからんと思ってるのか？期末テストはダメだね。")
-;;     (:p "何か対策します。")
+;;     (:p "回答にならない回答出して、他人の回答をコピー、"
+;;         "自分の回答としてアップデートするの良くない。"
+;;     (:p "下らんやつがいると面倒だよ。わからんと思ってるのか？期末テストはダメだね。"
+;;         "何か対策します。")
 ;;     (:p (:a :href "/problems" "問題ページ"))))
 
 (define-easy-handler (index-alias :uri "/") ()
@@ -346,45 +353,53 @@ order by users.myid"))
 
 ;; CHANGED: (count) をどう表示するか？2017 は複雑な SQL 流してた。
 ;; answers テーブルから別に引くように。2018-11-14
+
 (define-easy-handler (problems :uri "/problems") ()
   (let ((results
-         (query "select num, detail from problems order by num"))
+          (query "select num, detail from problems order by num"))
         (answers
-         (query "select num, count(*) from answers group by num"))
+          (query "select num, count(*) from answers group by num"))
         (nums (make-hash-table)))
     (loop for row = (dbi:fetch answers)
-       while row
-       do
-         (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
+          while row
+          do
+             (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
     (page
-     ;; (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
-     ;; (:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
-     ;; (:h2 "problems")
-     ;; (:ul
-     ;;  (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
-     ;;  (:li "上の方で定義した関数を利用する場合、上の関数定義は回答に含めないでOK。"))
-     (:h1 :class "warn" "WARNING")
-     (:p :class "warn" "回答にならない答を一旦提出、他人の回答をコピーし、自分の回答としてアップデートするの、やめよう。発覚しないと思っていたら大間違い。")
-     (:p :class "warnwarn" "と授業で何度も言っても、ここに書いてもわからない奴がいるな。myid は 9037。
-      <a href='https://r.hkim.jp/9037.html'>そいつの回答</a>、
-      見てみよう、全部 hello, robocar だから。
-      回答変更できないようパスワード変えた。しばらく晒しとく。単位はあるかな？"
-	 (:span :class "warn" "ないでしょ。"))
-     (:p :class "warn" "正真正銘自分作のプログラムでも、動作を確認してないプログラムはゴミです。")
-     (:hr)
-     (loop for row = (dbi:fetch results)
-        while row
-        do
-          (let ((num (getf row :|num|)))
-            (format t "<p><a href='/answer?num=~a'>~a</a>(~a) ~a</p>~%"
-                    num
-                    num
-                    (zero_or_num (gethash num nums))
-                    (getf row :|detail|)))))))
+      (:h1 :style "color:red; font-size:24pt" "🔥UNDER CONSTRUCTION🔥")
+      (:p "利用開始までもうちょっと。")
+      ;;     (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
+      ;;     (:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
+      (:h2 "problems")
+      (:ul
+       (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
+       (:li "上の方で定義した関数を利用する場合、上の関数定義は回答に含めないでOK。"))
+      ;;(:h1 :class "warn" "WARNING")
+      ;;(:p :class "warn"
+      ;;    "回答にならない答を一旦提出、他人の回答をコピーし、"
+      ;;    "自分の回答としてアップデートするの、やめよう。"
+      ;;    "発覚しないと思っていたら大間違い。")
+      ;;(:p :class "warnwarn" "と授業で何度も言っても、"
+      ;;    "ここに書いてもわからない奴がいるな。myid は 9037。"
+      ;;    " <a href='https://r.hkim.jp/9037.html'>そいつの回答</a>、"
+      ;;    "見てみよう、全部 hello, robocar だから。"
+      ;;    "回答変更できないようパスワード変えた。しばらく晒しとく。単位はあるかな？"
+      ;;    (:span :class "warn" "ないでしょ。"))
+      (:p :class "warn"
+          "正真正銘自分作のプログラムでも、動作を確認してないプログラムはゴミです。")
+      (:hr)
+      (loop for row = (dbi:fetch results)
+            while row
+            do
+               (let ((num (getf row :|num|)))
+                 (format t "<p><a href='/answer?num=~a'>~a</a>(~a) ~a</p>~%"
+                         num
+                         num
+                         (zero_or_num (gethash num nums))
+                         (getf row :|detail|)))))))
 
 ;;
 ;; add-comment
-;; update_at は変えない。
+;; timestamp は変えない。
 (define-easy-handler (add-comment :uri "/add-comment") (id comment)
   (let* ((a (dbi:fetch
              (query (format
@@ -452,11 +467,11 @@ order by users.myid"))
 (defun r99-other-answers (num)
   (query (format
           nil
-          "select id, myid, answer, update_at::text from answers
- where not (myid='~a') and not (myid='8000') and not (myid='8001')
- and num='~a'
- order by update_at desc
- limit 5" (myid) num)))
+          "select id, myid, answer, timestamp::text from answers
+          where not (myid='~a') and not (myid='8000') and not (myid='8001')
+          and num='~a'
+          order by timestamp desc
+          limit 5" (myid) num)))
 
 (defun show-answers (num)
   (let ((my-answer (r99-answer (myid) num))
@@ -479,11 +494,11 @@ order by users.myid"))
             do (format
                 t
                 "<b>~a</b>
- at ~a,
- <a href='/comment?id=~a'> comment</a>
- <pre class='answer'><code>~a</code></pre><hr>"
+          at ~a,
+          <a href='/comment?id=~a'> comment</a>
+          <pre class='answer'><code>~a</code></pre><hr>"
                 (getf row :|myid|)
-                (short (getf row :|update_at|))
+                (short (getf row :|timestamp|))
                 (getf row :|id|)
                 (escape (getf row :|answer|))))
       (format
@@ -514,8 +529,8 @@ order by users.myid"))
          (old-answer (unescape-apos (second (dbi:fetch (query old)))))
          (sql0 (format
                 nil
-                "insert into old_answers (myid, num, answer, create_at)
-values ('~a', '~a', '~a', now())"
+                "insert into old_answers (myid, num, answer, timestamp)
+          values ('~a', '~a', '~a', now())"
                 myid
                 num
                 (escape-apos old-answer)
@@ -523,8 +538,8 @@ values ('~a', '~a', '~a', now())"
          ;;
          (sql (format
                nil
-               "update answers set answer='~a', update_at=now()
- where myid='~a' and num='~a'"
+               "update answers set answer='~a', timestamp=now()
+          where myid='~a' and num='~a'"
                (escape-apos answer)
                myid
                num)))
@@ -532,12 +547,12 @@ values ('~a', '~a', '~a', now())"
     (query sql)
     (redirect "/others")))
 
-;;CHANGED: update_at -> create_at
+;;CHANGED: timestamp -> timestamp
 (defun insert (myid num answer)
   (let ((sql (format
               nil
-              "insert into answers (myid, num, answer, create_at, update_at)
- values ('~a','~a', '~a', now(), now())"
+              "insert into answers (myid, num, answer, timestamp)
+          values ('~a','~a', '~a', now())"
               myid
               num
               (escape-apos answer))))
@@ -569,10 +584,10 @@ values ('~a', '~a', '~a', now())"
              (:input :type "hidden" :name "num" :value num)
              (:textarea :name "answer" :cols 60 :rows 10
                         :placeholder "プログラムの動作を確認後、
- correct indentation して、送信するのがルール。
- ケータイで回答もらって平常点インチキしても
- 中間テスト・期末テストで確実に負けるから。
- マジ勉した方がいい。")
+          correct indentation して、送信するのがルール。
+          ケータイで回答もらって平常点インチキしても
+          中間テスト・期末テストで確実に負けるから。
+          マジ勉した方がいい。")
              (:br)
              (:input :type "submit")))))
 
@@ -583,9 +598,12 @@ values ('~a', '~a', '~a', now())"
              myid))
          (ret (dbi:fetch-all (query q))))
     (mapcar (lambda (x) (getf x :|num|)) ret)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; status
+;;; status, login/logout, signin
 ;;;
+
 (defun my-password (myid)
   (let* ((q (format
              nil
@@ -613,18 +631,21 @@ values ('~a', '~a', '~a', now())"
            (:p (:input :type "password" :name "pass"))
            (:p (:input :type "submit" :value "login"))
            (:ul (:li "myid の保存にクッキーを利用しています。
-ログインできない時はクッキー有効にして再挑戦してください。")))))
+          ログインできない時はクッキー有効にして再挑戦してください。")))))
 
 (define-easy-handler (logout :uri "/logout") ()
   (set-cookie *myid* :max-age 0)
   (redirect "/problems"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; trouble
 
 ;;1.23.3, 1.23.9
 ;;now() が思った通りの値を返さないか？
 ;;bugfix: localtimestamp だ。
 (define-easy-handler (update-answer :uri "/update-answer") (num answer)
   (let* ((now (getf (dbi:fetch (query "select localtimestamp")) :|localtimestamp|))
-         (q (format nil "select update_at + interval '1 day' from answers where myid='~a' and num='~a'" (myid) num))
+         (q (format nil "select timestamp + interval '1 day' from answers where myid='~a' and num='~a'" (myid) num))
          (after-1-day (second (dbi:fetch (query q)))))
     (if (< after-1-day now)
         (if (check answer)
@@ -690,7 +711,7 @@ values ('~a', '~a', '~a', now())"
           (if (string= new1 new2)
               (query (format
                       nil
-                      "update users set password='~a', update_at='now()' where myid='~a'"
+                      "update users set password='~a', timestamp='now()' where myid='~a'"
                       new1
                       myid))
               (setf stat "パスワードが一致しません。"))
@@ -700,25 +721,74 @@ values ('~a', '~a', '~a', now())"
 (define-easy-handler (download :uri "/download") ()
   (if (myid)
       (let ((ret
-             (query
-              (format
-               nil
-               "select num, answer from answers where myid='~a' order by num"
-               (myid)))))
+              (query
+               (format
+                nil
+                "select num, answer from answers where myid='~a' order by num"
+                (myid)))))
         (page
-         (:pre :class "download" "#include &lt;stdio.h>
+          (:pre :class "download" "#include &lt;stdio.h>
 #include &lt;stdlib.h>")
-         (loop for row = (dbi:fetch ret)
-            while row
-            do
-              (htm
-               (:pre "//" (str (getf row :|num|)))
-               (:pre (str (escape (getf row :|answer|))))))
-         (:pre "int main(void) {
+          (loop for row = (dbi:fetch ret)
+                while row
+                do
+                   (htm
+                    (:pre "//" (str (getf row :|num|)))
+                    (:pre (str (escape (getf row :|answer|))))))
+          (:pre "int main(void) {
     // 定義した関数の呼び出しをここに。
     return 0;
 }")))
       (redirect "/login")))
+;;;;
+
+
+;;; 2020-10-05
+
+(defun get-new-myid ()
+  (let* ((q (format nil "select myid from users where sid is null"))
+         (ret (dbi:fetch (query q))))
+    (getf ret :|myid|)))
+
+(define-easy-handler (do-signin :uri "/do_signin") (sid jname pass1 pass2)
+  (if (string= pass1 pass2)
+      (let* ((myid (get-new-myid))
+             (q (format
+                 nil
+                 "update users set sid='~a', password='~a', jname='~a'
+                    where myid='~a'"
+                 sid pass1 jname myid))
+             (ret (query q)))
+        (page
+          (:p (format t "学生番号: ~a " sid))
+          (:p (format t "氏名 ~a" jname))
+          (:p (format t "myid ~a" myid))
+          (:p (format t "パスワード (表示しません)"))
+          (:p (format t "<a href='/login'>login</a>からログインしよう。")))
+        (page
+          (:p "パスワードが一致しません。もう一度"
+              "<a href='/signin'>signin</a>"
+              "からやり直し。")))))
+
+(define-easy-handler (signin :uri "/signin") ()
+  (page
+    (:h2 "SIGNIN")
+    (:p "成績用の学生番号と R99 の myid を対応させます。")
+    (:p "サインインに成功すると myid を一度だけ表示するので、"
+        "パスワードと共に覚えること。")
+    (:form :method "post" :action "/do_signin"
+           (:p "学生番号")
+           (:p (:input :type "text" :name "sid"))
+           (:p "氏名")
+           (:p (:input :type "text" :name "jname"))
+           (:p "パスワード（同じのを2回）")
+           (:p (:input :type "password" :name "pass1"))
+           (:p (:input :type "password" :name "pass2"))
+           (:p (:input :type "submit" :value "signin"))
+           )))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;;; hotfix 1.3.1
 ;;; このままでいいや。
@@ -731,9 +801,9 @@ values ('~a', '~a', '~a', now())"
                (ret (query q))
                (n 1))
           (loop for row = (dbi:fetch ret)
-             while (and row (not (= uid (getf row :|myid|))))
-             do
-               (incf n))
+                while (and row (not (= uid (getf row :|myid|))))
+                do
+                   (incf n))
           n))))
 ;;;
 ;;; status
@@ -882,10 +952,10 @@ answer like '%/* comment from%' order by num"
          (query
           (format
            nil
-           "select date(update_at), count(date(update_at))
+           "select date(timestamp), count(date(timestamp))
  from answers where myid='~a'
- group by date(update_at)
- order by date(update_at) desc" (myid)))))
+ group by date(timestamp)
+ order by date(timestamp) desc" (myid)))))
     (page
       (:h2 (str (myid)) " Activity")
       (:hr)
@@ -931,7 +1001,7 @@ answer like '%/* comment from%' order by num"
 (defun start-server (&optional (port *http-port*))
   (publish-static-content)
   (setf *server* (make-instance 'easy-acceptor
-                              :address "127.0.0.1"
+                              :address "0.0.0.0"
                               :port port
                               :document-root #p "."))
   (start *server*)

@@ -1,28 +1,28 @@
-HOST=localhost
-DB=r99
-PSQL=psql -U user1 -W -h ${HOST} ${DB}
+PSQL=psql -U ${R99_USER} -W -h ${R99_HOST} ${R99_DB}
 
-all: drop create problems users admins backup
+all: create problems users backup
 
 drop:
-	${PSQL} < tables-drop.sql
+	${PSQL} < drop-tables.sql
 
-create:
-	${PSQL} < tables-create.sql
+delete:
+	echo "delete from problems" | ${PSQL}
+	echo "delete from users"    | ${PSQL}
+
+create: drop
+	${PSQL} < create-tables.sql
 	sh grants.sh
 
-problems: data/problems.md
-	clj seed-problems.clj
+problems: problems.md
+	clj -M init-problems.clj
 
 users:
-	clj seed-users.clj
+	clj -M init-users.clj
 
-admins:
-	clj delete-admins.clj
-	clj seed-admins.clj
+dump:
+	pg_dump -h ${R99_HOST} -U ${R99_USER} -W ${R99_DB} > backups/`date +%F`.dump
 
-backup:
-	pg_dump -h ${HOST} -U user1 -W ${DB} > backups/`date +%F`.sql
+restore:
 
 update:
 	@echo "clj -m update-r99 <num>"

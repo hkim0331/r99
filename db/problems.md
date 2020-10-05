@@ -86,6 +86,7 @@ int triangle(int x, int y, int z).
 int right_angle(int x, int y, int z).
 ヒント:前問の回答を参考にせよ
 
+
 ### ループ
 
 整数 n から m までの総和を求める関数
@@ -103,6 +104,7 @@ sum_of_digits(12345) の戻り値は 15 。
 3 の倍数でもあり、かつ、5 の倍数でもあったら 3、
 いずれでもなかったら 0 を返す関数
 int fz(int n).
+
 
 ### 素数、約数
 
@@ -126,10 +128,8 @@ int is_prime(int n).
 約数が何個あるかを数えて素数判定するのは遅い。
 速い素数判定を望む。
 
-### 完全数
 
-整数一つを引数とし、その数が完全数かどうかを判定する関数
-int is_perfect(int n).
+### 完全数
 
 整数 n が平方数であるかどうかを判定する関数
 int is_square(int n).
@@ -143,6 +143,10 @@ int is_cubic(int n).
 int is_squeare_sum(int n).
 is_square_sum(452) は 1 を返す。
 452 = 14<sup>2</sup>+16<sup>2</sup>.
+
+整数一
+つを引数とし、その数が完全数かどうかを判定する関数
+int is_perfect(int n).
 
 ### 時刻、西暦を和暦に
 
@@ -166,7 +170,7 @@ int days(int mm, int dd).
 
 y1 年 m1 月 d1 日から y2 年 m2 月 d2 月までの日数を返す関数
 int days_between(int y1, int m1, int d1, int y2, int m2, int m2).
-自分は今日まで何日生きてきましたか？ 
+自分は今日まで何日生きてきましたか？
 
 （文字列）時刻 h1:m1:s1 と 時刻 h2:m2:s2 をそれぞれ文字列として受け取り、
 それらの時間差を文字列で戻す関数
@@ -188,6 +192,7 @@ void squares_p(void).
 int int_sqrt(int n).
 ヒントは前問。ライブラリ sqrt を使うことは反則とする。
 
+
 ### float
 
 float x を四捨五入した int を返す関数
@@ -203,6 +208,7 @@ float x を小数点第 n 位で四捨五入した float を返す関数
 float f_to_f(float x, int n).
 f_to_f(3.14159265, 4) の戻り値は 3.141600
 になる。
+
 
 ### 乱数
 
@@ -296,7 +302,7 @@ int factorial_over(int m). factorial_over(2000000) の戻り値は
 
 0!, 1!, 2! ... を次々に計算していき、
 n! < 0 となる最小の n を求める関数
-int factorial_overflow(void). 
+int factorial_overflow(void).
 C 言語ではこういうことが起こる。int が有限だからね。
 
 フィボナッチ数列を計算する関数 int fibo(int n) を定義せよ。
@@ -304,10 +310,11 @@ fibo(0) = 0, fibo(1) = 1, fibo(2) = 2 で、
 一般にfibo(n) = fibo(n-1) + fibo(n-2) だ。
 
 fibo(n) が最初に n を超える n はいくらかを求める関数
-int fibo_over(n).　fibo_over(20000) の戻り値はきっと 23 だ。
+int fibo_over(n). fibo_over(20000) の戻り値はきっと 23 だ。
 
 n 以上 m 未満となるフィボナッチ数の総和を返す関数
 int sum_of_fibo_between(int n, int m).
+
 
 ### 配列
 
@@ -325,6 +332,7 @@ sort(int a[ ], int n, int b[ ]).
 
 上で並べ替えた配列 b[ ] が正しく要素順になっているかを確認する関数
 int is_sorted(int b[ ], int n).
+
 
 ### 文字列
 
@@ -347,7 +355,7 @@ int str_eql_n(char* s1, char*s2, int n).
 void str_copy(char* s1, char* s2).
 s2 は s1 をコピーするに十分な長さがあると仮定してよい。
 以下同様。
-str_copy(s1,s2) の実行後、str_sql(s1,　s2) が真になること。
+str_copy(s1,s2) の実行後、str_sql(s1, s2) が真になること。
 
 文字列 s1 の後ろに文字列 s2 を連結する関数
 char* str_append(char* s1, char* s2).
@@ -360,7 +368,7 @@ str_take("0123456", 1, 3, s2) の呼び出しのあと、s2 は "234" となる�
 文字列 s1 中に文字列 s2 が出現するかどうかを判定する関数
 int str_search(char s1*, char* s2).
 s2 が s1 の何文字目から出現しているかを返す。見つからなかった時は -1 を返せ。
-戻り値 が　0 の時は「s1 の先頭に s2 は見つかる」の意味になる。
+戻り値 が 0 の時は「s1 の先頭に s2 は見つかる」の意味になる。
 
 文字列 s1 の n 文字目からの m 文字を削除する
 char* str_remove(char* s1, int n, int m).
