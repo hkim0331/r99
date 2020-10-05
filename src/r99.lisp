@@ -212,7 +212,7 @@
 (define-easy-handler (show-old :uri "/show-old") (id)
   (let* ((q (format
              nil
-             "select myid,num,answer,create_at::text from old_answers where id='~a'"
+             "select myid,num,answer,timestamp::text from old_answers where id='~a'"
              id))
          (ret (dbi:fetch (query q)))
          (myid (getf ret :|myid|))
@@ -224,7 +224,7 @@
          (oid (getf ret2 :|id|)))
     (page
       (:h3 (str myid) " [" (str num) "]")
-      (:p (str (getf ret :|create_at|)))
+      (:p (str (getf ret :|timestamp|)))
       (:pre
        (format t "~a" (escape (getf ret :|answer|))))
       (:p (:a :href (format nil "/comment?id=~a" oid) "comment?"))
@@ -239,7 +239,7 @@
   (let ((myid (myid)))
     (if (and myid (or (= (parse-integer myid) *hkimura*)
                       (= (parse-integer myid) *nakadouzono*)))
-        (let* ((ret (query "select id, create_at::text, myid, num,
+        (let* ((ret (query "select id, timestamp::text, myid, num,
   answer from old_answers order by id desc")))
           (page
            (:p "db-host: " (str (db-host)))
@@ -250,7 +250,7 @@
                  t
                  "<p><a href='/show-old?id=~a'>~a</a> [~a] ~a ~a</p>"
                  (getf row :|id|)
-                 (subseq (getf row :|create_at|) 0 19)
+                 (subseq (getf row :|timestamp|) 0 19)
                  (getf row :|myid|)
                  (getf row :|num|)
                  ;; fix. 2018-12-08.
@@ -529,7 +529,7 @@ order by users.myid"))
          (old-answer (unescape-apos (second (dbi:fetch (query old)))))
          (sql0 (format
                 nil
-                "insert into old_answers (myid, num, answer, create_at)
+                "insert into old_answers (myid, num, answer, timestamp)
           values ('~a', '~a', '~a', now())"
                 myid
                 num
@@ -547,12 +547,12 @@ order by users.myid"))
     (query sql)
     (redirect "/others")))
 
-;;CHANGED: timestamp -> create_at
+;;CHANGED: timestamp -> timestamp
 (defun insert (myid num answer)
   (let ((sql (format
               nil
-              "insert into answers (myid, num, answer, create_at, timestamp)
-          values ('~a','~a', '~a', now(), now())"
+              "insert into answers (myid, num, answer, timestamp)
+          values ('~a','~a', '~a', now())"
               myid
               num
               (escape-apos answer))))
@@ -636,6 +636,111 @@ order by users.myid"))
 (define-easy-handler (logout :uri "/logout") ()
   (set-cookie *myid* :max-age 0)
   (redirect "/problems"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; trouble
+
+;;1.23.3, 1.23.9
+;;now() が思った通りの値を返さないか？
+;;bugfix: localtimestamp だ。
+(define-easy-handler (update-answer :uri "/update-answer") (num answer)
+  (let* ((now (getf (dbi:fetch (query "select localtimestamp")) :|localtimestamp|))
+         (q (format nil "select timestamp + interval '1 day' from answers where myid='~a' and num='~a'" (myid) num))
+         (after-1-day (second (dbi:fetch (query q)))))
+    (if (< after-1-day now)
+        (if (check answer)
+            (update (myid) num answer)
+            (page
+              (:h3 "error")
+              (:p "ビルドできない。バグ混入？")))
+        (page
+          (:h2 (format t "Sin-Bin: ~a seconds" (- after-1-day now)))
+          (:p "他人の回答をコピって出すのが目に付く。24時間以内のアップデートは禁止にしました。")
+          (:p "バカな野郎が数人いるだけでみんなが迷惑。悪事はバレる。自覚しなさい。")))))
+
+(define-easy-handler (submit :uri "/submit") (num answer)
+  (if (myid)
+      (if (check answer)
+          (let* ((dummy (insert (myid) num answer))
+                 (count (count-answers)))
+            (page
+             (:h1 "received your answer to " (str num))
+             (cond
+               ((zerop (mod count 100))
+                (htm (:p (:img :src "happiest.png"))
+                     (:p "おめでとう!!! 通算 " (str count) " 番目の回答です。")))
+               ((zerop (mod count 50))
+                (htm (:p (:img :src "happier.png"))
+                     (:p "おめでとう!! 通算 " (str count) " 番目の回答です。")))
+               ((zerop (mod count 10))
+                (htm (:p (:img :src "happy.png"))
+                     (:p "おめでとう! 通算 " (str count) " 番目の回答です。")))
+               (t (htm (:p "received."))))
+             (:p "さらに R99 にはげみましょう。")
+             (:ul
+              (:li (:a :href "/status" "自分の回答状況")
+                   "のチェックのほか、")
+              (:li (:a :href (format
+                              nil
+                              "/answer?num=~a" num)
+                       "他ユーザの回答を見る")
+                   "ことも勉強になるぞ。")
+              (:li "それとも直接 "
+                   (:a :href (format
+                              nil "/answer?num=~a"
+                              (+ 1 (parse-integer num)))
+                       "次の問題の回答ページ")
+                   "、行く？"))))
+          (page
+            (:h3 "error")
+            (:p "ビルドできない。プログラムにエラーがあるぞ。")))
+      (redirect "/login")))
+
+(define-easy-handler (answer :uri "/answer") (num)
+  (if (myid)
+      (if (answered? num)
+          (show-answers num)
+          (submit-answer num))
+      (redirect "/login")))
+
+(define-easy-handler (passwd :uri "/passwd") (myid old new1 new2)
+  (let ((stat "パスワードを変更しました。"))
+    (page
+      (:h2 "change password")
+      (if (string= (my-password myid) old)
+          (if (string= new1 new2)
+              (query (format
+                      nil
+                      "update users set password='~a', timestamp='now()' where myid='~a'"
+                      new1
+                      myid))
+              (setf stat "パスワードが一致しません。"))
+          (setf stat "現在のパスワードが一致しません"))
+      (:p (str stat)))))
+
+(define-easy-handler (download :uri "/download") ()
+  (if (myid)
+      (let ((ret
+              (query
+               (format
+                nil
+                "select num, answer from answers where myid='~a' order by num"
+                (myid)))))
+        (page
+          (:pre :class "download" "#include &lt;stdio.h>
+#include &lt;stdlib.h>")
+          (loop for row = (dbi:fetch ret)
+                while row
+                do
+                   (htm
+                    (:pre "//" (str (getf row :|num|)))
+                    (:pre (str (escape (getf row :|answer|))))))
+          (:pre "int main(void) {
+    // 定義した関数の呼び出しをここに。
+    return 0;
+}")))
+      (redirect "/login")))
+;;;;
 
 
 ;;; 2020-10-05
