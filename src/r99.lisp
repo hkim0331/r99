@@ -7,7 +7,7 @@
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
-;; midterm.txt ファイルがないと立ち上がらない、か？
+;; midterm.txt ファイルがないと立ち上がらないか？
 (defun read-midterm (fname)
   (with-open-file (in fname)
     (let ((ret nil))
@@ -645,20 +645,27 @@ order by users.myid"))
          (ret (dbi:fetch (query q))))
     (getf ret :|myid|)))
 
-(define-easy-handler (do-signin :uri "/do_signin") (sid pass1 pass2)
+(define-easy-handler (do-signin :uri "/do_signin") (sid jname pass1 pass2)
   (if (string= pass1 pass2)
-      (let* ((q (format
+      (let* ((myid (get-new-myid))
+             (q (format
                  nil
-                 "insert into users (sid, password) values ('~a', '~a')" sid pass1))
-             (ret (dbi:fetch (query q))))
+                 "update users set sid='~a', password='~a', jname='~a'
+                    where myid='~a'"
+                 sid pass1 jname myid))
+             (ret (query q)))
         (page
-          ret))
-      (page
-        (:p "パスワードが一致しません。もう一度"
-            "<a href='/signin'>signin</a>"
-            "からやり直し。"))))
+          (:p (format t "学生番号: ~a " sid))
+          (:p (format t "氏名 ~a" jname))
+          (:p (format t "myid ~a" myid))
+          (:p (format t "パスワード (表示しません)"))
+          (:p (format t "<a href='/login'>login</a>からログインしよう。")))
+        (page
+          (:p "パスワードが一致しません。もう一度"
+              "<a href='/signin'>signin</a>"
+              "からやり直し。")))))
 
-(define-easy-handler (login :uri "/signin") ()
+(define-easy-handler (signin :uri "/signin") ()
   (page
     (:h2 "SIGNIN")
     (:p "成績用の学生番号と R99 の myid を対応させます。")
@@ -667,7 +674,9 @@ order by users.myid"))
     (:form :method "post" :action "/do_signin"
            (:p "学生番号")
            (:p (:input :type "text" :name "sid"))
-           (:p "password")
+           (:p "氏名")
+           (:p (:input :type "text" :name "jname"))
+           (:p "パスワード（同じのを2回）")
            (:p (:input :type "password" :name "pass1"))
            (:p (:input :type "password" :name "pass2"))
            (:p (:input :type "submit" :value "signin"))
