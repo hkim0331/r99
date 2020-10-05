@@ -14,4 +14,4 @@
 !/db/tables-drop.sql
 /src/.nrepl-history
 /src/r99
-/develop.env
+/env.sh
