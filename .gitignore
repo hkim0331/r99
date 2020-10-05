@@ -10,6 +10,8 @@
 /db/.cpcache
 /db/.nrepl-port
 /db/backups
+!/db/tables-create.sql
+!/db/tables-drop.sql
 /src/.nrepl-history
 /src/r99
 /develop.env
