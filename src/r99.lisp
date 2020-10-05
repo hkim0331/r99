@@ -642,8 +642,8 @@ order by users.myid"))
 
 (defun get-new-myid ()
   (let* ((q (format nil "select myid from users where sid is null"))
-         (ret (first (dbi:fetch (query q)))))
-    (getf ret :|mid|)))
+         (ret (dbi:fetch (query q))))
+    (getf ret :|myid|)))
 
 (define-easy-handler (do-signin :uri "/do_signin") (sid pass1 pass2)
   (if (string= pass1 pass2)
