@@ -19,8 +19,10 @@ problems: problems.md
 users:
 	clj -M init-users.clj
 
-backup:
-	pg_dump -h ${R99_HOST} -U ${R99_USER} -W ${R99_DB} > backups/`date +%F`.sql
+dump:
+	pg_dump -h ${R99_HOST} -U ${R99_USER} -W ${R99_DB} > backups/`date +%F`.dump
+
+restore:
 
 update:
 	@echo "clj -m update-r99 <num>"

@@ -266,6 +266,7 @@
 ;; 2018-12-08 以降、記録が JST になる。
 ;; どうやったんだっけ？
 ;; () は中間試験成績を出していた。
+
 (define-easy-handler (users :uri "/others") ()
   (page
     ;;    (:p (:img :src "/guernica.jpg" :width "100%"))
@@ -289,40 +290,43 @@ order by users.myid"))
                      (dbi:fetch-all
                       (query  "select distinct(myid) from answers
  where now() - timestamp < '48 hours'")))))
-      (htm
-       (:li
-        (format
-         t
-         " ~a、~a さんが
-<a href='/answer?num=~a'>~a</a> に回答しました。"
-         (short (getf recent :|timestamp|))
-         (getf recent :|myid|)
-         (getf recent :|num|)
-         (getf recent :|num|)))
-       (:li
-        (format
-         t
-         "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
-があった受講生です。全回答数 ~a。"
-         (count-answers)))
-       (:li "( ) は中間テスト、個人ペーパーの点数。")
-       (:hr))
-      (loop for row = (dbi:fetch results)
-            while row
-            do
-               (let* ((myid (getf row :|myid|))
-                      (working (if (find myid working-users) "yes" "no")))
-                 (format
-                  t
-                  "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
-                  working
-                  myid
-                  (cdr (assoc myid *mt*))
-                  (stars (getf row :|count|))
-                  myid
-                  (getf row :|count|)))
-               (incf n))
-      (htm (:p "受講生 246 人、一題以上回答者 " (str n) " 人。")))))
+
+      ;;      (htm
+      ;;       (:li
+      ;;        (format
+      ;;         t
+      ;;         " ~a、~a さんが
+      ;; <a href='/answer?num=~a'>~a</a> に回答しました。"
+      ;;         (short (getf recent :|timestamp|))
+      ;;         (getf recent :|myid|)
+      ;;         (getf recent :|num|)
+      ;;         (getf recent :|num|)))
+      ;;       (:li
+      ;;        (format
+      ;;         t
+      ;;         "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
+      ;; があった受講生です。全回答数 ~a。"
+      ;;         (count-answers)))
+      ;;       (:li "( ) は中間テスト、個人ペーパーの点数。")
+      ;;       (:hr))
+
+      ;; (loop for row = (dbi:fetch results)
+      ;;       while row
+      ;;       do
+      ;;          (let* ((myid (getf row :|myid|))
+      ;;                 (working (if (find myid working-users) "yes" "no")))
+      ;;            (format
+      ;;             t
+      ;;             "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
+      ;;             working
+      ;;             myid
+      ;;             (cdr (assoc myid *mt*))
+      ;;             (stars (getf row :|count|))
+      ;;             myid
+      ;;             (getf row :|count|)))
+      ;;          (incf n))
+
+      (htm (:p "受講生 210 人、一題以上回答者 " (str n) " 人。")))))
 
 ;;
 ;; /problems
@@ -358,7 +362,7 @@ order by users.myid"))
     (page
      (:h1 :style "color:red; font-size:24pt"
         "🔥UNDER CONSTRUCTION🔥")
-     (:p "まだ利用できる状態じゃねーです。")
+     (:p "利用開始までもうちょっと。")
 ;     (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
 ;     (:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
      (:h2 "problems")
