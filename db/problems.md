@@ -54,15 +54,13 @@ int square(int n).
 int triple(int n).
 
 整数 n の m 乗を返す関数
-int power(int n, int m). C言語では n^m を n\^m では計算できない。
+int power(int n, int m). C言語では n<sup>m</sup> を n^m では計算できない。
 
 ### 条件分岐
 
 彼・彼女の年齢を y とする。彼・彼女がティーンエイジャーだったら
 真、そうでなければ偽を返す関数
 int teenage(int y).
-
-### max
 
 整数 x, y を引数にとり、大きい方の整数を戻り値とする関数
 int max2(int x, int y).
@@ -84,7 +82,7 @@ int triangle(int x, int y, int z).
 3つの整数を引数とし、
 それらの長さを各辺とする直角三角形がありうるかどうかを判定する関数
 int right_angle(int x, int y, int z).
-ヒント:前問の回答を参考にせよ
+ヒント:前問の回答
 
 
 ### ループ
@@ -116,7 +114,7 @@ int sum_of_divisors(int n).
 
 n 以下の素数(nは整数)は何個あるかを戻り値とする関数
 int primes(int n).
-primes(10000) の戻り値は多分 1229。
+primes(10000) の戻り値はおそらく 1229。
 
 n 以下の整数のうち、もっとも約数の多い数を返す関数
 int most_divisors(int n).
@@ -189,7 +187,7 @@ int how_many_rev3(void).
 void squares_p(void).
 
 整数 n のルートを超えない最大の整数を返す関数
-int int_sqrt(int n).
+int sqrt_int(int n).
 ヒントは前問。ライブラリ sqrt を使うことは反則とする。
 
 
@@ -198,7 +196,7 @@ int int_sqrt(int n).
 float x を四捨五入した int を返す関数
 int f_to_i(float x).
 ヒント: 浮動小数点数 x の整数部分は (int)x で得られる。
-かっこの付け方が妙だけど、こう書く。(int)3.5 は 3 だ。4ではない。
+かっこの付け方が妙だけど、こう書く。(int)3.5 は 3 だよ。4じゃない。
 
 float x を小数点第 2 位で四捨五入した float を返す関数
 float f_to_f1(float x).
@@ -216,18 +214,18 @@ f_to_f(3.14159265, 4) の戻り値は 3.141600
 random( ) を利用し、0 以上 n 未満の正の整数乱数を返す関数
 int rand(int n).
 
-n &le; r &lt; m の整数乱数を返す関数
-int rand_between(int n, int m).
-
 0.0 &le; r &lt; 1.0 の浮動小数点数乱数を返す関数
 float randf(void).
+
+n &le; r &lt; m の整数乱数を返す関数
+int rand_int(int n, int m).
 
 上の randf( ) を呼び出して、2次元乱数 [x, y]
 (0.0 &le; x &lt; 1.0, 0.0 &le; y &lt; 1.0)
 を n 個プリントする関数
 void randf_p(int n).
 
-上の randf_p( ) を応用し、円周率 pi を求める関数
+上の randf( ) を応用し、円周率 pi を求める関数
 float pi(int n).
 2次元乱数 [x,y]、
 (0.0 &le; x &lt; 1.0, 0.0 &le; y &lt; 1.0)
@@ -239,7 +237,7 @@ n を増やすと pi の精度は上がるはず。
 ### ファイル I/O
 
 ファイル
-"/home/t/hkimura/integers.txt"
+"integers.txt"
 には一行にひとつ、
 整数が書き込まれている。
 そのファイルの先頭の数字を返す関数
@@ -275,7 +273,8 @@ int sum_tail(int n).
 ファイル名を文字列 fname として引数にとり、そのファイルの中身を
 行番号つきで表示する関数 void n_cat(char *fname)
 
-### 三度、整数
+
+### 三たび整数
 
 n 以上 m 未満の奇数の和を求める関数
 int sum_odds(int n, int m).
@@ -288,6 +287,7 @@ next_perfect(28) はきっと 496 だ。
 n 未満の素数の和を求める関数
 int sum_primes_under(int n).
 sum_primes_under(1000) は 76127 のはず。
+
 
 ### 再帰関数ちょっとだけ
 
@@ -403,6 +403,13 @@ printf("%s\n", str_reverse("abcdef")) がプリントするのは
 char *jstr_reverse(char(js)).
 printf("%s\n", jstr_reverse("おはようございます。")) がプリントするのは
 "。すまいざごうよはお\n"
+
+文字列一つを引数にとり、
+それが "コロナ"だったら "no thanks."、
+"ビール" だったら "乾杯！"、
+"単位" だったら "よかったね。"、
+それ以外だったら "なんくるないさ" を表示する関数
+void greet(char* s).
 
 ##
 
