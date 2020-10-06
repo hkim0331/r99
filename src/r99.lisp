@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "2.26.2")
+(defvar *version* "2.26.3")
 
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
@@ -521,6 +521,7 @@ order by users.myid"))
               num)))
     (not (null (dbi:fetch (query sql))))))
 
+
 ;; BUG? 古いデータではなく新しい方を old_answers に入れてないか？
 ;; CHANGED: backup to old_answers, 2018-11-10
 (defun update (myid num answer)
@@ -640,6 +641,66 @@ order by users.myid"))
   (set-cookie *myid* :max-age 0)
   (redirect "/problems"))
 
+(define-easy-handler (passwd :uri "/passwd") (myid old new1 new2)
+  (let ((stat "パスワードを変更しました。"))
+    (page
+     (:h2 "change password")
+     (if (string= (my-password myid) old)
+         (if (string= new1 new2)
+             (query (format
+                     nil
+                     "update users set password='~a', timestamp='now()' where myid='~a'"
+                     new1
+                     myid))
+             (setf stat "パスワードが一致しません。"))
+         (setf stat "現在のパスワードが一致しません"))
+     (:p (str stat)))))
+
+
+(defun get-new-myid ()
+  (let* ((q (format nil "select myid from users where sid is null"))
+         (ret (dbi:fetch (query q))))
+    (getf ret :|myid|)))
+
+(define-easy-handler (do-signin :uri "/do_signin") (sid jname pass1 pass2)
+  (if (string= pass1 pass2)
+      (let* ((myid (get-new-myid))
+             (q (format
+                 nil
+                 "update users set sid='~a', password='~a', jname='~a'
+                    where myid='~a'"
+                 sid pass1 jname myid)))
+        (query q)
+        (page
+          (:p (format t "学生番号: ~a " sid))
+          (:p (format t "氏名: ~a" jname))
+          (:p (format t "myid: ~a" myid))
+          (:p (format t "パスワード: ~a" pass1))
+          (:p (format t "myid, パスワードをメモしたら、
+                         <a href='/login'>login</a>からログインしよう。"))))
+      (page
+        (:p "パスワードが一致しません。もう一度"
+            "<a href='/signin'>signin</a>"
+            "からやり直し。"))))
+
+
+(define-easy-handler (signin :uri "/signin") ()
+  (page
+   (:h2 "SIGNIN")
+   (:p "成績用の学生番号と R99 の myid を対応させます。")
+   (:p "サインインに成功すると myid を一度だけ表示するので、"
+       "パスワードと共に覚えること。")
+   (:form :method "post" :action "/do_signin"
+          (:p "学生番号")
+          (:p (:input :type "text" :name "sid"))
+          (:p "氏名")
+          (:p (:input :type "text" :name "jname"))
+          (:p "パスワード（同じのを2回）")
+          (:p (:input :type "password" :name "pass1"))
+          (:p (:input :type "password" :name "pass2"))
+          (:p (:input :type "submit" :value "signin")))))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;1.23.3, 1.23.9
 ;;now() が思った通りの値を返さないか？
@@ -652,12 +713,12 @@ order by users.myid"))
         (if (check answer)
             (update (myid) num answer)
             (page
-              (:h3 "error")
-              (:p "ビルドできない。バグ混入？")))
+             (:h3 "error")
+             (:p "ビルドできない。バグ混入？")))
         (page
-          (:h2 (format t "Sin-Bin: ~a seconds" (- after-1-day now)))
-          (:p "他人の回答をコピって出すのが目に付く。24時間以内のアップデートは禁止にしました。")
-          (:p "バカな野郎が数人いるだけでみんなが迷惑。悪事はバレる。自覚しなさい。")))))
+         (:h2 (format t "Sin-Bin: ~a seconds" (- after-1-day now)))
+         (:p "他人の回答をコピって出すのが目に付く。24時間以内のアップデートは禁止にしました。")
+         (:p "バカな野郎が数人いるだけでみんなが迷惑。悪事はバレる。自覚しなさい。")))))
 
 (define-easy-handler (submit :uri "/submit") (num answer)
   (if (myid)
@@ -704,39 +765,24 @@ order by users.myid"))
           (submit-answer num))
       (redirect "/login")))
 
-(define-easy-handler (passwd :uri "/passwd") (myid old new1 new2)
-  (let ((stat "パスワードを変更しました。"))
-    (page
-      (:h2 "change password")
-      (if (string= (my-password myid) old)
-          (if (string= new1 new2)
-              (query (format
-                      nil
-                      "update users set password='~a', timestamp='now()' where myid='~a'"
-                      new1
-                      myid))
-              (setf stat "パスワードが一致しません。"))
-          (setf stat "現在のパスワードが一致しません"))
-      (:p (str stat)))))
-
 (define-easy-handler (download :uri "/download") ()
   (if (myid)
       (let ((ret
-              (query
-               (format
-                nil
-                "select num, answer from answers where myid='~a' order by num"
-                (myid)))))
+             (query
+              (format
+               nil
+               "select num, answer from answers where myid='~a' order by num"
+               (myid)))))
         (page
-          (:pre :class "download" "#include &lt;stdio.h>
+         (:pre :class "download" "#include &lt;stdio.h>
 #include &lt;stdlib.h>")
-          (loop for row = (dbi:fetch ret)
-                while row
-                do
-                   (htm
-                    (:pre "//" (str (getf row :|num|)))
-                    (:pre (str (escape (getf row :|answer|))))))
-          (:pre "int main(void) {
+         (loop for row = (dbi:fetch ret)
+            while row
+            do
+              (htm
+               (:pre "//" (str (getf row :|num|)))
+               (:pre (str (escape (getf row :|answer|))))))
+         (:pre "int main(void) {
     // 定義した関数の呼び出しをここに。
     return 0;
 }")))
@@ -746,47 +792,7 @@ order by users.myid"))
 
 ;;; 2020-10-05
 
-(defun get-new-myid ()
-  (let* ((q (format nil "select myid from users where sid is null"))
-         (ret (dbi:fetch (query q))))
-    (getf ret :|myid|)))
 
-(define-easy-handler (do-signin :uri "/do_signin") (sid jname pass1 pass2)
-  (if (string= pass1 pass2)
-      (let* ((myid (get-new-myid))
-             (q (format
-                 nil
-                 "update users set sid='~a', password='~a', jname='~a'
-                    where myid='~a'"
-                 sid pass1 jname myid))
-             (ret (query q)))
-        (page
-          (:p (format t "学生番号: ~a " sid))
-          (:p (format t "氏名 ~a" jname))
-          (:p (format t "myid ~a" myid))
-          (:p (format t "パスワード (表示しません)"))
-          (:p (format t "<a href='/login'>login</a>からログインしよう。")))
-        (page
-          (:p "パスワードが一致しません。もう一度"
-              "<a href='/signin'>signin</a>"
-              "からやり直し。")))))
-
-(define-easy-handler (signin :uri "/signin") ()
-  (page
-    (:h2 "SIGNIN")
-    (:p "成績用の学生番号と R99 の myid を対応させます。")
-    (:p "サインインに成功すると myid を一度だけ表示するので、"
-        "パスワードと共に覚えること。")
-    (:form :method "post" :action "/do_signin"
-           (:p "学生番号")
-           (:p (:input :type "text" :name "sid"))
-           (:p "氏名")
-           (:p (:input :type "text" :name "jname"))
-           (:p "パスワード（同じのを2回）")
-           (:p (:input :type "password" :name "pass1"))
-           (:p (:input :type "password" :name "pass2"))
-           (:p (:input :type "submit" :value "signin"))
-           )))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -802,9 +808,9 @@ order by users.myid"))
                (ret (query q))
                (n 1))
           (loop for row = (dbi:fetch ret)
-                while (and row (not (= uid (getf row :|myid|))))
-                do
-                   (incf n))
+             while (and row (not (= uid (getf row :|myid|))))
+             do
+               (incf n))
           n))))
 ;;;
 ;;; status
