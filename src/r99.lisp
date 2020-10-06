@@ -372,7 +372,11 @@ order by users.myid"))
       (:h2 "problems")
       (:ul
        (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
-       (:li "上の方で定義した関数を利用する場合、上の関数定義は回答に含めないでOK。"))
+       (:li "上の方で定義した関数を利用する場合、上の関数定義は回答に含めないでOK。")
+       (:li "すべての回答関数の上には #include <stdio.h> #include <stdlib.h> があると仮定してよい。（実際にある）")
+       (:li :class "warn"
+          "正真正銘自分作のプログラムでも、動作を確認してないプログラムはゴミです。"))
+
       ;;(:h1 :class "warn" "WARNING")
       ;;(:p :class "warn"
       ;;    "回答にならない答を一旦提出、他人の回答をコピーし、"
@@ -384,8 +388,7 @@ order by users.myid"))
       ;;    "見てみよう、全部 hello, robocar だから。"
       ;;    "回答変更できないようパスワード変えた。しばらく晒しとく。単位はあるかな？"
       ;;    (:span :class "warn" "ないでしょ。"))
-      (:p :class "warn"
-          "正真正銘自分作のプログラムでも、動作を確認してないプログラムはゴミです。")
+
       (:hr)
       (loop for row = (dbi:fetch results)
             while row
@@ -599,7 +602,7 @@ order by users.myid"))
          (ret (dbi:fetch-all (query q))))
     (mapcar (lambda (x) (getf x :|num|)) ret)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; status, login/logout, signin
 ;;;
@@ -637,9 +640,7 @@ order by users.myid"))
   (set-cookie *myid* :max-age 0)
   (redirect "/problems"))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; trouble
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;1.23.3, 1.23.9
 ;;now() が思った通りの値を返さないか？
 ;;bugfix: localtimestamp だ。
@@ -1013,4 +1014,3 @@ answer like '%/* comment from%' order by num"
 (defun main ()
   (start-server)
   (loop (sleep 60)))
-
