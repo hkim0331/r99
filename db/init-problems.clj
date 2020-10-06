@@ -8,9 +8,8 @@
           (str/split (slurp "problems.md") #"\n\n+")))
 
 (def with-number
- (let [now (str (java.util.Date.))]
-  (map (fn [x] {:num (first x) :detail (second x)})
-       (zipmap (range 1 300) problems))))
+ (map (fn [x] {:num (first x) :detail (second x)})
+      (zipmap (range 1 300) problems)))
 
 (def pg {:host     "localhost"
          :dbtype   "postgresql"
