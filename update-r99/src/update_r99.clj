@@ -1,8 +1,9 @@
-(ns update
+(ns update-r99
   (:require [clojure.java.jdbc :as jdbc]
             [clojure.string :as string]
-            [clojure.edn :as edn])
-  (:use seesaw.core))
+            [clojure.edn :as edn]
+            [seesaw.core :refer :all]))
+
 
 (def pg {:dbtype   "postgresql"
          :user     "user1"

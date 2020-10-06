@@ -1,3 +1,6 @@
+* 2020-10-05
+  make
+
 * problems のアップデート、clojure はファイルよりもネームスペース優先で。
 
 		clj -m update-r99 38

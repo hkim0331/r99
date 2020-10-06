@@ -1,6 +1,6 @@
 ## Unrelease
-
-* 一問修正で終わらない
+* 2020-10-05 動かない。
+* 一問修正で終わらないように。
 
 ## synopsis
 
@@ -10,7 +10,7 @@
 ## usage
 
 ```sh
-$ clj -m update <num>
+$ clj -m update-r99 <num>
 ```
 
 ---
