@@ -2,7 +2,7 @@
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 (in-package :r99)
 
-(defvar *version* "2.26.3")
+(defvar *version* "2.26.4")
 
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
@@ -365,10 +365,10 @@ order by users.myid"))
           do
              (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
     (page
-      (:h1 :style "color:red; font-size:24pt" "🔥UNDER CONSTRUCTION🔥")
-      (:p "利用開始までもうちょっと。")
-      ;;     (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
-      ;;     (:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
+      ;;(:h1 :style "color:red; font-size:24pt" "🔥UNDER CONSTRUCTION🔥")
+      ;;(:p "利用開始までもうちょっと。")
+      (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
+      (:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
       (:h2 "problems")
       (:ul
        (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
@@ -663,8 +663,9 @@ order by users.myid"))
     (getf ret :|myid|)))
 
 (define-easy-handler (do-signin :uri "/do_signin") (sid jname pass1 pass2)
-  (if (string= pass1 pass2)
-      (let* ((myid (get-new-myid))
+  (if (and (= 8 (length sid)) (string= pass1 pass2))
+      (let* ((sid (string-upcase sid))
+             (myid (get-new-myid))
              (q (format
                  nil
                  "update users set sid='~a', password='~a', jname='~a'
@@ -677,9 +678,9 @@ order by users.myid"))
           (:p (format t "myid: ~a" myid))
           (:p (format t "パスワード: ~a" pass1))
           (:p (format t "myid, パスワードをメモしたら、
-                         <a href='/login'>login</a>からログインしよう。"))))
+                         <a href='/login'>login</a> からログインしよう。"))))
       (page
-        (:p "パスワードが一致しません。もう一度"
+        (:p "学生番号が不正か、パスワードが一致しません。もう一度"
             "<a href='/signin'>signin</a>"
             "からやり直し。"))))
 
