@@ -1,5 +1,6 @@
 (defpackage r99
   (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
+
 (in-package :r99)
 
 (defvar *version* "2.26.4")
@@ -373,9 +374,9 @@ order by users.myid"))
       (:ul
        (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
        (:li "上の方で定義した関数を利用する場合、上の関数定義は回答に含めないでOK。")
-       (:li "すべての回答関数の上には #include <stdio.h> #include <stdlib.h> があると仮定してよい。（実際にある）")
+       (:li "すべての回答関数の上には #include &lt;stdio.h> #include &lt;stdlib.h> があると仮定してよい。")
        (:li :class "warn"
-          "正真正銘自分作のプログラムでも、動作を確認してないプログラムはゴミです。"))
+            "正真正銘自分作のプログラムでも、動作を確認してないプログラムはゴミです。"))
 
       ;;(:h1 :class "warn" "WARNING")
       ;;(:p :class "warn"
@@ -908,59 +909,61 @@ answer like '%/* comment from%' order by num"
              (message (second cheer))
              (jname (get-jname))
              (last-runner (get-last)))
-       (page
-         (:h3 "回答状況")
-         (:p "クリックして問題・回答にジャンプ。")
-         (loop for n from 1 to num-max
-            do
-              (htm (:a :href (format nil "/answer?num=~a" n)
-                       :class (if (find n sv) "found" "not-found")
-                       (str n))))
-         (:p "コメントがついた回答があります --> "
-             (str (answers-with-comment (myid))))
-         ;; (mapcar
-         ;;  (lambda (x) (htm (:p x)))
-         ;;  (answers-with-comment (myid)))
-         (htm (:p (:img :src image) (str message)))
-         (:hr)
-         (:h3 "アクティビティ")
-         (:p "毎日ちょっとずつが実力のもと。一度にたくさんは身にならんやろ。")
-         (:p (:a :href "/activity" "&rArr; activity"))
-         (:hr)
-         (:h3 "ランキング")
-         (:ul
-          (:li "氏名: " (str jname))
-          (:li "回答数: " (str sc))
-          (:li "ランキング: " (str (ranking (myid))) "位 / 246 人"
-               " (最終ランナーは " (str last-runner) "位と表示されます
+        (page
+          (:h3 "回答状況")
+          (:p "クリックして問題・回答にジャンプ。")
+          (loop for n from 1 to num-max
+                do
+                   (htm (:a :href (format nil "/answer?num=~a" n)
+                            :class (if (find n sv) "found" "not-found")
+                            (str n))))
+          (:p "コメントがついた回答があります --> "
+              (str (answers-with-comment (myid))))
+          ;; (mapcar
+          ;;  (lambda (x) (htm (:p x)))
+          ;;  (answers-with-comment (myid)))
+          (htm (:p (:img :src image) (str message)))
+          (:hr)
+          (:h3 "アクティビティ")
+          (:p "毎日ちょっとずつが実力のもと。一度にたくさんは身にならんやろ。")
+          (:p (:a :href "/activity" "&rArr; activity"))
+          (:hr)
+          (:h3 "ランキング")
+          (:ul
+           (:li "氏名: " (str jname))
+           (:li "回答数: " (str sc))
+           (:li "ランキング: " (str (ranking (myid))) "位 / 246 人"
+                " (最終ランナーは " (str last-runner) "位と表示されます
   (無回答者を除く))"))
-         (:hr)
-         (:h3 "自分回答をダウンロード")
-         (:p "全回答を問題番号順にコメントも一緒にダウンロードします。")
-         (:p (:a :href "/download" "&rArr; download"))
-         (:hr)
-         (:h3 "パスワード変更")
-         (:form :method "post" :action "/passwd"
-                (:p "myid (変更不可)")
-                (:p (:input :type "text" :name "myid" :value (str (myid))
-                            :readonly "readonly"))
-                (:p "old password")
-                (:p (:input :type "password" :name "old"))
-                (:p "new password")
-                (:p (:input :type "password" :name "new1"))
-                (:p "new password again (same one)")
-                (:p (:input :type "password" :name "new2"))
-                (:input :type "submit" :value "change"))))
+          (:hr)
+          (:h3 "自分回答をダウンロード")
+          (:p "全回答を問題番号順にコメントも一緒にダウンロードします。")
+          (:p (:a :href "/download" "&rArr; download"))
+          (:hr)
+          (:h3 "パスワード変更")
+          (:form :method "post" :action "/passwd"
+                 (:p "myid (変更不可)")
+                 (:p (:input :type "text" :name "myid" :value (str (myid))
+                             :readonly "readonly"))
+                 (:p "old password")
+                 (:p (:input :type "password" :name "old"))
+                 (:p "new password")
+                 (:p (:input :type "password" :name "new1"))
+                 (:p "new password again (same one)")
+                 (:p (:input :type "password" :name "new2"))
+                 (:input :type "submit" :value "change"))))
       (redirect "/login")))
 ;;
 ;; activity
 ;;
+
+
 (define-easy-handler (activity :uri "/activity") ()
   (let ((res
-         (query
-          (format
-           nil
-           "select date(timestamp), count(date(timestamp))
+          (query
+           (format
+            nil
+            "select date(timestamp), count(date(timestamp))
  from answers where myid='~a'
  group by date(timestamp)
  order by date(timestamp) desc" (myid)))))
@@ -968,11 +971,11 @@ answer like '%/* comment from%' order by num"
       (:h2 (str (myid)) " Activity")
       (:hr)
       (loop for row = (dbi:fetch res)
-         while row
-         do
-           (format t "<p>~a ~a</p>"
-                   (yyyy-mm-dd  (getf row :|date|))
-                   (stars (getf row :|count|))))
+            while row
+            do
+               (format t "<p>~a ~a</p>"
+                       (yyyy-mm-dd  (getf row :|date|))
+                       (stars (getf row :|count|))))
       (:p (:a :href "/status" "status") "に戻る"))))
 
 (setf (html-mode) :html5)
