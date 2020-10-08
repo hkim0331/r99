@@ -1,3 +1,6 @@
+* rsync-app-backups.sh - 2020-10-09
+	db/backups を app.melt と同期する。
+
 * 2020-10-05
   make
 

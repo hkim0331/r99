@@ -12,7 +12,7 @@ void add1_p(void).
 
 円の半径（整数）を引数にとり、
 その円の面積（浮動小数点数）を戻り値とする関数
-float en(int r).
+double en(int r).
 
 円の半径（整数）をキーボードから読み、
 その円の面積（浮動小数点数）をプリントする関数
@@ -142,8 +142,7 @@ int is_squeare_sum(int n).
 is_square_sum(452) は 1 を返す。
 452 = 14<sup>2</sup>+16<sup>2</sup>.
 
-整数一
-つを引数とし、その数が完全数かどうかを判定する関数
+整数ひとつを引数とし、その数が完全数かどうかを判定する関数
 int is_perfect(int n).
 
 ### 時刻、西暦を和暦に
@@ -191,20 +190,20 @@ int sqrt_int(int n).
 ヒントは前問。ライブラリ sqrt を使うことは反則とする。
 
 
-### float
+### double
 
-float x を四捨五入した int を返す関数
-int f_to_i(float x).
+double x を四捨五入した int を返す関数
+int dbl_to_i(double x).
 ヒント: 浮動小数点数 x の整数部分は (int)x で得られる。
 かっこの付け方が妙だけど、こう書く。(int)3.5 は 3 だよ。4じゃない。
 
-float x を小数点第 2 位で四捨五入した float を返す関数
-float f_to_f1(float x).
-f_to_f1(3.14159265) の戻り値は 3.100000 になる。
+double x を小数点第 2 位で四捨五入した double を返す関数
+double dbl_to_dbl(double x).
+dbl_to_dbl_2(3.14159265) の戻り値は 3.100000 になる。
 
-float x を小数点第 n 位で四捨五入した float を返す関数
-float f_to_f(float x, int n).
-f_to_f(3.14159265, 4) の戻り値は 3.141600
+double x を小数点第 n 位で四捨五入した double を返す関数
+double dbl_to_dbl(double x, int n).
+dlb_to_dbl(3.14159265, 4) の戻り値は 3.141600
 になる。
 
 
@@ -215,7 +214,7 @@ random( ) を利用し、0 以上 n 未満の正の整数乱数を返す関数
 int rand(int n).
 
 0.0 &le; r &lt; 1.0 の浮動小数点数乱数を返す関数
-float randf(void).
+double randf(void).
 
 n &le; r &lt; m の整数乱数を返す関数
 int rand_int(int n, int m).
@@ -226,7 +225,7 @@ int rand_int(int n, int m).
 void randf_p(int n).
 
 上の randf( ) を応用し、円周率 pi を求める関数
-float pi(int n).
+double pi(int n).
 2次元乱数 [x,y]、
 (0.0 &le; x &lt; 1.0, 0.0 &le; y &lt; 1.0)
 を n = 1,000 個発生し、
@@ -237,33 +236,34 @@ n を増やすと pi の精度は上がるはず。
 ### ファイル I/O
 
 ファイル
-"integers.txt"
-には一行にひとつ、
+"integers.txt" をダウンロードし、適当な場所にセーブせよ。
+ファイル integers.txt には一行にひとつ、
 整数が書き込まれている。
 そのファイルの先頭の数字を返す関数
-int head0(void).
+int head(void).
 
 ファイル
-"/home/t/hkimura/integers.txt"
+"integers.txt"
 が何行あるかを返す関数
-int lines0(void).
+int lines(void).
 
 ファイル
-"/home/t/hkimura/integers.txt"
+"integers.txt"
 の n 行目の数字を返す関数
-int nth0(int n).
+int nth(int n).
 
 ファイル
-"/home/t/hkimura/integers.txt"
+"integers.txt"
 の最初の十行に含まれる整数の総和を返す関数
-int sum10(void).
+int sum_10(void).
 
 ファイル
-"/home/t/hkimura/integers.txt"
+"integers.txt"
 の最初の n 行に含まれる整数の総和を返す関数
 int sum_n(int n).
 
-ファイル "/home/t/hkimura/integers.txt"
+ファイル
+"integers.txt"
 の最後の n 行に含まれる整数の総和を返す関数
 int sum_tail(int n).
 
@@ -301,7 +301,7 @@ n! > m となる最小の n を求める関数
 int factorial_over(int m). factorial_over(2000000) の戻り値は
 
 0!, 1!, 2! ... を次々に計算していき、
-n! < 0 となる最小の n を求める関数
+n! &lt; 0 となる最小の n を求める関数
 int factorial_overflow(void).
 C 言語ではこういうことが起こる。int が有限だからね。
 
@@ -354,11 +354,11 @@ int str_eql_n(char* s1, char*s2, int n).
 文字列 s1 を文字列 s2 にコピーする関数
 void str_copy(char* s1, char* s2).
 s2 は s1 をコピーするに十分な長さがあると仮定してよい。
-以下同様。
 str_copy(s1,s2) の実行後、str_sql(s1, s2) が真になること。
 
 文字列 s1 の後ろに文字列 s2 を連結する関数
 char* str_append(char* s1, char* s2).
+s1 は s2 を連結するに十分な長さがあると仮定してよい。
 str_append("abc", "def") の実行後、str_eql(s1, "abcdef")は真になる。
 
 文字列 s1 の n 文字目からの m 文字を s2 の先頭にコピーする関数
@@ -378,12 +378,14 @@ char* str_remove_str(char s1[ ], char s2[ ]).
 見つからない時？なにも削除しないよ。
 
 文字列 s1 の n 文字目に文字列 s2 を挿入する
+文字列 s1 は十分な長さがあることを仮定してよい。
 char* str_insert(char* s1, int n, char* s2).
 
 文字列 s1 中に現れる文字列 s2 を文字列 s3 で置き換える
 char* str_subst(char* s1, char* s2, char* s3).
 
 文字列 s1 を全て大文字にして文字列 s2 にコピーする関数
+文字列 s2 は十分な長さがあることを仮定してよい。
 void toUpper(char* s1, char* s2).
 
 文字列 s1 を整数に変換して返す関数
@@ -392,6 +394,7 @@ str_to_int("314")の戻り値は 214 になる。
 
 整数 n を文字列 s に変換する関数
 void int_to_str(int n, char* s).
+文字列 s2 は十分な長さがあることを仮定してよい。
 int_to_str(1023, s) の呼び出しによって 文字列 "1023" が s にコピーされる。
 
 文字列 *s を逆にした文字列を返す関数
@@ -456,4 +459,3 @@ times 中で * を使うのは反則とする。
 
 ++ と -- のみを使い、x + y と同じ計算をする関数 int stoic_add(int x, int y) を定義せよ。
 
-## under construction
