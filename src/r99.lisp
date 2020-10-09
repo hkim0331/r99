@@ -1,8 +1,9 @@
 (defpackage r99
-  (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
+    (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
+
 (in-package :r99)
 
-(defvar *version* "2.26.4")
+(defvar *version* "2.26.5")
 
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
@@ -36,9 +37,9 @@
 (defun db-host ()
   (or (getenv "R99_HOST") "localhost"))
 (defun db-user ()
-  (or (getenv "R99_USER") "user1"))
+  (or (getenv "R99_USER") "user"))
 (defun db-pass ()
-  (or (getenv "R99_PASS") "pass1"))
+  (or (getenv "R99_PASS") "pass"))
 
 (defvar *db* "r99")
 (defvar *server* nil)
@@ -69,9 +70,6 @@
 (defun short (datetime)
   (subseq datetime 0 19))
 
-;; to jst
-;; (defun jst (utc)
-;;   )
 
 (defun yyyy-mm-dd (iso)
   (let ((ans (multiple-value-list (decode-universal-time iso))))
@@ -155,32 +153,32 @@
         :href "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         :integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
         :crossorigin="anonymous")
-      (:title "R99")
-      (:link :type "text/css" :rel "stylesheet" :href "/r99.css")
-      (:body
-       (:div :class "navbar navbar-default navbar-fixed-top"
-             (:div :class "container"
-                   (:h1 :class "pahe-header hidden-xs" "R99")
-                   (navi)))
-       (:div :class "container"
-             (:p "myid: " (str (myid)))
-             ,@body
-             (:hr)
-             (:span "programmed by hkimura, release "
-                    (str *version*) "."))
+       (:title "R99")
+       (:link :type "text/css" :rel "stylesheet" :href "/r99.css")
+       (:body
+        (:div :class "navbar navbar-default navbar-fixed-top"
+              (:div :class "container"
+                    (:h1 :class "pahe-header hidden-xs" "R99")
+                    (navi)))
+        (:div :class "container"
+              (:p "myid: " (str (myid)))
+              ,@body
+              (:hr)
+              (:span "programmed by hkimura, release "
+                     (str *version*) "."))
 
-       (:script
-        :src "https://code.jquery.com/jquery-3.3.1.slim.min.js"
-        :integrity "sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-        :crossorigin "anonymous")
-       (:script
-        :src "https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-        :integrity "sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-        :crossorigin "anonymous")
-       (:script
-        :src "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-        :integrity "sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-        :crossorigin "anonymous"))))))
+        (:script
+         :src "https://code.jquery.com/jquery-3.3.1.slim.min.js"
+         :integrity "sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+         :crossorigin "anonymous")
+        (:script
+         :src "https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+         :integrity "sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+         :crossorigin "anonymous")
+        (:script
+         :src "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+         :integrity "sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+         :crossorigin "anonymous"))))))
 
 (defun stars-aux (n ret)
   (if (zerop n) ret
@@ -254,8 +252,8 @@
                  (getf row :|myid|)
                  (getf row :|num|)
                  ;; fix. 2018-12-08.
-                 (my-subseq 60 (getf row :|answer|))
-                 ))))
+                 (my-subseq 60 (getf row :|answer|))))))
+
         (redirect "/login"))))
 ;;
 ;; answers
@@ -263,6 +261,7 @@
 
 (define-easy-handler (users-alias :uri "/answers") ()
   (redirect "/others"))
+
 
 ;; FIXED: UTC => JST
 ;; 2018-12-08 以降、記録が JST になる。
@@ -293,7 +292,7 @@ order by users.myid"))
                     (query  "select distinct(myid) from answers
  where now() - timestamp < '48 hours'")))))
 
-     ;; BUG: 回答が一つもないとエラーになる、かな。
+     ;; BUG: 回答が一つもないとエラーになる。
      (htm
       (:li
        (format
@@ -332,16 +331,9 @@ order by users.myid"))
      (htm (:p "受講生 210 人、一題以上回答者 " (str n) " 人。")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; /problems
-;;
-;; (define-easy-handler (index-alias :uri "/") ()
-;;   (page
-;;     (:h1 :class "warn" "WARNING")
-;;     (:p "回答にならない回答出して、他人の回答をコピー、"
-;;         "自分の回答としてアップデートするの良くない。"
-;;     (:p "下らんやつがいると面倒だよ。わからんと思ってるのか？期末テストはダメだね。"
-;;         "何か対策します。")
-;;     (:p (:a :href "/problems" "問題ページ"))))
+;;;
+;;; problems
+;;;
 
 (define-easy-handler (index-alias :uri "/") ()
   (redirect "/problems"))
@@ -350,9 +342,6 @@ order by users.myid"))
   (if (null num)
       0
       num))
-
-;; CHANGED: (count) をどう表示するか？2017 は複雑な SQL 流してた。
-;; answers テーブルから別に引くように。2018-11-14
 
 (define-easy-handler (problems :uri "/problems") ()
   (let ((results
@@ -373,9 +362,9 @@ order by users.myid"))
       (:ul
        (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
        (:li "上の方で定義した関数を利用する場合、上の関数定義は回答に含めないでOK。")
-       (:li "すべての回答関数の上には #include <stdio.h> #include <stdlib.h> があると仮定してよい。（実際にある）")
+       (:li "すべての回答関数の上には #include &lt;stdio.h> #include &lt;stdlib.h> があると仮定してよい。")
        (:li :class "warn"
-          "正真正銘自分作のプログラムでも、動作を確認してないプログラムはゴミです。"))
+            "正真正銘自分作のプログラムでも、動作を確認してないプログラムはゴミです。"))
 
       ;;(:h1 :class "warn" "WARNING")
       ;;(:p :class "warn"
@@ -400,9 +389,18 @@ order by users.myid"))
                          (zero_or_num (gethash num nums))
                          (getf row :|detail|)))))))
 
+(defun detail (num)
+  (let* ((q (format
+             nil
+             "select detail from problems where num='~a'"
+             num))
+         (ret (dbi:fetch (query q))))
+    (unless (null ret)
+      (getf ret :|detail|))))
+
 ;;
-;; add-comment
-;; timestamp は変えない。
+;; comment
+;;
 (define-easy-handler (add-comment :uri "/add-comment") (id comment)
   (let* ((a (dbi:fetch
              (query (format
@@ -424,18 +422,6 @@ order by users.myid"))
     (dbi:fetch (query q))
     (redirect (format nil "/answer?num=~a" (getf a :|num|)))))
 
-(defun detail (num)
-  (let* ((q (format
-             nil
-             "select detail from problems where num='~a'"
-             num))
-         (ret (dbi:fetch (query q))))
-    (unless (null ret)
-      (getf ret :|detail|))))
-
-;;
-;; comment
-;;
 (define-easy-handler (comment :uri "/comment") (id)
   (let ((ret
           (dbi:fetch
@@ -456,6 +442,8 @@ order by users.myid"))
                         :placeholder "暖かいコメントをお願いします。")
              (:p (:input :type "submit" :value "comment")
                  " (your comment is displayed with your myid)")))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun r99-answer (myid num)
   (let* ((q
@@ -537,8 +525,8 @@ order by users.myid"))
           values ('~a', '~a', '~a', now())"
                 myid
                 num
-                (escape-apos old-answer)
-                ))
+                (escape-apos old-answer)))
+
          ;;
          (sql (format
                nil
@@ -551,7 +539,7 @@ order by users.myid"))
     (query sql)
     (redirect "/others")))
 
-;;CHANGED: timestamp -> timestamp
+;;CHANGED: create_at -> timestamp
 (defun insert (myid num answer)
   (let ((sql (format
               nil
@@ -603,11 +591,6 @@ order by users.myid"))
          (ret (dbi:fetch-all (query q))))
     (mapcar (lambda (x) (getf x :|num|)) ret)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; status, login/logout, signin
-;;;
-
 (defun my-password (myid)
   (let* ((q (format
              nil
@@ -616,90 +599,6 @@ order by users.myid"))
          (ret (dbi:fetch (query q))))
     (getf ret :|password|)))
 
-(define-easy-handler (auth :uri "/auth") (id pass)
-  (if (or (myid)
-          (and (not (null id)) (not (null pass))
-               (string= (password  id) pass)))
-      (progn
-        (set-cookie *myid* :value id :max-age 86400)
-        (redirect "/problems"))
-      (redirect "/login")))
-
-(define-easy-handler (login :uri "/login") ()
-  (page
-    (:h2 "LOGIN")
-    (:form :method "post" :action "/auth"
-           (:p "myid")
-           (:p (:input :type "text" :name "id"))
-           (:p "password")
-           (:p (:input :type "password" :name "pass"))
-           (:p (:input :type "submit" :value "login"))
-           (:ul (:li "myid の保存にクッキーを利用しています。
-          ログインできない時はクッキー有効にして再挑戦してください。")))))
-
-(define-easy-handler (logout :uri "/logout") ()
-  (set-cookie *myid* :max-age 0)
-  (redirect "/problems"))
-
-(define-easy-handler (passwd :uri "/passwd") (myid old new1 new2)
-  (let ((stat "パスワードを変更しました。"))
-    (page
-     (:h2 "change password")
-     (if (string= (my-password myid) old)
-         (if (string= new1 new2)
-             (query (format
-                     nil
-                     "update users set password='~a', timestamp='now()' where myid='~a'"
-                     new1
-                     myid))
-             (setf stat "パスワードが一致しません。"))
-         (setf stat "現在のパスワードが一致しません"))
-     (:p (str stat)))))
-
-
-(defun get-new-myid ()
-  (let* ((q (format nil "select myid from users where sid is null"))
-         (ret (dbi:fetch (query q))))
-    (getf ret :|myid|)))
-
-(define-easy-handler (do-signin :uri "/do_signin") (sid jname pass1 pass2)
-  (if (and (= 8 (length sid)) (string= pass1 pass2))
-      (let* ((sid (string-upcase sid))
-             (myid (get-new-myid))
-             (q (format
-                 nil
-                 "update users set sid='~a', password='~a', jname='~a'
-                    where myid='~a'"
-                 sid pass1 jname myid)))
-        (query q)
-        (page
-          (:p (format t "学生番号: ~a " sid))
-          (:p (format t "氏名: ~a" jname))
-          (:p (format t "myid: ~a" myid))
-          (:p (format t "パスワード: ~a" pass1))
-          (:p (format t "myid, パスワードをメモしたら、
-                         <a href='/login'>login</a> からログインしよう。"))))
-      (page
-        (:p "学生番号が不正か、パスワードが一致しません。もう一度"
-            "<a href='/signin'>signin</a>"
-            "からやり直し。"))))
-
-
-(define-easy-handler (signin :uri "/signin") ()
-  (page
-   (:h2 "SIGNIN")
-   (:p "成績用の学生番号と R99 の myid を対応させます。")
-   (:p "サインインに成功すると myid を一度だけ表示するので、"
-       "パスワードと共に覚えること。")
-   (:form :method "post" :action "/do_signin"
-          (:p "学生番号")
-          (:p (:input :type "text" :name "sid"))
-          (:p "氏名")
-          (:p (:input :type "text" :name "jname"))
-          (:p "パスワード（同じのを2回）")
-          (:p (:input :type "password" :name "pass1"))
-          (:p (:input :type "password" :name "pass2"))
-          (:p (:input :type "submit" :value "signin")))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -791,10 +690,6 @@ order by users.myid"))
 ;;;;
 
 
-;;; 2020-10-05
-
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -879,24 +774,6 @@ order by users.myid"))
 answer like '%/* comment from%' order by num"
       id)))))
 
-(defun status-sub (sc)
-  (cond
-    ((< 99 sc)
-     (list "goku.png" " 期末テストは 100 点取れよ！"))
-    ((= 99 sc)
-     (list "sakura.png" " 完走おめでとう！100番以降もやってみよう。"))
-    ((< 80 sc)
-     (list "kame.png" " ゴールはもうちょっと。"))
-    ((< 60 sc)
-     (list "panda.png" " だいぶがんばってるぞ。"))
-    ((< 40 sc)
-     (list "cat2.png" " その調子。"))
-    ((< 20 sc)
-     (list "dog.png" " ペースはつかんだ。"))
-    ((< 0 sc)
-     (list "fuji.png" " 一歩ずつやる。"))
-    (t
-     (list "fight.png" " がんばらねーと。"))))
 
 (define-easy-handler (status :uri "/status") ()
   (if (myid)
@@ -908,59 +785,61 @@ answer like '%/* comment from%' order by num"
              (message (second cheer))
              (jname (get-jname))
              (last-runner (get-last)))
-       (page
-         (:h3 "回答状況")
-         (:p "クリックして問題・回答にジャンプ。")
-         (loop for n from 1 to num-max
-            do
-              (htm (:a :href (format nil "/answer?num=~a" n)
-                       :class (if (find n sv) "found" "not-found")
-                       (str n))))
-         (:p "コメントがついた回答があります --> "
-             (str (answers-with-comment (myid))))
-         ;; (mapcar
-         ;;  (lambda (x) (htm (:p x)))
-         ;;  (answers-with-comment (myid)))
-         (htm (:p (:img :src image) (str message)))
-         (:hr)
-         (:h3 "アクティビティ")
-         (:p "毎日ちょっとずつが実力のもと。一度にたくさんは身にならんやろ。")
-         (:p (:a :href "/activity" "&rArr; activity"))
-         (:hr)
-         (:h3 "ランキング")
-         (:ul
-          (:li "氏名: " (str jname))
-          (:li "回答数: " (str sc))
-          (:li "ランキング: " (str (ranking (myid))) "位 / 246 人"
-               " (最終ランナーは " (str last-runner) "位と表示されます
+        (page
+          (:h3 "回答状況")
+          (:p "クリックして問題・回答にジャンプ。")
+          (loop for n from 1 to num-max
+                do
+                   (htm (:a :href (format nil "/answer?num=~a" n)
+                            :class (if (find n sv) "found" "not-found")
+                            (str n))))
+          (:p "コメントがついた回答があります --> "
+              (str (answers-with-comment (myid))))
+          ;; (mapcar
+          ;;  (lambda (x) (htm (:p x)))
+          ;;  (answers-with-comment (myid)))
+          (htm (:p (:img :src image) (str message)))
+          (:hr)
+          (:h3 "アクティビティ")
+          (:p "毎日ちょっとずつが実力のもと。一度にたくさんは身にならんやろ。")
+          (:p (:a :href "/activity" "&rArr; activity"))
+          (:hr)
+          (:h3 "ランキング")
+          (:ul
+           (:li "氏名: " (str jname))
+           (:li "回答数: " (str sc))
+           (:li "ランキング: " (str (ranking (myid))) "位 / 246 人"
+                " (最終ランナーは " (str last-runner) "位と表示されます
   (無回答者を除く))"))
-         (:hr)
-         (:h3 "自分回答をダウンロード")
-         (:p "全回答を問題番号順にコメントも一緒にダウンロードします。")
-         (:p (:a :href "/download" "&rArr; download"))
-         (:hr)
-         (:h3 "パスワード変更")
-         (:form :method "post" :action "/passwd"
-                (:p "myid (変更不可)")
-                (:p (:input :type "text" :name "myid" :value (str (myid))
-                            :readonly "readonly"))
-                (:p "old password")
-                (:p (:input :type "password" :name "old"))
-                (:p "new password")
-                (:p (:input :type "password" :name "new1"))
-                (:p "new password again (same one)")
-                (:p (:input :type "password" :name "new2"))
-                (:input :type "submit" :value "change"))))
+          (:hr)
+          (:h3 "自分回答をダウンロード")
+          (:p "全回答を問題番号順にコメントも一緒にダウンロードします。")
+          (:p (:a :href "/download" "&rArr; download"))
+          (:hr)
+          (:h3 "パスワード変更")
+          (:form :method "post" :action "/passwd"
+                 (:p "myid (変更不可)")
+                 (:p (:input :type "text" :name "myid" :value (str (myid))
+                             :readonly "readonly"))
+                 (:p "old password")
+                 (:p (:input :type "password" :name "old"))
+                 (:p "new password")
+                 (:p (:input :type "password" :name "new1"))
+                 (:p "new password again (same one)")
+                 (:p (:input :type "password" :name "new2"))
+                 (:input :type "submit" :value "change"))))
       (redirect "/login")))
+
 ;;
-;; activity
+;; menu, activity
 ;;
+
 (define-easy-handler (activity :uri "/activity") ()
   (let ((res
-         (query
-          (format
-           nil
-           "select date(timestamp), count(date(timestamp))
+          (query
+           (format
+            nil
+            "select date(timestamp), count(date(timestamp))
  from answers where myid='~a'
  group by date(timestamp)
  order by date(timestamp) desc" (myid)))))
@@ -968,11 +847,11 @@ answer like '%/* comment from%' order by num"
       (:h2 (str (myid)) " Activity")
       (:hr)
       (loop for row = (dbi:fetch res)
-         while row
-         do
-           (format t "<p>~a ~a</p>"
-                   (yyyy-mm-dd  (getf row :|date|))
-                   (stars (getf row :|count|))))
+            while row
+            do
+               (format t "<p>~a ~a</p>"
+                       (yyyy-mm-dd  (getf row :|date|))
+                       (stars (getf row :|count|))))
       (:p (:a :href "/status" "status") "に戻る"))))
 
 (setf (html-mode) :html5)
@@ -1005,6 +884,99 @@ answer like '%/* comment from%' order by num"
                 (format nil "/~a" i)
                 (format nil "static/~a" i))
                *dispatch-table*))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; status, login/logout, signin
+;;;
+
+(define-easy-handler (auth :uri "/auth") (id pass)
+  (if (or (myid)
+          (and (not (null id)) (not (null pass))
+               (string= (password  id) pass)))
+      (progn
+        (set-cookie *myid* :value id :max-age 86400)
+        (redirect "/problems"))
+      (redirect "/login")))
+
+(define-easy-handler (login :uri "/login") ()
+  (page
+    (:h2 "LOGIN")
+    (:form :method "post" :action "/auth"
+           (:p "myid")
+           (:p (:input :type "text" :name "id"))
+           (:p "password")
+           (:p (:input :type "password" :name "pass"))
+           (:p (:input :type "submit" :value "login"))
+           (:ul (:li "myid の保存にクッキーを利用しています。
+          ログインできない時はクッキー有効にして再挑戦してください。")))))
+
+(define-easy-handler (logout :uri "/logout") ()
+  (set-cookie *myid* :max-age 0)
+  (redirect "/problems"))
+
+(define-easy-handler (passwd :uri "/passwd") (myid old new1 new2)
+  (let ((stat "パスワードを変更しました。"))
+    (page
+     (:h2 "change password")
+     (if (string= (my-password myid) old)
+         (if (string= new1 new2)
+             (query (format
+                     nil
+                     "update users set password='~a', timestamp='now()' where myid='~a'"
+                     new1
+                     myid))
+             (setf stat "パスワードが一致しません。"))
+         (setf stat "現在のパスワードが一致しません"))
+     (:p (str stat)))))
+
+
+(defun get-new-myid ()
+  (let* ((q (format nil "select myid from users where sid is null"))
+         (ret (dbi:fetch (query q))))
+    (getf ret :|myid|)))
+
+(define-easy-handler (do-signin :uri "/do_signin") (sid jname pass1 pass2)
+  (if (and (= 8 (length sid))
+           (string= pass1 pass2)
+           (< 0 (length jname)))
+    (let* ((sid (string-upcase sid))
+           (myid (get-new-myid))
+           (q (format
+               nil
+               "update users
+                 set sid='~a', password='~a', jname='~a', timestamp='now()'
+                 where myid='~a'"
+               sid pass1 jname myid)))
+      (query q)
+      (page
+        (:p (format t "学生番号: ~a " sid))
+        (:p (format t "氏名: ~a" jname))
+        (:p (format t "myid: ~a" myid))
+        (:p (format t "パスワード: ~a" pass1))
+        (:p (format t "myid, パスワードをメモしたら、
+                       <a href='/login'>login</a> からログインしよう。"))))
+   (page
+     (:p "学生番号が不正か、パスワードが一致しません。氏名を正しくタイプしましたか？")
+     (:p "もう一度 <a href='/signin'>signin</a> からやり直してね。"))))
+
+(define-easy-handler (signin :uri "/signin") ()
+  (page
+   (:h2 "SIGNIN")
+   (:p "成績用の学生番号と R99 の myid を対応させます。")
+   (:p "サインインに成功すると myid を一度だけ表示するので、"
+       "パスワードと共に覚えること。")
+   (:form :method "post" :action "/do_signin"
+          (:p "学生番号")
+          (:p (:input :type "text" :name "sid"))
+          (:p "氏名")
+          (:p (:input :type "text" :name "jname"))
+          (:p "パスワード（同じのを2回）")
+          (:p (:input :type "password" :name "pass1"))
+          (:p (:input :type "password" :name "pass2"))
+          (:p (:input :type "submit" :value "signin")))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun start-server (&optional (port *http-port*))
   (publish-static-content)
