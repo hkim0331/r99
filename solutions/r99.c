@@ -8,14 +8,14 @@ void hello_p(void) {
 }
 
 int add1(int x) {
-  return x+1;
+  return x + 1;
 }
 
 void add1_p(void) {
   int x;
 
   scanf("%i", &x);
-  printf("%i\n",add1(x));
+  printf("%i\n", add1(x));
 }
 
 #define PI 3.14
@@ -32,7 +32,7 @@ void en_p(void) {
 }
 
 int even(int x) {
-  return x%2==0;
+  return x%2 == 0;
 }
 
 void even_p(void) {
@@ -47,16 +47,16 @@ void even_p(void) {
 }
 
 int add2(int x, int y) {
-  return x+y;
+  return x + y;
 }
 
 void add2_p(int x, int y) {
-  printf("%i\n",add2(x,y));
+  printf("%i\n", add2(x, y));
 }
 
 //10
 void wa_sa_seki_sho_p(int x, int y) {
-  printf("%i, %i, %i, %i\n", x+y, x-y, x*y, x/y);
+  printf("%i, %i, %i, %i\n", x + y, x - y, x*y, x/y);
 }
 
 int divide(int x, int y) {
@@ -76,7 +76,7 @@ void divide_p(void) {
 }
 
 int abs(int n) {
-  if (0<n) {
+  if (0 < n) {
     return n;
   } else {
     return -n;
@@ -94,7 +94,7 @@ int triple(int n) {
 
 // ループで書いたら間違ったい。
 int power(int n, int m) {
-  if (m==0) {
+  if (m == 0) {
     return 1;
   } else {
     return n*power(n,m-1);
