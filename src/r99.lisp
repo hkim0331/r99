@@ -328,7 +328,7 @@ order by users.myid"))
              (getf row :|count|)))
           (incf n))
 
-     (htm (:p "受講生 210 人、一題以上回答者 " (str n) " 人。")))))
+     (htm (:p "受講生 260 人、一題以上回答者 " (str n) " 人。")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -570,8 +570,8 @@ order by users.myid"))
       ;;  (:li "回答を受け取ってもそれが正解とは限らない。")
       ;;  (:li "submit できたら、他の受講生の回答と自分の回答をよく見比べること。"))
       (:ul
-       (:li :class "warn" "動作確認していない回答出すな。全部、回答は記録してある。")
-       (:li :class "warn" "回答提出後24時間は訂正できないよう変更するので、慎重に回答すること。"))
+       (:li :class "warn" "動作確認していない回答出すな。回答はすべて記録してある。")
+       (:li :class "warn" "回答提出後24時間は訂正できない。慎重に回答すること。"))
       (:form :method "post" :action "/submit"
              (:input :type "hidden" :name "num" :value num)
              (:textarea :name "answer" :cols 60 :rows 10
