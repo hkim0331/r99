@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.26.5")
+(defvar *version* "2.26.6")
 
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
@@ -328,7 +328,7 @@ order by users.myid"))
              (getf row :|count|)))
           (incf n))
 
-     (htm (:p "受講生 210 人、一題以上回答者 " (str n) " 人。")))))
+     (htm (:p "受講生 260 人、一題以上回答者 " (str n) " 人。")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -570,8 +570,8 @@ order by users.myid"))
       ;;  (:li "回答を受け取ってもそれが正解とは限らない。")
       ;;  (:li "submit できたら、他の受講生の回答と自分の回答をよく見比べること。"))
       (:ul
-       (:li :class "warn" "動作確認していない回答出すな。全部、回答は記録してある。")
-       (:li :class "warn" "回答提出後24時間は訂正できないよう変更するので、慎重に回答すること。"))
+       (:li :class "warn" "動作確認していない回答出すな。回答はすべて記録してある。")
+       (:li :class "warn" "回答提出後24時間は訂正できない。慎重に回答すること。"))
       (:form :method "post" :action "/submit"
              (:input :type "hidden" :name "num" :value num)
              (:textarea :name "answer" :cols 60 :rows 10
@@ -691,23 +691,20 @@ order by users.myid"))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-;;; hotfix 1.3.1
-;;; このままでいいや。
+;; changed: 2020-10-24
+;; 全員を回答数で並べて、自分が上から何番目のグループ化を数える。
+;; 重いなあ。
 (defun ranking (id)
-  (let ((uid (parse-integer id)))
-    (if (<= uid 8500)
-        -1
-        (let* ((q "select distinct myid, count(myid) from answers
- group by myid order by count(myid) desc")
-               (ret (query q))
-               (n 1))
-          (loop for row = (dbi:fetch ret)
-             while (and row (not (= uid (getf row :|myid|))))
-             do
-               (incf n))
-          n))))
+  (let* ((uid (parse-integer id))
+         (q "select distinct myid, count(myid) from answers
+               group by myid order by count(myid) desc")
+         (ret (query q))
+         (n 1))
+    (loop for row = (dbi:fetch ret)
+          while (and row (not (= uid (getf row :|myid|))))
+          do
+             (incf n))
+    n))
 ;;;
 ;;; status
 ;;;
@@ -752,15 +749,24 @@ order by users.myid"))
     (query "select count(distinct myid) from answers"))
    :|count|))
 
+;; BUG 名前が返らない。
 (defun get-jname ()
-  (getf
-   (dbi:fetch
-    (query
-     (format
-      nil
-      "select jname from users where myid='~a'"
-      (parse-integer (myid)))))
-   :|jname|))
+  (let* ((myid (myid))
+         (q (format nil "select jname from users where myid='~a'" myid))
+         (ret (dbi:fetch (query q))))
+    ;; (print (format t "myid: ~a" myid))
+    ;; (print (format t "q: ~a" q))
+    ;; (print (format t "ret: ~a" ret))
+    (getf ret :|jname|)))
+
+  ;; (getf
+  ;;  (dbi:fetch
+  ;;   (query
+  ;;    (format
+  ;;     nil
+  ;;     "select jname from users where myid='~a'"
+  ;;     (parse-integer (myid)))))
+  ;;  :|jname|))
 
 ;;CHECK: work?
 (defun answers-with-comment (id)
@@ -808,7 +814,7 @@ answer like '%/* comment from%' order by num"
           (:ul
            (:li "氏名: " (str jname))
            (:li "回答数: " (str sc))
-           (:li "ランキング: " (str (ranking (myid))) "位 / 246 人"
+           (:li "ランキング: " (str (ranking (myid))) "位 / 275 人"
                 " (最終ランナーは " (str last-runner) "位と表示されます
   (無回答者を除く))"))
           (:hr)
