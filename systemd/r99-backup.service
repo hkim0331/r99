@@ -1,15 +1,9 @@
-# under construction
-
 [Unit]
 Description = r99 db backup
 
 [Service]
-WorkingDirectory=/srv/r99/db
-Environment=PGPASSWORD=
-ExecStart=/srv/r99/db/r99-backup.sh
-Type=simple
+Type=oneshot
 User=ubuntu
-
-[Install]
-WantedBy = multi-user.target
-
+Environment=R99_USER=user1
+Environment=PGPASSWORD=pass1
+ExecStart=/srv/r99/db/r99-backup-daily.sh

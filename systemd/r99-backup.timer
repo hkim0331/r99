@@ -1,0 +1,10 @@
+[Unit]
+Desription = backup r99 dabase
+
+[Timer]
+OnStartupSec = 15min
+OnCalendar   = *-*-* 09:30
+Persistent   = true
+
+[Install]
+WantedBy = timers.target
