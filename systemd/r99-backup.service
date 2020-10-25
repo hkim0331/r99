@@ -6,4 +6,4 @@ Type=oneshot
 User=ubuntu
 Environment=R99_USER=
 Environment=PGPASSWORD=
-ExecStart=/some/wheere/r99-backup-daily.sh
+ExecStart=/some/where/r99-backup-daily.sh
