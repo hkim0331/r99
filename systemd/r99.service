@@ -8,11 +8,8 @@ Environment=R99_HOST=
 Environment=R99_USER=
 Environment=R99_PASS=
 ExecStart=/srv/r99/src/r99
-#Restart = always
-#TimeoutSec = 300
 Type=simple
 User=ubuntu
 
 [Install]
 WantedBy = multi-user.target
-
