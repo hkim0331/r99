@@ -4,6 +4,6 @@ Description = r99 db backup
 [Service]
 Type=oneshot
 User=ubuntu
-Environment=R99_USER=user1
-Environment=PGPASSWORD=pass1
-ExecStart=/srv/r99/db/r99-backup-daily.sh
+Environment=R99_USER=
+Environment=PGPASSWORD=
+ExecStart=/some/wheere/r99-backup-daily.sh
