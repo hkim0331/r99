@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.26.6")
+(defvar *version* "2.26.7")
 
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
@@ -328,7 +328,7 @@ order by users.myid"))
              (getf row :|count|)))
           (incf n))
 
-     (htm (:p "受講生 260 人、一題以上回答者 " (str n) " 人。")))))
+     (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
