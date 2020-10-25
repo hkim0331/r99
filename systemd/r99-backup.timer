@@ -1,9 +1,9 @@
 [Unit]
-Desription = backup r99 dabase
+Desription = backup r99 database
 
 [Timer]
 OnStartupSec = 15min
-OnCalendar   = *-*-* 09:30
+OnCalendar   = *-*-* 07:30
 Persistent   = true
 
 [Install]
