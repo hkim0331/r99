@@ -17,7 +17,11 @@
            (destructuring-bind (f s) (ppcre:split " " line)
              (push (cons (parse-integer f) (parse-integer s)) ret)))
       ret)))
-(defparameter *mt* (read-midterm "midterm.txt"))
+
+(defparameter *mt*
+  (if (probe-file "midterm.txt")
+      (read-midterm "midterm.txt")
+      nil))
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
