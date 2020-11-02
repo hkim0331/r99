@@ -8,7 +8,6 @@
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
-;; midterm.txt ファイルがないと立ち上がらないか？
 (defun read-midterm (fname)
   (with-open-file (in fname)
     (let ((ret nil))
