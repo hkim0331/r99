@@ -3,12 +3,11 @@
 
 (in-package :r99)
 
-(defvar *version* "2.27.0")
+(defvar *version* "2.28.0")
 
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
-;; midterm.txt ファイルがないと立ち上がらないか？
 (defun read-midterm (fname)
   (with-open-file (in fname)
     (let ((ret nil))
@@ -37,27 +36,26 @@
         #+sbcl (sb-ext:posix-getenv name)
         default)))
 
-;; 2019-12-18, 関数に変更。
-(defun db-host ()
-  (or (getenv "R99_HOST") "localhost"))
-(defun db-user ()
-  (or (getenv "R99_USER") "user"))
-(defun db-pass ()
-  (or (getenv "R99_PASS") "pass"))
-
-(defvar *db* "r99")
 (defvar *server* nil)
 (defvar *http-port* 3030)
 (defvar *myid* "r99");; cookie name
 
+;; 2019-12-18, 関数に変更。
+;; 2020-11-02, 定数に戻す。
+(defvar db-host  (or (getenv "R99_HOST") "localhost"))
+(defvar db-user  (or (getenv "R99_USER") "user"))
+(defvar db-pass  (or (getenv "R99_PASS") "pass"))
+(defvar db "r99")
+
+
 (defun query (sql)
   (dbi:with-connection
-   (conn :postgres
-         :host (db-host)
-         :username (db-user)
-         :password (db-pass)
-         :database-name *db*)
-   (dbi:execute (dbi:prepare conn sql))))
+    (conn :postgres
+          :host db-host
+          :username db-user
+          :password db-pass
+          :database-name db)
+    (dbi:execute (dbi:prepare conn sql))))
 
 ;; 2020-11-02
 (defun localtime ()
@@ -145,7 +143,7 @@
      " , "
      (:a :href "/signin" "signin")
      "|"
-     (:a :href "/admin" "admin"))))
+     (:a :href "/readme.html" "readme"))))
 
 (defmacro page (&body body)
   `(with-html-output-to-string
@@ -212,6 +210,15 @@
   (getf
    (dbi:fetch (query "select count(*) from answers"))
    :|count|))
+
+;; readme
+;;   admin に変わってメニューに出す。
+;;   当面はスタティックリンクで OK。2020-11-02
+
+;; エラーだな。
+;; (define-easy-handler (readme :uri "/readme") ()
+;;   (let ((content "under construction"))
+;;     (page (list  content))))
 
 ;;
 ;; admin
@@ -877,25 +884,26 @@ answer like '%/* comment from%' order by num"
 ;; dry!
 (defun publish-static-content ()
   (let ((entities
-         '("robots.txt"
-           "favicon.ico"
-           "r99.css"
-           "fuji.png"
-           "panda.png"
-           "kame.png"
-           "dog.png"
-           "cat2.png"
-           "fight.png"
-           "sakura.png"
-           "hakone.jpg"
-           "happy.png"
-           "happier.png"
-           "happiest.png"
-           "goku.png"
-           "guernica.jpg"
-           "kutsugen.jpg"
-           "a-gift-of-the-sea.jpg"
-           "integers.txt")))
+          '("a-gift-of-the-sea.jpg"
+            "cat2.png"
+            "dog.png"
+            "favicon.ico"
+            "fight.png"
+            "fuji.png"
+            "goku.png"
+            "guernica.jpg"
+            "hakone.jpg"
+            "happier.png"
+            "happiest.png"
+            "happy.png"
+            "integers.txt"
+            "kame.png"
+            "kutsugen.jpg"
+            "panda.png"
+            "r99.css"
+            "readme.html"
+            "robots.txt"
+            "sakura.png")))
     (loop for i in entities
        do
          (push (create-static-file-dispatcher-and-handler
@@ -997,6 +1005,9 @@ answer like '%/* comment from%' order by num"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun start-server (&optional (port *http-port*))
+  (if (localtime)
+      (format t "database connection OK.~%")
+      (error "check your datanase connection.~%"))
   (publish-static-content)
   (setf *server* (make-instance 'easy-acceptor
                               :address "0.0.0.0"
