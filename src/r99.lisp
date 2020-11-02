@@ -55,6 +55,12 @@
          :database-name *db*)
    (dbi:execute (dbi:prepare conn sql))))
 
+;; 2020-11-02
+(defun localtime ()
+  (getf
+   (dbi:fetch (query "select localtimestamp::text"))
+   :|localtimestamp|))
+
 (defun password (myid)
   (let ((sql (format
               nil
@@ -401,6 +407,7 @@ order by users.myid"))
 ;;
 ;; comment
 ;;
+
 (define-easy-handler (add-comment :uri "/add-comment") (id comment)
   (let* ((a (dbi:fetch
              (query (format
@@ -410,9 +417,10 @@ order by users.myid"))
          (answer (getf a :|answer|))
          (update-answer (format
                          nil
-                         "~a~%/* comment from ~a,~%~a~%*/"
+                         "~a~%/* comment from ~a at ~a,~%~a~%*/"
                          answer
                          (myid)
+                         (short (localtime))
                          (escape-apos comment)))
          (q (format
              nil
