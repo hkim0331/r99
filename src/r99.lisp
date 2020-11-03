@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.28.2")
+(defvar *version* "2.28.3")
 
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
@@ -228,8 +228,11 @@
      (loop for row = (dbi:fetch ret)
         while row
            do
-              (format t "<p>~a | ~a | ~a</p>"
-                      (short (getf row :|timestamp|)) (getf row :|myid|)  (getf row :|num|))))))
+              (format t "<p>~a | ~a | <a href='/answer?num=~a'>~a</a></p>"
+                      (short (getf row :|timestamp|))
+                      (getf row :|myid|)
+                      (getf row :|num|)
+                      (getf row :|num|))))))
 
 ;;
 ;; admin
@@ -323,14 +326,16 @@ order by users.myid"))
      ;; BUG: 回答が一つもないとエラーになる。
      (htm
       (:li
-       (format
-        t
-        " ~a、~a さんが
-      <a href='/answer?num=~a'>~a</a> に回答しました。<a href='/recent'>最近の10</a>。"
-        (short (getf recent :|timestamp|))
-        (getf recent :|myid|)
-        (getf recent :|num|)
-        (getf recent :|num|)))
+       (format t "<a href='/recent'>最近の 10 回答</a>。"))
+      ;; (:li
+      ;;  (format
+      ;;   t
+      ;;   " ~a、~a さんが
+      ;; <a href='/answer?num=~a'>~a</a> に回答しました。<a href='/recent'>最近の10</a>。"
+      ;;   (short (getf recent :|timestamp|))
+      ;;   (getf recent :|myid|)
+      ;;   (getf recent :|num|)
+      ;;   (getf recent :|num|)))
       (:li
        (format
         t
