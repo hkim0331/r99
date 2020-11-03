@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### [2.28.2] - 2020-11-03
+* /recent 追加。/recent で最近の10、/recent?n=3 で最近の3の
+  timestamp, myid, num を表示する。
+  
+
 ### [2.28.1] - 2020-11-02
 * fix typo.
 
