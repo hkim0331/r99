@@ -326,7 +326,7 @@ order by users.myid"))
      ;; BUG: 回答が一つもないとエラーになる。
      (htm
       (:li
-       (format t "<a href='/recent'>最近の 10 回答</a>。"))
+       (format t "<a href='/recent'>最近の 10 回答</a>。全回答数 ~a。" (count-answers)))
       ;; (:li
       ;;  (format
       ;;   t
@@ -340,9 +340,8 @@ order by users.myid"))
        (format
         t
         "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
-      があった受講生です。全回答数 ~a。"
-        (count-answers)))
-      (:li "( ) は中間テスト、個人ペーパーの点数。")
+      があった受講生です。"))
+      (:li "( ) は中間テスト点数。30点満点。NIL は未受験（再試なし）。")
       (:hr))
 
      (loop for row = (dbi:fetch results)
