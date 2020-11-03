@@ -215,10 +215,21 @@
 ;;   admin に変わってメニューに出す。
 ;;   当面はスタティックリンクで OK。2020-11-02
 
-;; エラーだな。
-;; (define-easy-handler (readme :uri "/readme") ()
-;;   (let ((content "under construction"))
-;;     (page (list  content))))
+
+;; /recent or /recent?n=10 2020-11-03
+(define-easy-handler (recent :uri "/recent") (n)
+  (let* ((nn (or n 10))
+         (q (format
+             nil
+             "select myid,num,timestamp::text from answers order by id desc limit '~a'"
+             nn))
+         (ret (query q)))
+    (page
+     (loop for row = (dbi:fetch ret)
+        while row
+           do
+              (format t "<p>~a | ~a | ~a</p>"
+                      (short (getf row :|timestamp|)) (getf row :|myid|)  (getf row :|num|))))))
 
 ;;
 ;; admin
@@ -315,7 +326,7 @@ order by users.myid"))
        (format
         t
         " ~a、~a さんが
-      <a href='/answer?num=~a'>~a</a> に回答しました。"
+      <a href='/answer?num=~a'>~a</a> に回答しました。<a href='/recent'>最近の10</a>。"
         (short (getf recent :|timestamp|))
         (getf recent :|myid|)
         (getf recent :|num|)
