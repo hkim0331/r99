@@ -3,12 +3,11 @@
 
 (in-package :r99)
 
-(defvar *version* "2.26.5")
+(defvar *version* "2.28.3")
 
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
-;; midterm.txt ファイルがないと立ち上がらないか？
 (defun read-midterm (fname)
   (with-open-file (in fname)
     (let ((ret nil))
@@ -17,7 +16,11 @@
            (destructuring-bind (f s) (ppcre:split " " line)
              (push (cons (parse-integer f) (parse-integer s)) ret)))
       ret)))
-(defparameter *mt* (read-midterm "midterm.txt"))
+
+(defparameter *mt*
+  (if (probe-file "midterm.txt")
+      (read-midterm "midterm.txt")
+      nil))
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -33,27 +36,32 @@
         #+sbcl (sb-ext:posix-getenv name)
         default)))
 
-;; 2019-12-18, 関数に変更。
-(defun db-host ()
-  (or (getenv "R99_HOST") "localhost"))
-(defun db-user ()
-  (or (getenv "R99_USER") "user"))
-(defun db-pass ()
-  (or (getenv "R99_PASS") "pass"))
-
-(defvar *db* "r99")
 (defvar *server* nil)
 (defvar *http-port* 3030)
 (defvar *myid* "r99");; cookie name
 
+;; 2019-12-18, 関数に変更。
+;; 2020-11-02, 定数に戻す。
+(defvar db-host  (or (getenv "R99_HOST") "localhost"))
+(defvar db-user  (or (getenv "R99_USER") "user"))
+(defvar db-pass  (or (getenv "R99_PASS") "pass"))
+(defvar db "r99")
+
+
 (defun query (sql)
   (dbi:with-connection
-   (conn :postgres
-         :host (db-host)
-         :username (db-user)
-         :password (db-pass)
-         :database-name *db*)
-   (dbi:execute (dbi:prepare conn sql))))
+    (conn :postgres
+          :host db-host
+          :username db-user
+          :password db-pass
+          :database-name db)
+    (dbi:execute (dbi:prepare conn sql))))
+
+;; 2020-11-02
+(defun localtime ()
+  (getf
+   (dbi:fetch (query "select localtimestamp::text"))
+   :|localtimestamp|))
 
 (defun password (myid)
   (let ((sql (format
@@ -135,7 +143,7 @@
      " , "
      (:a :href "/signin" "signin")
      "|"
-     (:a :href "/admin" "admin"))))
+     (:a :href "/readme.html" "readme"))))
 
 (defmacro page (&body body)
   `(with-html-output-to-string
@@ -202,6 +210,29 @@
   (getf
    (dbi:fetch (query "select count(*) from answers"))
    :|count|))
+
+;; readme
+;;   admin に変わってメニューに出す。
+;;   当面はスタティックリンクで OK。2020-11-02
+
+
+;; /recent or /recent?n=10 2020-11-03
+(define-easy-handler (recent :uri "/recent") (n)
+  (let* ((nn (or n 10))
+         (q (format
+             nil
+             "select myid,num,timestamp::text from answers order by id desc limit '~a'"
+             nn))
+         (ret (query q)))
+    (page
+     (loop for row = (dbi:fetch ret)
+        while row
+           do
+              (format t "<p>~a | ~a | <a href='/answer?num=~a'>~a</a></p>"
+                      (short (getf row :|timestamp|))
+                      (getf row :|myid|)
+                      (getf row :|num|)
+                      (getf row :|num|))))))
 
 ;;
 ;; admin
@@ -295,14 +326,16 @@ order by users.myid"))
      ;; BUG: 回答が一つもないとエラーになる。
      (htm
       (:li
-       (format
-        t
-        " ~a、~a さんが
-      <a href='/answer?num=~a'>~a</a> に回答しました。"
-        (short (getf recent :|timestamp|))
-        (getf recent :|myid|)
-        (getf recent :|num|)
-        (getf recent :|num|)))
+       (format t "<a href='/recent'>最近の 10 回答</a>。"))
+      ;; (:li
+      ;;  (format
+      ;;   t
+      ;;   " ~a、~a さんが
+      ;; <a href='/answer?num=~a'>~a</a> に回答しました。<a href='/recent'>最近の10</a>。"
+      ;;   (short (getf recent :|timestamp|))
+      ;;   (getf recent :|myid|)
+      ;;   (getf recent :|num|)
+      ;;   (getf recent :|num|)))
       (:li
        (format
         t
@@ -328,7 +361,7 @@ order by users.myid"))
              (getf row :|count|)))
           (incf n))
 
-     (htm (:p "受講生 210 人、一題以上回答者 " (str n) " 人。")))))
+     (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -401,6 +434,7 @@ order by users.myid"))
 ;;
 ;; comment
 ;;
+
 (define-easy-handler (add-comment :uri "/add-comment") (id comment)
   (let* ((a (dbi:fetch
              (query (format
@@ -410,9 +444,10 @@ order by users.myid"))
          (answer (getf a :|answer|))
          (update-answer (format
                          nil
-                         "~a~%/* comment from ~a,~%~a~%*/"
+                         "~a~%/* comment from ~a at ~a,~%~a~%*/"
                          answer
                          (myid)
+                         (short (localtime))
                          (escape-apos comment)))
          (q (format
              nil
@@ -570,8 +605,8 @@ order by users.myid"))
       ;;  (:li "回答を受け取ってもそれが正解とは限らない。")
       ;;  (:li "submit できたら、他の受講生の回答と自分の回答をよく見比べること。"))
       (:ul
-       (:li :class "warn" "動作確認していない回答出すな。全部、回答は記録してある。")
-       (:li :class "warn" "回答提出後24時間は訂正できないよう変更するので、慎重に回答すること。"))
+       (:li :class "warn" "動作確認していない回答出すな。回答はすべて記録してある。")
+       (:li :class "warn" "回答提出後24時間は訂正できない。慎重に回答すること。"))
       (:form :method "post" :action "/submit"
              (:input :type "hidden" :name "num" :value num)
              (:textarea :name "answer" :cols 60 :rows 10
@@ -691,23 +726,20 @@ order by users.myid"))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-;;; hotfix 1.3.1
-;;; このままでいいや。
+;; changed: 2020-10-24
+;; 全員を回答数で並べて、自分が上から何番目のグループ化を数える。
+;; 重いなあ。
 (defun ranking (id)
-  (let ((uid (parse-integer id)))
-    (if (<= uid 8500)
-        -1
-        (let* ((q "select distinct myid, count(myid) from answers
- group by myid order by count(myid) desc")
-               (ret (query q))
-               (n 1))
-          (loop for row = (dbi:fetch ret)
-             while (and row (not (= uid (getf row :|myid|))))
-             do
-               (incf n))
-          n))))
+  (let* ((uid (parse-integer id))
+         (q "select distinct myid, count(myid) from answers
+               group by myid order by count(myid) desc")
+         (ret (query q))
+         (n 1))
+    (loop for row = (dbi:fetch ret)
+          while (and row (not (= uid (getf row :|myid|))))
+          do
+             (incf n))
+    n))
 ;;;
 ;;; status
 ;;;
@@ -752,15 +784,24 @@ order by users.myid"))
     (query "select count(distinct myid) from answers"))
    :|count|))
 
+;; BUG 名前が返らない。
 (defun get-jname ()
-  (getf
-   (dbi:fetch
-    (query
-     (format
-      nil
-      "select jname from users where myid='~a'"
-      (parse-integer (myid)))))
-   :|jname|))
+  (let* ((myid (myid))
+         (q (format nil "select jname from users where myid='~a'" myid))
+         (ret (dbi:fetch (query q))))
+    ;; (print (format t "myid: ~a" myid))
+    ;; (print (format t "q: ~a" q))
+    ;; (print (format t "ret: ~a" ret))
+    (getf ret :|jname|)))
+
+  ;; (getf
+  ;;  (dbi:fetch
+  ;;   (query
+  ;;    (format
+  ;;     nil
+  ;;     "select jname from users where myid='~a'"
+  ;;     (parse-integer (myid)))))
+  ;;  :|jname|))
 
 ;;CHECK: work?
 (defun answers-with-comment (id)
@@ -808,7 +849,7 @@ answer like '%/* comment from%' order by num"
           (:ul
            (:li "氏名: " (str jname))
            (:li "回答数: " (str sc))
-           (:li "ランキング: " (str (ranking (myid))) "位 / 246 人"
+           (:li "ランキング: " (str (ranking (myid))) "位 / 275 人"
                 " (最終ランナーは " (str last-runner) "位と表示されます
   (無回答者を除く))"))
           (:hr)
@@ -859,25 +900,26 @@ answer like '%/* comment from%' order by num"
 ;; dry!
 (defun publish-static-content ()
   (let ((entities
-         '("robots.txt"
-           "favicon.ico"
-           "r99.css"
-           "fuji.png"
-           "panda.png"
-           "kame.png"
-           "dog.png"
-           "cat2.png"
-           "fight.png"
-           "sakura.png"
-           "hakone.jpg"
-           "happy.png"
-           "happier.png"
-           "happiest.png"
-           "goku.png"
-           "guernica.jpg"
-           "kutsugen.jpg"
-           "a-gift-of-the-sea.jpg"
-           "integers.txt")))
+          '("a-gift-of-the-sea.jpg"
+            "cat2.png"
+            "dog.png"
+            "favicon.ico"
+            "fight.png"
+            "fuji.png"
+            "goku.png"
+            "guernica.jpg"
+            "hakone.jpg"
+            "happier.png"
+            "happiest.png"
+            "happy.png"
+            "integers.txt"
+            "kame.png"
+            "kutsugen.jpg"
+            "panda.png"
+            "r99.css"
+            "readme.html"
+            "robots.txt"
+            "sakura.png")))
     (loop for i in entities
        do
          (push (create-static-file-dispatcher-and-handler
@@ -979,6 +1021,9 @@ answer like '%/* comment from%' order by num"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun start-server (&optional (port *http-port*))
+  (if (localtime)
+      (format t "database connection OK.~%")
+      (error "check your datanase connection.~%"))
   (publish-static-content)
   (setf *server* (make-instance 'easy-acceptor
                               :address "0.0.0.0"
