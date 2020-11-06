@@ -918,7 +918,8 @@ answer like '%/* comment from%' order by num"
             "r99.css"
             "readme.html"
             "robots.txt"
-            "sakura.png")))
+            "sakura.png"
+            "sorry-2900.png")))
     (loop for i in entities
        do
          (push (create-static-file-dispatcher-and-handler
