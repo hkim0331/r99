@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.28.5")
+(defvar *version* "2.28.6")
 
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
@@ -918,7 +918,8 @@ answer like '%/* comment from%' order by num"
             "r99.css"
             "readme.html"
             "robots.txt"
-            "sakura.png")))
+            "sakura.png"
+            "sorry-2900.png")))
     (loop for i in entities
        do
          (push (create-static-file-dispatcher-and-handler
