@@ -133,9 +133,9 @@
     (:p
      (:a :href "/problems" "problems")
      " | "
-     (:a :href "/others" "others")
+     (:a :href "/others" "users")
      " | "
-     (:a :href "/status" "status")
+     (:a :href "/status" "my")
      " | "
      (:a :href "/login" "login")
      " / "
@@ -271,8 +271,7 @@
         (let* ((ret (query "select id, timestamp::text, myid, num,
   answer from old_answers order by id desc")))
           (page
-           (:p "db-host: " (str (db-host)))
-           (loop for row = (dbi:fetch ret)
+            (loop for row = (dbi:fetch ret)
               while row
               do
                 (format
