@@ -133,9 +133,9 @@
     (:p
      (:a :href "/problems" "problems")
      " | "
-     (:a :href "/others" "others")
+     (:a :href "/others" "users")
      " | "
-     (:a :href "/status" "status")
+     (:a :href "/status" "my")
      " | "
      (:a :href "/login" "login")
      " / "
