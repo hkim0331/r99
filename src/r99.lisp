@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.28.6")
+(defvar *version* "2.29.0")
 
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
@@ -497,6 +497,23 @@ order by users.myid"))
           order by timestamp desc
           limit 5" (myid) num)))
 
+
+(define-easy-handler (old-version :uri "/old-version") (myid num)
+  (let* ((q (format
+              nil
+              "select answer, timestamp::text from old_answers where myid='~a' and num='~a'"
+              myid
+              num))
+         (ret (dbi:fetch (query q))))
+    (if ret
+        (page
+          (:h4 (format t "~a, at ~a," num (getf ret :|timestamp|)))
+          (:pre (str (escape (getf ret :|answer|))))
+          (:p "back to " (:a :href (format nil "/answer?num=~a" num) "answers")))
+        (page
+          (:p "no previous versions")
+          (:p "back to " (:a :href (format nil "/answer?num=~a" num) "answers"))))))
+
 (defun show-answers (num)
   (let ((my-answer (r99-answer (myid) num))
         (other-answers (r99-other-answers num)))
@@ -512,18 +529,20 @@ order by users.myid"))
              (:br)
              (:input :type "submit" :value "update"))
       (:br)
-      (:h3 "others")
+      (:h3 "other users' answers")
       (loop for row = (dbi:fetch other-answers)
             while row
             do (format
                 t
-                "<b>~a</b>
-          at ~a,
-          <a href='/comment?id=~a'> comment</a>
+                "<b>~a</b> at ~a,
+          <a href='/comment?id=~a'> comment</a>,
+          <a href='/old-version?myid=~a&num=~a'>update from</a>,
           <pre class='answer'><code>~a</code></pre><hr>"
                 (getf row :|myid|)
                 (short (getf row :|timestamp|))
                 (getf row :|id|)
+                (getf row :|myid|)
+                num
                 (escape (getf row :|answer|))))
       (format
        t
@@ -638,20 +657,22 @@ order by users.myid"))
 ;;1.23.3, 1.23.9
 ;;now() が思った通りの値を返さないか？
 ;;bugfix: localtimestamp だ。
+;;
+;; sin-bin 3hours. 2020-11-09
 (define-easy-handler (update-answer :uri "/update-answer") (num answer)
   (let* ((now (getf (dbi:fetch (query "select localtimestamp")) :|localtimestamp|))
-         (q (format nil "select timestamp + interval '1 day' from answers where myid='~a' and num='~a'" (myid) num))
-         (after-1-day (second (dbi:fetch (query q)))))
-    (if (< after-1-day now)
+         (q (format nil "select timestamp + interval '3 hour' from answers where myid='~a' and num='~a'" (myid) num))
+         (sin-bin (second (dbi:fetch (query q)))))
+    (if (< sin-bin now)
         (if (check answer)
             (update (myid) num answer)
             (page
              (:h3 "error")
              (:p "ビルドできない。バグ混入？")))
         (page
-         (:h2 (format t "Sin-Bin: ~a seconds" (- after-1-day now)))
-         (:p "他人の回答をコピって出すのが目に付く。24時間以内のアップデートは禁止にしました。")
-         (:p "バカな野郎が数人いるだけでみんなが迷惑。悪事はバレる。自覚しなさい。")))))
+         (:h2 (format t "Sin-Bin: ~a seconds" (- sin-bin now)))
+         (:p "一定時間以内のアップデートは禁止です。")
+         (:p "バカな野郎が数人いるだけでみんなが迷惑。")))))
 
 (define-easy-handler (submit :uri "/submit") (num answer)
   (if (myid)
@@ -707,7 +728,7 @@ order by users.myid"))
                "select num, answer from answers where myid='~a' order by num"
                (myid)))))
         (page
-         (:pre :class "download" "#include &lt;stdio.h>
+         (:pre :class "download" "#include &lt))));stdio.h>
 #include &lt;stdlib.h>")
          (loop for row = (dbi:fetch ret)
             while row
