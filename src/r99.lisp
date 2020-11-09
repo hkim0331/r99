@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.29.1")
+(defvar *version* "2.29.2")
 
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
@@ -473,7 +473,7 @@ order by users.myid"))
              (:input :type "hidden" :name "id" :value id)
              (:textarea :rows 5 :cols 50 :name "comment"
                         :placeholder "暖かいコメントをお願いします。")
-             (:p (:input :type "submit" :value "comment")
+             (:p (:input :type "submit" :value "comment" :class "btn btn-sm btn-info")
                  " (your comment is displayed with your myid)")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -491,7 +491,7 @@ order by users.myid"))
 (defun r99-other-answers (num)
   (query (format
           nil
-          "select id, myid, answer, timestamp::text from answers
+          "select id, myid, answer, timestamp::text from answers))
           where not (myid='~a') and not (myid='8000') and not (myid='8001')
           and num='~a'
           order by timestamp desc
@@ -536,7 +536,7 @@ order by users.myid"))
             do (format
                 t
                 "<b>~a</b> at ~a
-          <a href='/comment?id=~a' class='btn btn-sm btn-primary'> comment</a>
+          <a href='/comment?id=~a' class='btn btn-sm btn-info'> comment</a>
           <a href='/old-version?myid=~a&num=~a' class='btn btn-sm btn-success'>prev version</a>
           <pre class='answer'><code>~a</code></pre><hr>"
                 (getf row :|myid|)
