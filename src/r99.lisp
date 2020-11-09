@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.29.2")
+(defvar *version* "2.29.3")
 
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
@@ -528,7 +528,7 @@ order by users.myid"))
                         :rows (+ 1 (count #\linefeed my-answer :test #'equal))
                         (str (unescape-apos my-answer)))
              (:br)
-             (:input :type "submit" :value "update" :class "btn btn-sm btn btn-warning"))
+             (:input :type "submit" :value "update"))
       (:br)
       (:h3 "other users' answers")
       (loop for row = (dbi:fetch other-answers)
