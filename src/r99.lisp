@@ -514,6 +514,7 @@ order by users.myid"))
           (:p "no previous versions")
           (:p "back to " (:a :href (format nil "/answer?num=~a" num) "answers"))))))
 
+
 (defun show-answers (num)
   (let ((my-answer (r99-answer (myid) num))
         (other-answers (r99-other-answers num)))
@@ -527,16 +528,16 @@ order by users.myid"))
                         :rows (+ 1 (count #\linefeed my-answer :test #'equal))
                         (str (unescape-apos my-answer)))
              (:br)
-             (:input :type "submit" :value "update"))
+             (:input :type "submit" :value "update" :class "btn btn-sm btn btn-warning"))
       (:br)
       (:h3 "other users' answers")
       (loop for row = (dbi:fetch other-answers)
             while row
             do (format
                 t
-                "<b>~a</b> at ~a,
-          <a href='/comment?id=~a'> comment</a>,
-          <a href='/old-version?myid=~a&num=~a'>update from</a>,
+                "<b>~a</b> at ~a
+          <a href='/comment?id=~a' class='btn btn-sm btn-primary'> comment</a>
+          <a href='/old-version?myid=~a&num=~a' class='btn btn-sm btn-success'>prev version</a>
           <pre class='answer'><code>~a</code></pre><hr>"
                 (getf row :|myid|)
                 (short (getf row :|timestamp|))
@@ -633,7 +634,7 @@ order by users.myid"))
           中間テスト・期末テストで確実に負けるから。
           マジ勉した方がいい。")
              (:br)
-             (:input :type "submit")))))
+             (:input :type "submit" :class "btn btn-sm btn-primary")))))
 
 (defun solved (myid)
   (let* ((q (format
@@ -711,6 +712,7 @@ order by users.myid"))
             (:h3 "error")
             (:p "ビルドできない。プログラムにエラーがあるぞ。")))
       (redirect "/login")))
+
 
 (define-easy-handler (answer :uri "/answer") (num)
   (if (myid)
