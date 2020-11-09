@@ -520,7 +520,7 @@ order by users.myid"))
         (other-answers (r99-other-answers num)))
     (page
       (:p (format t "~a, ~a" num (detail num)))
-      (:h3 "your answer")
+      (:h3 "Your Answer")
       (:form :class "answer" :method "post" :action "/update-answer"
              (:input :type "hidden" :name "num" :value num)
              (:textarea :name "answer"
@@ -530,7 +530,7 @@ order by users.myid"))
              (:br)
              (:input :type "submit" :value "update" :class "btn btn-sm btn-warning"))
       (:br)
-      (:h3 "other users' answers")
+      (:h3 "Others")
       (loop for row = (dbi:fetch other-answers)
             while row
             do (format
