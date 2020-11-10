@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.29.4")
+(defvar *version* "2.29.5")
 
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
@@ -530,7 +530,7 @@ order by users.myid"))
              (:br)
              (:input :type "submit" :value "update" :class "btn btn-sm btn-warning"))
       (:br)
-      (:h3 "Others")
+      (:h3 "Other Users' Answers")
       (loop for row = (dbi:fetch other-answers)
             while row
             do (format

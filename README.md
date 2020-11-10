@@ -6,6 +6,10 @@
 
 
 ## Released
+
+### [2.29.5] - 2020-11-10
+* fix typo, add advices to students.
+
 ### [2.29.4] - 2020-11-09
 * FIXED 2.29.0-2.29.3 の間でエンバグ。
 
