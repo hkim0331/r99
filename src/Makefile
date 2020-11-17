@@ -2,6 +2,8 @@ all: r99
 
 rerun: clean r99 run
 
+dev: run
+
 run:
 	ros r99.ros
 

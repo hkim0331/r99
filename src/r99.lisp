@@ -623,8 +623,12 @@ order by users.myid"))
       ;;  (:li "回答を受け取ってもそれが正解とは限らない。")
       ;;  (:li "submit できたら、他の受講生の回答と自分の回答をよく見比べること。"))
       (:ul
+       (:li :class "warn" "48番以降の回答は、回答の前にどんな方針で問題を解くか、"
+            "その for, if は何をしようとしてるか、コメント書こう。"
+            "何をやろうとしているのか、わかりにくい回答が多い。")
        (:li :class "warn" "動作確認していない回答出すな。回答はすべて記録してある。")
-       (:li :class "warn" "回答提出後24時間は訂正できない。慎重に回答すること。"))
+       (:li :class "warn" "回答提出後 3 時間は訂正できない。慎重に回答すること。"))
+
       (:form :method "post" :action "/submit"
              (:input :type "hidden" :name "num" :value num)
              (:textarea :name "answer" :cols 60 :rows 10
@@ -730,7 +734,7 @@ order by users.myid"))
                "select num, answer from answers where myid='~a' order by num"
                (myid)))))
         (page
-         (:pre :class "download" "#include &lt))));stdio.h>
+         (:pre :class "download" "#include &lt)))));stdio.h>
 #include &lt;stdlib.h>")
          (loop for row = (dbi:fetch ret)
             while row
