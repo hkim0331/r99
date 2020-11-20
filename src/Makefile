@@ -17,7 +17,7 @@ r99:
 
 install: r99
 	sudo systemctl stop r99
-	install r99 /srv/r99/
+	# install r99 /srv/r99/
 	rsync static/* /srv/r99/static/
 	sudo systemctl start r99
 
