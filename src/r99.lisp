@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.30.0")
+(defvar *version* "2.30.3")
 
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
@@ -714,7 +714,7 @@ order by users.myid"))
                 "ブラウザのバックで戻り、"
                 "回答の最初、関数定義の上にコメントを書き足して、"
                 "再提出してください。")
-            (:p "p11, p22, p41 の hkimura(2999) の回答を参考に。")
+            (:p "p1, p11, p22, p41 の hkimura(2999) の回答を参考に。")
             ))
       (redirect "/login")))
 
