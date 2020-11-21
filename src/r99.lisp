@@ -710,10 +710,12 @@ order by users.myid"))
           (page
             (:h3 "error")
             (:p "問題を解くアイデア、アプローチを関数定義の前に"
-                 "コメントで書いてもらうことにしました。"
-                 "ブラウザのバックで戻り、"
-                 "回答の最初、関数定義の上にコメントを書き足して、"
-                 "再提出してください。")))
+                "コメントで書いてもらうことにしました。"
+                "ブラウザのバックで戻り、"
+                "回答の最初、関数定義の上にコメントを書き足して、"
+                "再提出してください。")
+            (:p "p11, p22, p41 の hkimura(2999) の回答を参考に。")
+            ))
       (redirect "/login")))
 
 
@@ -730,7 +732,7 @@ order by users.myid"))
              (query
               (format
                nil
-               "select num, answer from answers where myid='~a' order by num"
+               "select num, answer from answers where myid='~a' order b y num"
                (myid)))))
         (page
          (:pre :class "download" "#include &lt;stdio.h>
