@@ -7,6 +7,9 @@
 
 ## Released
 
+### [2.30.0] - 2020-11-21
+* 回答にはコメント必要とする。
+
 ### [2.29.5] - 2020-11-10
 * fix typo, add advices to students.
 
