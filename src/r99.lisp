@@ -114,6 +114,7 @@
 
 (defun check (answer)
   (and
+   (scan "^/" answer) ;; has comment?
    (scan "\\S" answer)
    (let* ((cl-fad:*default-template* "temp%.c")
           (pathname (with-output-to-temporary-file (f)
@@ -666,8 +667,8 @@ order by users.myid"))
         (if (check answer)
             (update (myid) num answer)
             (page
-             (:h3 "error")
-             (:p "ビルドできない。バグ混入？")))
+             (:h3 "error"
+              (:p "ビルドに失敗。アップデートでバグが入ったか？"))))
         (page
          (:h2 (format t "Sin-Bin: ~a seconds" (- sin-bin now)))
          (:p "一定時間以内のアップデートは禁止です。")
@@ -708,7 +709,11 @@ order by users.myid"))
                    "、行く？"))))
           (page
             (:h3 "error")
-            (:p "ビルドできない。プログラムにエラーがあるぞ。")))
+            (:p "問題を解くアイデア、アプローチを関数定義の前に"
+                 "コメントで書いてもらうことにしました。"
+                 "ブラウザのバックで戻り、"
+                 "回答の最初、関数定義の上にコメントを書き足して、"
+                 "再提出してください。")))
       (redirect "/login")))
 
 
@@ -728,7 +733,7 @@ order by users.myid"))
                "select num, answer from answers where myid='~a' order by num"
                (myid)))))
         (page
-         (:pre :class "download" "#include &lt)))));stdio.h>
+         (:pre :class "download" "#include &lt;stdio.h>
 #include &lt;stdlib.h>")
          (loop for row = (dbi:fetch ret)
             while row
