@@ -1,5 +1,5 @@
 (defpackage r99
-    (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
+  (:use :cl :cl-dbi :cl-who :cl-ppcre :cl-fad :hunchentoot))
 
 (in-package :r99)
 
@@ -326,7 +326,11 @@ order by users.myid"))
      ;; BUG: 回答が一つもないとエラーになる。
      (htm
       (:li
-       (format t "<a href='/recent'>最近の 10 回答</a>。全回答数 ~a。" (count-answers)))
+       (format
+        t
+        "<a href='/recent'>最近の 10 回答</a>。最新は ~a、全回答数 ~a。"
+        (short (getf recent :|timestamp|))
+        (count-answers)))
       ;; (:li
       ;;  (format
       ;;   t
