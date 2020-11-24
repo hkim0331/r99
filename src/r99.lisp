@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.29.6")
+(defvar *version* "2.30.3")
 
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
@@ -114,6 +114,7 @@
 
 (defun check (answer)
   (and
+   (scan "^/" answer) ;; has comment?
    (scan "\\S" answer)
    (let* ((cl-fad:*default-template* "temp%.c")
           (pathname (with-output-to-temporary-file (f)
@@ -614,17 +615,15 @@ order by users.myid"))
     (page
       (:h2 "submit your answer to " (str num))
       (:p (str d))
-      ;; (:ul :class "warn"
-      ;;  (:li "自分の理解を深めようとしない点数稼ぎは教員の労力、"
-      ;;       "採点の無駄時間が増えるだけ。<br>"
-      ;;       "やめましょう。"
-      ;;       "理解が深まらないままじゃ期末テストでも挽回できないよ。")
-      ;;  (:li "ビルドできない回答は受け取らない。")
-      ;;  (:li "回答を受け取ってもそれが正解とは限らない。")
-      ;;  (:li "submit できたら、他の受講生の回答と自分の回答をよく見比べること。"))
       (:ul
-       (:li :class "warn" "動作確認していない回答出すな。回答はすべて記録してある。")
-       (:li :class "warn" "回答提出後24時間は訂正できない。慎重に回答すること。"))
+       (:li :class "warn" "同じような回答とともに、わかりにくい回答が増えている。"
+            "どんな方針で問題を解こうとするのか、"
+            "その for, if で何をするのか、回答にコメントを入れよう。")
+       (:li :class "warn" "動作確認していない回答出すな。減点。")
+       (:li :class "warn" "回答提出後 3 時間は訂正できない。慎重に回答すること。")
+       (:li :class "warn" "submit したら他の回答と自分の回答をよく見比べること。"))
+
+
       (:form :method "post" :action "/submit"
              (:input :type "hidden" :name "num" :value num)
              (:textarea :name "answer" :cols 60 :rows 10
@@ -668,8 +667,8 @@ order by users.myid"))
         (if (check answer)
             (update (myid) num answer)
             (page
-             (:h3 "error")
-             (:p "ビルドできない。バグ混入？")))
+             (:h3 "error"
+              (:p "ビルドに失敗。アップデートでバグが入ったか？"))))
         (page
          (:h2 (format t "Sin-Bin: ~a seconds" (- sin-bin now)))
          (:p "一定時間以内のアップデートは禁止です。")
@@ -710,7 +709,13 @@ order by users.myid"))
                    "、行く？"))))
           (page
             (:h3 "error")
-            (:p "ビルドできない。プログラムにエラーがあるぞ。")))
+            (:p "問題を解くアイデア、アプローチを関数定義の前に"
+                "コメントで書いてもらうことにしました。"
+                "ブラウザのバックで戻り、"
+                "回答の最初、関数定義の上にコメントを書き足して、"
+                "再提出してください。")
+            (:p "p1, p11, p22, p41 の hkimura(2999) の回答を参考に。")
+            ))
       (redirect "/login")))
 
 
@@ -727,10 +732,10 @@ order by users.myid"))
              (query
               (format
                nil
-               "select num, answer from answers where myid='~a' order by num"
+               "select num, answer from answers where myid='~a' order b y num"
                (myid)))))
         (page
-         (:pre :class "download" "#include &lt))));stdio.h>
+         (:pre :class "download" "#include &lt;stdio.h>
 #include &lt;stdlib.h>")
          (loop for row = (dbi:fetch ret)
             while row
