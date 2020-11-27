@@ -301,78 +301,80 @@
 
 (define-easy-handler (users :uri "/others") ()
   (page
-    ;;    (:p (:img :src "/guernica.jpg" :width "100%"))
-    ;; (:p (:img :src "/kutsugen.jpg" :width "100%"))
-    ;; (:p :align "right" "「屈原」横山大観(1868-1958), 1898.")
-    (:h1)
-    (:p :style "color:red; font-size: 24pt"
-        "ただ単に回答を埋めるために r99 やってないか？"
-        "r99 はスマして回答しているのに、"
-        "中間テストはまったく全然カスリもしないてのが目に付く。"
-        "大丈夫か？"
-        "引き数、戻り値、副作用わからんで r99 続けても無駄だぞ。"
-        "君らに必要なのは再試よりも勉強だ。moodle の授業資料を最初から読み返せ。")
-    (:h2 "誰が何問?")
-    (let* ((n 0)
-           (recent
-             (dbi:fetch
-              (query "select myid, num, timestamp::text from answers
- order by timestamp desc limit 1")))
-           (results
-             (query "select users.myid, count(distinct answer)
-from users
-inner join answers
-on users.myid=answers.myid
-group by users.myid
-order by users.myid"))
-           (working-users
-             (mapcar (lambda (x) (getf x :|myid|))
-                     (dbi:fetch-all
-                      (query  "select distinct(myid) from answers
- where now() - timestamp < '48 hours'")))))
+   ;;    (:p (:img :src "/guernica.jpg" :width "100%"))
+   ;; (:p (:img :src "/kutsugen.jpg" :width "100%"))
+   ;; (:p :align "right" "「屈原」横山大観(1868-1958), 1898.")
+   (:h1)
+   (:p :style "color:red; font-size: 24pt"
+       "中間テスト。まったく全然カスリもしないってのが目に付く。"
+       "ただ単に回答を埋めるために r99 やってないか？"
+       "スマホで回答の融通はガチためにならん。"
+       "君らに必要なのは一発逆転の再試よりも地道な勉強だ。"
+       "moodle の授業資料を最初から読み返したらどうか？"
+       "そんな努力をせんで試験対策はゴミ以下やろ。"
+       "コロナは学生にサボる口実を与えただけか。"
+       "そんな学生は九工大の終わりの始まりになるよきっと。")
+   (:h2 "誰が何問?")
+   (let* ((n 0)
+          (recent
+           (dbi:fetch
+            (query "select myid, num, timestamp::text from answers
+       order by timestamp desc limit 1")))
+          (results
+           (query "select users.myid, count(distinct answer)
+       from users
+       inner join answers
+       on users.myid=answers.myid
+       group by users.myid
+       order by users.myid"))
+          (working-users
+           (mapcar (lambda (x) (getf x :|myid|))
+                   (dbi:fetch-all
+                    (query  "select distinct(myid) from answers
+       where now() - timestamp < '48 hours'")))))
 
-      ;; BUG: 回答が一つもないとエラーになる。
-      (htm
-       (:li
-        (format
-         t
-         "<a href='/recent'>最近の 10 回答</a>。最新は ~a、全回答数 ~a。"
-         (short (getf recent :|timestamp|))
-         (count-answers)))
-       ;; (:li
-       ;;  (format
-       ;;   t
-       ;;   " ~a、~a さんが
-       ;; <a href='/answer?num=~a'>~a</a> に回答しました。<a href='/recent'>最近の10</a>。"
-       ;;   (short (getf recent :|timestamp|))
-       ;;   (getf recent :|myid|)
-       ;;   (getf recent :|num|)
-       ;;   (getf recent :|num|)))
-       (:li
-        (format
-         t
-         "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
+     ;; BUG: 回答が一つもないとエラーになる。
+     (htm
+      (:li
+       (format
+        t
+        "<a href='/recent'>最近の 10 回答</a>。最新は ~a、全回答数 ~a。"
+        (short (getf recent :|timestamp|))
+        (count-answers)))
+      ;; (:li
+      ;;  (format
+      ;;   t
+      ;;   " ~a、~a さんが
+      ;; <a href='/answer?num=~a'>~a</a> に回答しました。<a href='/recent'>最近の10</a>。"
+      ;;   (short (getf recent :|timestamp|))
+      ;;   (getf recent :|myid|)
+      ;;   (getf recent :|num|)
+      ;;   (getf recent :|num|)))
+      (:li
+       (format
+        t
+        "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
       があった受講生です。"))
-       (:li "( ) は中間テスト点数。30点満点。NIL は未受験（再試なし）。")
-       (:hr))
+      (:li "( ) は中間テスト点数。30点満点。NIL は未受験（再試なし）。")
+      (:hr))
 
-      (loop for row = (dbi:fetch results)
-            while row
-            do
-               (let* ((myid (getf row :|myid|))
-                      (working (if (find myid working-users) "yes" "no")))
-                 (format
-                  t
-                  "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
-                  working
-                  myid
-                  (cdr (assoc myid *mt*))
-                  (stars (getf row :|count|))
-                  myid
-                  (getf row :|count|)))
-               (incf n))
+     (loop for row = (dbi:fetch results)
+           while row
+           do
+           (let* ((myid (getf row :|myid|))
+                  (working (if (find myid working-users) "yes" "no")))
+             (format
+              t
+              "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
+              working
+              myid
+              (cdr (assoc myid *mt*))
+              (stars (getf row :|count|))
+              myid
+              (getf row :|count|)))
+           (incf n))
 
-      (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
+     (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -394,23 +396,24 @@ order by users.myid"))
          (query "select num, count(*) from answers group by num"))
         (nums (make-hash-table)))
     (loop for row = (dbi:fetch answers)
-       while row
-       do
-         (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
+          while row
+          do
+          (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
     (page
      ;;(:h1 :style "color:red; font-size:24pt" "🔥UNDER CONSTRUCTION🔥")
      ;;(:p "利用開始までもうちょっと。")
      ;;(:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
      ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
      (:h1)
-     (:p :style "color:red; font-size: 24pt"
+     (:p :style "color:orange; font-size: 24pt"
          "ただ単に回答を埋めるために r99 やってないか？"
          "r99 はスマして回答しているのに、"
          "中間テストはまったく全然カスリもしないてのが目に付く。"
-         "嘘は高くつくぞ。"
+         "嘘は高くつく。"
          "引き数、戻り値、副作用、しっかりわからん時は"
          "moodle の授業資料を最初から読み返せ。"
-         "214 で待ってるよ。")
+         "要領よく単位取ろうとするやつは嫌いです。"
+         "真面目に努力する学生には付き合います。214で待ってるよ。")
      (:h2 "problems")
      (:ul
       (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
@@ -433,14 +436,14 @@ order by users.myid"))
 
      (:hr)
      (loop for row = (dbi:fetch results)
-        while row
-        do
-          (let ((num (getf row :|num|)))
-            (format t "<p><a href='/answer?num=~a'>~a</a>(~a) ~a</p>~%"
-                    num
-                    num
-                    (zero_or_num (gethash num nums))
-                    (getf row :|detail|)))))))
+           while row
+           do
+           (let ((num (getf row :|num|)))
+             (format t "<p><a href='/answer?num=~a'>~a</a>(~a) ~a</p>~%"
+                     num
+                     num
+                     (zero_or_num (gethash num nums))
+                     (getf row :|detail|)))))))
 
 (defun detail (num)
   (let* ((q (format
