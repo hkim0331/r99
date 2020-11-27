@@ -307,9 +307,9 @@
     (:h1)
     (:p :style "color:red; font-size: 24pt"
         "ただ単に回答を埋めるために r99 やってないか？"
-        "r99 はスマして回答しているクセに、"
+        "r99 はスマして回答しているのに、"
         "中間テストはまったく全然カスリもしないてのが目に付く。"
-        "大丈夫か？そんな嘘を続けてて？。"
+        "大丈夫か？"
         "引き数、戻り値、副作用わからんで r99 続けても無駄だぞ。"
         "君らに必要なのは再試よりも勉強だ。moodle の授業資料を最初から読み返せ。")
     (:h2 "誰が何問?")
@@ -389,57 +389,58 @@ order by users.myid"))
 
 (define-easy-handler (problems :uri "/problems") ()
   (let ((results
-          (query "select num, detail from problems order by num"))
+         (query "select num, detail from problems order by num"))
         (answers
-          (query "select num, count(*) from answers group by num"))
+         (query "select num, count(*) from answers group by num"))
         (nums (make-hash-table)))
     (loop for row = (dbi:fetch answers)
-          while row
-          do
-             (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
+       while row
+       do
+         (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
     (page
-      ;;(:h1 :style "color:red; font-size:24pt" "🔥UNDER CONSTRUCTION🔥")
-      ;;(:p "利用開始までもうちょっと。")
-      ;;(:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
-      ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
-      (:h1)
-      (:p :style "color:red; font-size: 24pt"
-          "ただ単に回答を埋めるために r99 やってないか？"
-          "r99 はスマして回答しているクセに、"
-          "中間テストはまったく全然カスリもしないてのが目に付く。"
-          "大丈夫か？そんな嘘を続けてて？。"
-          "引き数、戻り値、副作用わからんで r99 続けても無駄だぞ。"
-          "君らに必要なのは再試よりも勉強だ。moodle の授業資料を最初から読み返せ。")
-      (:h2 "problems")
-      (:ul
-       (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
-       (:li "上の方で定義した関数を利用する場合、上の関数定義は回答に含めないでOK。")
-       (:li "すべての回答関数の上には #include &lt;stdio.h> #include &lt;stdlib.h> があると仮定してよい。")
-       (:li :class "warn"
-            "正真正銘自分作のプログラムでも、動作を確認してないプログラムはゴミです。"))
+     ;;(:h1 :style "color:red; font-size:24pt" "🔥UNDER CONSTRUCTION🔥")
+     ;;(:p "利用開始までもうちょっと。")
+     ;;(:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
+     ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
+     (:h1)
+     (:p :style "color:red; font-size: 24pt"
+         "ただ単に回答を埋めるために r99 やってないか？"
+         "r99 はスマして回答しているのに、"
+         "中間テストはまったく全然カスリもしないてのが目に付く。"
+         "嘘は高くつくぞ。"
+         "引き数、戻り値、副作用、しっかりわからん時は"
+         "moodle の授業資料を最初から読み返せ。"
+         "214 で待ってるよ。")
+     (:h2 "problems")
+     (:ul
+      (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
+      (:li "上の方で定義した関数を利用する場合、上の関数定義は回答に含めないでOK。")
+      (:li "すべての回答関数の上には #include &lt;stdio.h> #include &lt;stdlib.h> があると仮定してよい。")
+      (:li :class "warn"
+           "正真正銘自分作のプログラムでも、動作を確認してないプログラムはゴミです。"))
 
-      ;;(:h1 :class "warn" "WARNING")
-      ;;(:p :class "warn"
-      ;;    "回答にならない答を一旦提出、他人の回答をコピーし、"
-      ;;    "自分の回答としてアップデートするの、やめよう。"
-      ;;    "発覚しないと思っていたら大間違い。")
-      ;;(:p :class "warnwarn" "と授業で何度も言っても、"
-      ;;    "ここに書いてもわからない奴がいるな。myid は 9037。"
-      ;;    " <a href='https://r.hkim.jp/9037.html'>そいつの回答</a>、"
-      ;;    "見てみよう、全部 hello, robocar だから。"
-      ;;    "回答変更できないようパスワード変えた。しばらく晒しとく。単位はあるかな？"
-      ;;    (:span :class "warn" "ないでしょ。"))
+     ;;(:h1 :class "warn" "WARNING")
+     ;;(:p :class "warn"
+     ;;    "回答にならない答を一旦提出、他人の回答をコピーし、"
+     ;;    "自分の回答としてアップデートするの、やめよう。"
+     ;;    "発覚しないと思っていたら大間違い。")
+     ;;(:p :class "warnwarn" "と授業で何度も言っても、"
+     ;;    "ここに書いてもわからない奴がいるな。myid は 9037。"
+     ;;    " <a href='https://r.hkim.jp/9037.html'>そいつの回答</a>、"
+     ;;    "見てみよう、全部 hello, robocar だから。"
+     ;;    "回答変更できないようパスワード変えた。しばらく晒しとく。単位はあるかな？"
+     ;;    (:span :class "warn" "ないでしょ。"))
 
-      (:hr)
-      (loop for row = (dbi:fetch results)
-            while row
-            do
-               (let ((num (getf row :|num|)))
-                 (format t "<p><a href='/answer?num=~a'>~a</a>(~a) ~a</p>~%"
-                         num
-                         num
-                         (zero_or_num (gethash num nums))
-                         (getf row :|detail|)))))))
+     (:hr)
+     (loop for row = (dbi:fetch results)
+        while row
+        do
+          (let ((num (getf row :|num|)))
+            (format t "<p><a href='/answer?num=~a'>~a</a>(~a) ~a</p>~%"
+                    num
+                    num
+                    (zero_or_num (gethash num nums))
+                    (getf row :|detail|)))))))
 
 (defun detail (num)
   (let* ((q (format
