@@ -301,70 +301,78 @@
 
 (define-easy-handler (users :uri "/others") ()
   (page
-   ;;    (:p (:img :src "/guernica.jpg" :width "100%"))
-   (:p (:img :src "/kutsugen.jpg" :width "100%"))
-   (:p :align "right" "「屈原」横山大観(1868-1958), 1898.")
-   (:h2 "誰が何問?")
-   (let* ((n 0)
-          (recent
-           (dbi:fetch
-            (query "select myid, num, timestamp::text from answers
+    ;;    (:p (:img :src "/guernica.jpg" :width "100%"))
+    ;; (:p (:img :src "/kutsugen.jpg" :width "100%"))
+    ;; (:p :align "right" "「屈原」横山大観(1868-1958), 1898.")
+    (:h1)
+    (:p :style "color:red; font-size: 24pt"
+        "ただ単に回答を埋めるために r99 やってないか？"
+        "r99 はスマして回答しているクセに、"
+        "中間テストはまったく全然カスリもしないてのが目に付く。"
+        "大丈夫か？そんな嘘を続けてて？。"
+        "引き数、戻り値、副作用わからんで r99 続けても無駄だぞ。"
+        "君らに必要なのは再試よりも勉強だ。moodle の授業資料を最初から読み返せ。")
+    (:h2 "誰が何問?")
+    (let* ((n 0)
+           (recent
+             (dbi:fetch
+              (query "select myid, num, timestamp::text from answers
  order by timestamp desc limit 1")))
-          (results
-           (query "select users.myid, count(distinct answer)
+           (results
+             (query "select users.myid, count(distinct answer)
 from users
 inner join answers
 on users.myid=answers.myid
 group by users.myid
 order by users.myid"))
-          (working-users
-           (mapcar (lambda (x) (getf x :|myid|))
-                   (dbi:fetch-all
-                    (query  "select distinct(myid) from answers
+           (working-users
+             (mapcar (lambda (x) (getf x :|myid|))
+                     (dbi:fetch-all
+                      (query  "select distinct(myid) from answers
  where now() - timestamp < '48 hours'")))))
 
-     ;; BUG: 回答が一つもないとエラーになる。
-     (htm
-      (:li
-       (format
-        t
-        "<a href='/recent'>最近の 10 回答</a>。最新は ~a、全回答数 ~a。"
-        (short (getf recent :|timestamp|))
-        (count-answers)))
-      ;; (:li
-      ;;  (format
-      ;;   t
-      ;;   " ~a、~a さんが
-      ;; <a href='/answer?num=~a'>~a</a> に回答しました。<a href='/recent'>最近の10</a>。"
-      ;;   (short (getf recent :|timestamp|))
-      ;;   (getf recent :|myid|)
-      ;;   (getf recent :|num|)
-      ;;   (getf recent :|num|)))
-      (:li
-       (format
-        t
-        "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
+      ;; BUG: 回答が一つもないとエラーになる。
+      (htm
+       (:li
+        (format
+         t
+         "<a href='/recent'>最近の 10 回答</a>。最新は ~a、全回答数 ~a。"
+         (short (getf recent :|timestamp|))
+         (count-answers)))
+       ;; (:li
+       ;;  (format
+       ;;   t
+       ;;   " ~a、~a さんが
+       ;; <a href='/answer?num=~a'>~a</a> に回答しました。<a href='/recent'>最近の10</a>。"
+       ;;   (short (getf recent :|timestamp|))
+       ;;   (getf recent :|myid|)
+       ;;   (getf recent :|num|)
+       ;;   (getf recent :|num|)))
+       (:li
+        (format
+         t
+         "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
       があった受講生です。"))
-      (:li "( ) は中間テスト点数。30点満点。NIL は未受験（再試なし）。")
-      (:hr))
+       (:li "( ) は中間テスト点数。30点満点。NIL は未受験（再試なし）。")
+       (:hr))
 
-     (loop for row = (dbi:fetch results)
-        while row
-        do
-          (let* ((myid (getf row :|myid|))
-                 (working (if (find myid working-users) "yes" "no")))
-            (format
-             t
-             "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
-             working
-             myid
-             (cdr (assoc myid *mt*))
-             (stars (getf row :|count|))
-             myid
-             (getf row :|count|)))
-          (incf n))
+      (loop for row = (dbi:fetch results)
+            while row
+            do
+               (let* ((myid (getf row :|myid|))
+                      (working (if (find myid working-users) "yes" "no")))
+                 (format
+                  t
+                  "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
+                  working
+                  myid
+                  (cdr (assoc myid *mt*))
+                  (stars (getf row :|count|))
+                  myid
+                  (getf row :|count|)))
+               (incf n))
 
-     (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
+      (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -392,8 +400,16 @@ order by users.myid"))
     (page
       ;;(:h1 :style "color:red; font-size:24pt" "🔥UNDER CONSTRUCTION🔥")
       ;;(:p "利用開始までもうちょっと。")
-      (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
-      (:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
+      ;;(:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
+      ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
+      (:h1)
+      (:p :style "color:red; font-size: 24pt"
+          "ただ単に回答を埋めるために r99 やってないか？"
+          "r99 はスマして回答しているクセに、"
+          "中間テストはまったく全然カスリもしないてのが目に付く。"
+          "大丈夫か？そんな嘘を続けてて？。"
+          "引き数、戻り値、副作用わからんで r99 続けても無駄だぞ。"
+          "君らに必要なのは再試よりも勉強だ。moodle の授業資料を最初から読み返せ。")
       (:h2 "problems")
       (:ul
        (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
