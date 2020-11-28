@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.30.3")
+(defvar *version* "2.30.5")
 
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
@@ -302,26 +302,35 @@
 (define-easy-handler (users :uri "/others") ()
   (page
    ;;    (:p (:img :src "/guernica.jpg" :width "100%"))
-   (:p (:img :src "/kutsugen.jpg" :width "100%"))
-   (:p :align "right" "「屈原」横山大観(1868-1958), 1898.")
+   ;; (:p (:img :src "/kutsugen.jpg" :width "100%"))
+   ;; (:p :align "right" "「屈原」横山大観(1868-1958), 1898.")
+   (:h1)
+   (:p :style "color:red; font-size: 24pt"
+       "ただ単に回答を埋めるために r99 やってないか？"
+       "スマホで回答の融通はガチためにならん。"
+       "君らに必要なのは一発逆転の再試よりも地道な勉強だ。"
+       "moodle の授業資料を最初から読み返したらどうか？"
+       "そんな努力をせん試験対策はゴミ以下やろ。"
+       "コロナは学生にサボる口実を与えただけか。"
+       )
    (:h2 "誰が何問?")
    (let* ((n 0)
           (recent
            (dbi:fetch
             (query "select myid, num, timestamp::text from answers
- order by timestamp desc limit 1")))
+       order by timestamp desc limit 1")))
           (results
            (query "select users.myid, count(distinct answer)
-from users
-inner join answers
-on users.myid=answers.myid
-group by users.myid
-order by users.myid"))
+       from users
+       inner join answers
+       on users.myid=answers.myid
+       group by users.myid
+       order by users.myid"))
           (working-users
            (mapcar (lambda (x) (getf x :|myid|))
                    (dbi:fetch-all
                     (query  "select distinct(myid) from answers
- where now() - timestamp < '48 hours'")))))
+       where now() - timestamp < '48 hours'")))))
 
      ;; BUG: 回答が一つもないとエラーになる。
      (htm
@@ -349,20 +358,20 @@ order by users.myid"))
       (:hr))
 
      (loop for row = (dbi:fetch results)
-        while row
-        do
-          (let* ((myid (getf row :|myid|))
-                 (working (if (find myid working-users) "yes" "no")))
-            (format
-             t
-             "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
-             working
-             myid
-             (cdr (assoc myid *mt*))
-             (stars (getf row :|count|))
-             myid
-             (getf row :|count|)))
-          (incf n))
+           while row
+           do
+           (let* ((myid (getf row :|myid|))
+                  (working (if (find myid working-users) "yes" "no")))
+             (format
+              t
+              "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
+              working
+              myid
+              (cdr (assoc myid *mt*))
+              (stars (getf row :|count|))
+              myid
+              (getf row :|count|)))
+           (incf n))
 
      (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
 
@@ -381,49 +390,58 @@ order by users.myid"))
 
 (define-easy-handler (problems :uri "/problems") ()
   (let ((results
-          (query "select num, detail from problems order by num"))
+         (query "select num, detail from problems order by num"))
         (answers
-          (query "select num, count(*) from answers group by num"))
+         (query "select num, count(*) from answers group by num"))
         (nums (make-hash-table)))
     (loop for row = (dbi:fetch answers)
           while row
           do
-             (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
+          (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
     (page
-      ;;(:h1 :style "color:red; font-size:24pt" "🔥UNDER CONSTRUCTION🔥")
-      ;;(:p "利用開始までもうちょっと。")
-      (:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
-      (:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
-      (:h2 "problems")
-      (:ul
-       (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
-       (:li "上の方で定義した関数を利用する場合、上の関数定義は回答に含めないでOK。")
-       (:li "すべての回答関数の上には #include &lt;stdio.h> #include &lt;stdlib.h> があると仮定してよい。")
-       (:li :class "warn"
-            "正真正銘自分作のプログラムでも、動作を確認してないプログラムはゴミです。"))
+     ;;(:h1 :style "color:red; font-size:24pt" "🔥UNDER CONSTRUCTION🔥")
+     ;;(:p "利用開始までもうちょっと。")
+     ;;(:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
+     ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
+     (:h1)
+     (:p :style "color:orange; font-size: 24pt"
+         "ただ単に回答を埋めるために r99 やってないか？"
+         "r99 はスマして回答しているのに、"
+         "中間テストはまったく全然カスリもしないてのが目に付く。"
+         "引き数、戻り値、副作用、しっかりわからん時は"
+         "moodle の授業資料を最初から読み返せ。"
+         "要領よく単位だけ取ろうとするやつは嫌いです。"
+         "真面目に努力する学生には付き合います。")
+     (:h2 "problems")
+     (:ul
+      (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
+      (:li "上の方で定義した関数を利用する場合、上の関数定義は回答に含めないでOK。")
+      (:li "すべての回答関数の上には #include &lt;stdio.h> #include &lt;stdlib.h> があると仮定してよい。")
+      (:li :class "warn"
+           "正真正銘自分作のプログラムでも、動作を確認してないプログラムはゴミです。"))
 
-      ;;(:h1 :class "warn" "WARNING")
-      ;;(:p :class "warn"
-      ;;    "回答にならない答を一旦提出、他人の回答をコピーし、"
-      ;;    "自分の回答としてアップデートするの、やめよう。"
-      ;;    "発覚しないと思っていたら大間違い。")
-      ;;(:p :class "warnwarn" "と授業で何度も言っても、"
-      ;;    "ここに書いてもわからない奴がいるな。myid は 9037。"
-      ;;    " <a href='https://r.hkim.jp/9037.html'>そいつの回答</a>、"
-      ;;    "見てみよう、全部 hello, robocar だから。"
-      ;;    "回答変更できないようパスワード変えた。しばらく晒しとく。単位はあるかな？"
-      ;;    (:span :class "warn" "ないでしょ。"))
+     ;;(:h1 :class "warn" "WARNING")
+     ;;(:p :class "warn"
+     ;;    "回答にならない答を一旦提出、他人の回答をコピーし、"
+     ;;    "自分の回答としてアップデートするの、やめよう。"
+     ;;    "発覚しないと思っていたら大間違い。")
+     ;;(:p :class "warnwarn" "と授業で何度も言っても、"
+     ;;    "ここに書いてもわからない奴がいるな。myid は 9037。"
+     ;;    " <a href='https://r.hkim.jp/9037.html'>そいつの回答</a>、"
+     ;;    "見てみよう、全部 hello, robocar だから。"
+     ;;    "回答変更できないようパスワード変えた。しばらく晒しとく。単位はあるかな？"
+     ;;    (:span :class "warn" "ないでしょ。"))
 
-      (:hr)
-      (loop for row = (dbi:fetch results)
-            while row
-            do
-               (let ((num (getf row :|num|)))
-                 (format t "<p><a href='/answer?num=~a'>~a</a>(~a) ~a</p>~%"
-                         num
-                         num
-                         (zero_or_num (gethash num nums))
-                         (getf row :|detail|)))))))
+     (:hr)
+     (loop for row = (dbi:fetch results)
+           while row
+           do
+           (let ((num (getf row :|num|)))
+             (format t "<p><a href='/answer?num=~a'>~a</a>(~a) ~a</p>~%"
+                     num
+                     num
+                     (zero_or_num (gethash num nums))
+                     (getf row :|detail|)))))))
 
 (defun detail (num)
   (let* ((q (format
