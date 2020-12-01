@@ -3,19 +3,41 @@
 
 (in-package :r99)
 
-(defvar *version* "2.30.5")
+(defvar *version* "2.30.6")
 
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
 (defun read-midterm (fname)
-  (with-open-file (in fname)
+  (with-open-file
+      (in fname)
     (let ((ret nil))
       (loop for line = (read-line in nil)
-         while line do
-           (destructuring-bind (f s) (ppcre:split " " line)
-             (push (cons (parse-integer f) (parse-integer s)) ret)))
+            while line do
+              (destructuring-bind
+                  (f s) (ppcre:split " " line)
+                (push (cons (parse-integer f) (parse-integer s)) ret)))
       ret)))
+
+(read-midterm "midterm.txt")
+
+(defun read-env (name)
+  (with-open-file
+      (in "env.sh")
+    (let ((ret nil))
+      (loop for line = (read-line in nil)
+            while line do
+              (when (ppcre:scan "export" line)
+                (destructuring-bind
+                    (e b) (ppcre:split " " line)
+                  (when (string= "export" e)
+                    (destructuring-bind
+                        (k v) (ppcre:split "=" b)
+                      (when (string= name k)
+                        (setf ret v)))))))
+      ret)))
+
+;;(read-env "R99_USER")
 
 (defparameter *mt*
   (if (probe-file "midterm.txt")
@@ -42,19 +64,19 @@
 
 ;; 2019-12-18, 関数に変更。
 ;; 2020-11-02, 定数に戻す。
-(defvar db-host  (or (getenv "R99_HOST") "localhost"))
-(defvar db-user  (or (getenv "R99_USER") "user"))
-(defvar db-pass  (or (getenv "R99_PASS") "pass"))
+(defvar db-host  (or (read-env "R99_HOST") (getenv "R99_HOST") "localhost"))
+(defvar db-user  (or (read-env "R99_USER") (getenv "R99_USER") "user"))
+(defvar db-pass  (or (read-env "R99_PASS") (getenv "R99_PASS") "pass"))
 (defvar db "r99")
-
+db-user
 
 (defun query (sql)
   (dbi:with-connection
-    (conn :postgres
-          :host db-host
-          :username db-user
-          :password db-pass
-          :database-name db)
+      (conn :postgres
+            :host db-host
+            :username db-user
+            :password db-pass
+            :database-name db)
     (dbi:execute (dbi:prepare conn sql))))
 
 ;; 2020-11-02
