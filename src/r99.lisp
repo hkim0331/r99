@@ -147,7 +147,7 @@ db-user
                       (write-string answer f)))
           (ret (sb-ext:run-program
                 "/usr/bin/cc"
-                `("-fsyntax-only" ,(namestring pathname)))))
+                `("-w -fsyntax-only" ,(namestring pathname)))))
      (delete-file pathname)
      (= 0 (sb-ext:process-exit-code ret)))))
 
