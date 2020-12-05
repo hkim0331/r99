@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.30.6")
+(defvar *version* "2.32.0")
 
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
@@ -147,7 +147,7 @@ db-user
                       (write-string answer f)))
           (ret (sb-ext:run-program
                 "/usr/bin/cc"
-                `("-fsyntax-only" ,(namestring pathname)))))
+                `("-w -fsyntax-only" ,(namestring pathname)))))
      (delete-file pathname)
      (= 0 (sb-ext:process-exit-code ret)))))
 
@@ -326,15 +326,14 @@ db-user
    ;;    (:p (:img :src "/guernica.jpg" :width "100%"))
    ;; (:p (:img :src "/kutsugen.jpg" :width "100%"))
    ;; (:p :align "right" "「屈原」横山大観(1868-1958), 1898.")
+   ;; (:p :style "color:red; font-size: 24pt"
+   ;;     "ただ単に回答を埋めるために r99 やってないか？"
+   ;;     "スマホで回答の融通はガチためにならん。"
+   ;;     "君らに必要なのは一発逆転の再試よりも地道な勉強だ。"
+   ;;     "moodle の授業資料を最初から読み返したらどうか？"
+   ;;     "そんな努力をせん試験対策はゴミ以下やろ。"
+   ;;     "コロナは学生にサボる口実を与えただけか。")
    (:h1)
-   (:p :style "color:red; font-size: 24pt"
-       "ただ単に回答を埋めるために r99 やってないか？"
-       "スマホで回答の融通はガチためにならん。"
-       "君らに必要なのは一発逆転の再試よりも地道な勉強だ。"
-       "moodle の授業資料を最初から読み返したらどうか？"
-       "そんな努力をせん試験対策はゴミ以下やろ。"
-       "コロナは学生にサボる口実を与えただけか。"
-       )
    (:h2 "誰が何問?")
    (let* ((n 0)
           (recent
@@ -426,14 +425,14 @@ db-user
      ;;(:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
      ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
      (:h1)
-     (:p :style "color:orange; font-size: 24pt"
-         "ただ単に回答を埋めるために r99 やってないか？"
-         "r99 はスマして回答しているのに、"
-         "中間テストはまったく全然カスリもしないてのが目に付く。"
-         "引き数、戻り値、副作用、しっかりわからん時は"
-         "moodle の授業資料を最初から読み返せ。"
-         "要領よく単位だけ取ろうとするやつは嫌いです。"
-         "真面目に努力する学生には付き合います。")
+     ;; (:p :style "color:orange; font-size: 24pt"
+     ;;     "ただ単に回答を埋めるために r99 やってないか？"
+     ;;     "r99 はスマして回答しているのに、"
+     ;;     "中間テストはまったく全然カスリもしないてのが目に付く。"
+     ;;     "引き数、戻り値、副作用、しっかりわからん時は"
+     ;;     "moodle の授業資料を最初から読み返せ。"
+     ;;     "要領よく単位だけ取ろうとするやつは嫌いです。"
+     ;;     "真面目に努力する学生には付き合います。")
      (:h2 "problems")
      (:ul
       (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
