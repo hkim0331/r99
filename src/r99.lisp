@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.32.0")
+(defvar *version* "2.32.1")
 
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
@@ -19,23 +19,23 @@
                 (push (cons (parse-integer f) (parse-integer s)) ret)))
       ret)))
 
-(read-midterm "midterm.txt")
-
+;; required.
+;; moved to start-server
+;;(read-midterm "midterm.txt")
+;; hard to read
 (defun read-env (name)
-  (with-open-file
-      (in "env.sh")
-    (let ((ret nil))
-      (loop for line = (read-line in nil)
-            while line do
-              (when (ppcre:scan "export" line)
-                (destructuring-bind
-                    (e b) (ppcre:split " " line)
-                  (when (string= "export" e)
-                    (destructuring-bind
-                        (k v) (ppcre:split "=" b)
-                      (when (string= name k)
-                        (setf ret v)))))))
-      ret)))
+  (when (probe-file name)
+    (with-open-file (in "env.sh")
+      (let ((ret nil))
+        (loop for line = (read-line in nil)
+              while line do
+                (when (ppcre:scan "export" line)
+                  (destructuring-bind (e b) (ppcre:split " " line)
+                    (when (string= "export" e)
+                      (destructuring-bind (k v) (ppcre:split "=" b)
+                        (when (string= name k)
+                          (setf ret v)))))))
+        ret))))
 
 ;;(read-env "R99_USER")
 
@@ -1094,11 +1094,12 @@ answer like '%/* comment from%' order by num"
   (if (localtime)
       (format t "database connection OK.~%")
       (error "check your datanase connection.~%"))
+  (read-midterm "midterm.txt")
   (publish-static-content)
   (setf *server* (make-instance 'easy-acceptor
-                              :address "0.0.0.0"
-                              :port port
-                              :document-root #p "."))
+                                :address "0.0.0.0"
+                                :port port
+                                :document-root #p "."))
   (start *server*)
   (format t "r99-~a started at ~d.~%" *version* port))
 
