@@ -3,7 +3,7 @@
 |#
 
 (defsystem "r99"
-:version "2.32.1"
+  :version "2.32.2"
   :author "Hiroshi Kimura"
   :license ""
   :depends-on ("cl-dbi"
@@ -12,8 +12,8 @@
                "cl-ppcre"
                "hunchentoot")
   :components ((:module "src"
-                        :components
-                        ((:file "r99"))))
+                :components
+                ((:file "r99"))))
 
   :description ""
   :long-description
