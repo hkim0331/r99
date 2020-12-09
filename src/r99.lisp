@@ -775,7 +775,7 @@ db-user
              (query
               (format
                nil
-               "select num, answer from answers where myid='~a' order b y num"
+               "select num, answer from answers where myid='~a' order by num"
                (myid)))))
         (page
          (:pre :class "download" "#include &lt;stdio.h>
