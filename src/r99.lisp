@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.32.1")
+(defvar *version* "2.32.4")
 
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
@@ -22,21 +22,24 @@
 ;; required.
 ;; moved to start-server
 ;;(read-midterm "midterm.txt")
-;; hard to read
-(defun read-env (name)
-  (when (probe-file name)
-    (with-open-file (in "env.sh")
-      (let ((ret nil))
-        (loop for line = (read-line in nil)
-              while line do
-                (when (ppcre:scan "export" line)
-                  (destructuring-bind (e b) (ppcre:split " " line)
-                    (when (string= "export" e)
-                      (destructuring-bind (k v) (ppcre:split "=" b)
-                        (when (string= name k)
-                          (setf ret v)))))))
-        ret))))
 
+
+;; hard to read
+;; (defun read-env (name)
+;;   (with-open-file (in "env.sh")
+;;     (let ((ret nil))
+;;       (loop for line = (read-line in nil)
+;;             while line do
+;;               (when (ppcre:scan "export" line)
+;;                 (print line)
+;;                 (destructuring-bind (e b) (ppcre:split " " line)
+;;                   (when (string= "export" e)
+;;                     (destructuring-bind (k v) (ppcre:split "=" b)
+;;                       (when (string= name k)
+;;                         (setf ret v)))))))
+;;       ret)))
+(defun read-env (name)
+  nil)
 ;;(read-env "R99_USER")
 
 (defparameter *mt*
@@ -147,7 +150,7 @@ db-user
                       (write-string answer f)))
           (ret (sb-ext:run-program
                 "/usr/bin/cc"
-                `("-w -fsyntax-only" ,(namestring pathname)))))
+                (list "-w" "-fsyntax-only" (namestring pathname)))))
      (delete-file pathname)
      (= 0 (sb-ext:process-exit-code ret)))))
 
