@@ -57,6 +57,7 @@ int find_max_dupli(int a[], int n) {
   return find_max_at(c, 100);
 }
 
+/* main() はこんな感じ。
 int main(void) {
   int n=200;
   int a[n];
@@ -66,3 +67,4 @@ int main(void) {
   printf("max dupli = %i\n",find_max_dupli(a,n));
   return 0;
 }
+*/
