@@ -1,0 +1,57 @@
+body { color: black;
+       background: white;
+     }
+
+pre {
+
+}
+
+pre.answer {
+/*
+ border: 1pt solid gray;
+*/
+    padding: 5px;
+    user-select:none;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -khtml-user-select:none;
+    -webkit-user-drag:none;
+    -khtml-user-drag:none;
+}
+
+pre.download {
+
+}
+
+form.answer {
+    font-family: monospace, serif;
+}
+
+a.found {
+    background: #3399ff;
+    color: white;
+}
+
+a.not-found {
+}
+
+p.mono {
+    font-family: monospace, serif;
+}
+
+span.yes {
+    color: red;
+}
+
+.warn {
+    color: red;
+}
+
+.warnwarn {
+    color: white;
+    background-color: red;
+}
+.blue {
+    color: blue;
+}
+
