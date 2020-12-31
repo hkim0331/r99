@@ -7,6 +7,9 @@
 
 ## Released
 
+### [2.33.4] - 2020-12-31
+* ADDED: by-numbers と同じく、by-answers プロット。
+
 ### [2.33.3] - 2020-12-31
 * CHANGED: submit したらコメントを促すメッセージ。
 * ADDED: make reinstall で svg をアップデートする。
