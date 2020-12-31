@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.33.3")
+(defvar *version* "2.33.4")
 
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
@@ -336,25 +336,28 @@ db-user
    ;;     "moodle の授業資料を最初から読み返したらどうか？"
    ;;     "そんな努力をせん試験対策はゴミ以下やろ。"
    ;;     "コロナは学生にサボる口実を与えただけか。")
+   (:p (:img :src "/by-answers.svg" :width "80%"))
+   (:p :align "center"
+       "グラフは手動で作成してます。横軸：回答をあげた数。縦軸：人数。")
    (:h1)
    (:h2 "誰が何問?")
    (let* ((n 0)
           (recent
            (dbi:fetch
             (query "select myid, num, timestamp::text from answers
-       order by timestamp desc limit 1")))
+            order by timestamp desc limit 1")))
           (results
            (query "select users.myid, count(distinct answer)
-       from users
-       inner join answers
-       on users.myid=answers.myid
-       group by users.myid
-       order by users.myid"))
+            from users
+            inner join answers
+            on users.myid=answers.myid
+            group by users.myid
+            order by users.myid"))
           (working-users
            (mapcar (lambda (x) (getf x :|myid|))
                    (dbi:fetch-all
                     (query  "select distinct(myid) from answers
-       where now() - timestamp < '48 hours'")))))
+            where now() - timestamp < '48 hours'")))))
 
      ;; BUG: 回答が一つもないとエラーになる。
      (htm
@@ -429,7 +432,8 @@ db-user
      ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
      (:h1)
      (:p (:img :src "/by-numbers.svg" :with "80%"))
-     (:p "(グラフは手動で作成してます。数日ごとにアップデートします。)")
+     (:p :align "center"
+         "グラフは手動で作成してます。数日ごとにアップデートします。")
      ;; (:p :style "color:orange; font-size: 24pt"
      ;;     "ただ単に回答を埋めるために r99 やってないか？"
      ;;     "r99 はスマして回答しているのに、"
@@ -974,34 +978,35 @@ answer like '%/* comment from%' order by num"
 ;; dry!
 (defun publish-static-content ()
   (let ((entities
-          '("a-gift-of-the-sea.jpg"
-            "cat2.png"
-            "dog.png"
-            "favicon.ico"
-            "fight.png"
-            "fuji.png"
-            "goku.png"
-            "guernica.jpg"
-            "hakone.jpg"
-            "happier.png"
-            "happiest.png"
-            "happy.png"
-            "integers.txt"
-            "kame.png"
-            "kutsugen.jpg"
-            "panda.png"
-            "r99.css"
-            "readme.html"
-            "robots.txt"
-            "sakura.png"
-            "sorry-2900.png"
-            "by-numbers.svg")))
+         '("a-gift-of-the-sea.jpg"
+           "cat2.png"
+           "dog.png"
+           "favicon.ico"
+           "fight.png"
+           "fuji.png"
+           "goku.png"
+           "guernica.jpg"
+           "hakone.jpg"
+           "happier.png"
+           "happiest.png"
+           "happy.png"
+           "integers.txt"
+           "kame.png"
+           "kutsugen.jpg"
+           "panda.png"
+           "r99.css"
+           "readme.html"
+           "robots.txt"
+           "sakura.png"
+           "sorry-2900.png"
+           "by-numbers.svg"
+           "by-answers.svg")))
     (loop for i in entities
-       do
-         (push (create-static-file-dispatcher-and-handler
-                (format nil "/~a" i)
-                (format nil "static/~a" i))
-               *dispatch-table*))))
+          do
+          (push (create-static-file-dispatcher-and-handler
+                 (format nil "/~a" i)
+                 (format nil "static/~a" i))
+                *dispatch-table*))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
