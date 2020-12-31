@@ -18,8 +18,8 @@ clean:
 	${RM} r99 *.bak
 
 plot:
-	(cd plot-by-numbers && make all)
-	(cd plot-by-answers && make all)
+	(cd plot-by-numbers && make clean all)
+	(cd plot-by-answers && make clean all)
 
 reinstall:
 	make clean plot install
