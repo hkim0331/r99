@@ -7,6 +7,10 @@
 
 ## Released
 
+### [2.33.1] - 2020-12-31
+* REMOVED: app.melt で r99/static を git add/commit してしまった間違いを
+  取り消す。static は r99/src/static にあるべき。
+
 ### [2.33.0] - 2020-12-31
 * ADDED: plot-by-numbers 設問ごとの回答数を svg グラフにセーブ。
   /problems ページの上部に表示する。
