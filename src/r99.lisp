@@ -337,26 +337,28 @@ db-user
    ;;     "そんな努力をせん試験対策はゴミ以下やろ。"
    ;;     "コロナは学生にサボる口実を与えただけか。")
    (:p (:img :src "/by-answers.svg" :width "80%"))
-   (:p "グラフは手動で作成してます。横軸：回答をあげた数。縦軸：人数。")
+   (:p "横軸：回答数、縦軸：回答数答えた人の数。"
+       "グラフの積分値が受講生の数になる。"
+       "グラフは数日ごとに手動作成します。")
    (:h1)
    (:h2 "誰が何問?")
    (let* ((n 0)
           (recent
            (dbi:fetch
             (query "select myid, num, timestamp::text from answers
-            order by timestamp desc limit 1")))
+       order by timestamp desc limit 1")))
           (results
            (query "select users.myid, count(distinct answer)
-            from users
-            inner join answers
-            on users.myid=answers.myid
-            group by users.myid
-            order by users.myid"))
+       from users
+       inner join answers
+       on users.myid=answers.myid
+       group by users.myid
+       order by users.myid"))
           (working-users
            (mapcar (lambda (x) (getf x :|myid|))
                    (dbi:fetch-all
                     (query  "select distinct(myid) from answers
-            where now() - timestamp < '48 hours'")))))
+       where now() - timestamp < '48 hours'")))))
 
      ;; BUG: 回答が一つもないとエラーになる。
      (htm
@@ -370,36 +372,36 @@ db-user
       ;;  (format
       ;;   t
       ;;   " ~a、~a さんが
-      ;; <a href='/answer?num=~a'>~a</a> に回答しました。<a href='/recent'>最近の10</a>。"
-      ;;   (short (getf recent :|timestamp|))
-      ;;   (getf recent :|myid|)
-      ;;   (getf recent :|num|)
-      ;;   (getf recent :|num|)))
-      (:li
-       (format
-        t
-        "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
+       ;; <a href='/answer?num=~a'>~a</a> に回答しました。<a href='/recent'>最近の10</a>。"
+       ;;   (short (getf recent :|timestamp|))
+       ;;   (getf recent :|myid|)
+       ;;   (getf recent :|num|)
+       ;;   (getf recent :|num|)))
+       (:li
+        (format
+         t
+         "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
       があった受講生です。"))
-      (:li "( ) は中間テスト点数。30点満点。NIL は未受験（再試なし）。")
-      (:hr))
+       (:li "( ) は中間テスト点数。30点満点。NIL は未受験（再試なし）。")
+       (:hr))
 
-     (loop for row = (dbi:fetch results)
-           while row
-           do
-           (let* ((myid (getf row :|myid|))
-                  (working (if (find myid working-users) "yes" "no")))
-             (format
-              t
-              "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
-              working
-              myid
-              (cdr (assoc myid *mt*))
-              (stars (getf row :|count|))
-              myid
-              (getf row :|count|)))
-           (incf n))
+   (loop for row = (dbi:fetch results)
+         while row
+         do
+         (let* ((myid (getf row :|myid|))
+                (working (if (find myid working-users) "yes" "no")))
+           (format
+            t
+            "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
+            working
+            myid
+            (cdr (assoc myid *mt*))
+            (stars (getf row :|count|))
+            myid
+            (getf row :|count|)))
+         (incf n))
 
-     (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
+   (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -431,7 +433,8 @@ db-user
      ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
      (:h1)
      (:p (:img :src "/by-numbers.svg" :with "80%"))
-     (:p "グラフは手動で作成してます。数日ごとにアップデートします。")
+     (:p "横軸:問題番号、縦軸:回答数。"
+         "グラフは手動で作成してます。数日ごとにアップデートします。")
      ;; (:p :style "color:orange; font-size: 24pt"
      ;;     "ただ単に回答を埋めるために r99 やってないか？"
      ;;     "r99 はスマして回答しているのに、"
