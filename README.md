@@ -7,6 +7,10 @@
 
 ## Released
 
+### [2.33.3] - 2020-12-31
+* CHANGED: submit したらコメントを促すメッセージ。
+* ADDED: make reinstall で svg をアップデートする。
+
 ### [2.33.1] - 2020-12-31
 * REMOVED: app.melt で r99/static を git add/commit してしまった間違いを
   取り消す。static は r99/src/static にあるべき。
