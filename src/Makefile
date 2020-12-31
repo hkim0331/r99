@@ -20,11 +20,15 @@ r99:
 install: r99
 	sudo systemctl stop r99
 	# install r99 /srv/r99/
-	rsync static/* /srv/r99/static/
+	# necessary?
+	# rsync static/* /srv/r99/static/
 	sudo systemctl start r99
 
 clean:
 	${RM} r99 *.bak
 
+plot:
+	(cd plot-by-numbers && make all)
+
 reinstall:
-	make clean install
+	make clean plot install
