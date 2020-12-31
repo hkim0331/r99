@@ -19,7 +19,7 @@ clean:
 
 plot:
 	(cd plot-by-numbers && make all)
-  (cd plot-by-answers && make all)
+	(cd plot-by-answers && make all)
 
 reinstall:
 	make clean plot install
