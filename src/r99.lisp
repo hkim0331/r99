@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.33.2")
+(defvar *version* "2.33.3")
 
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
@@ -429,6 +429,7 @@ db-user
      ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
      (:h1)
      (:p (:img :src "/by-numbers.svg" :with "80%"))
+     (:p "(グラフは手動で作成してます。数日ごとにアップデートします。)")
      ;; (:p :style "color:orange; font-size: 24pt"
      ;;     "ただ単に回答を埋めるために r99 やってないか？"
      ;;     "r99 はスマして回答しているのに、"
@@ -660,27 +661,26 @@ db-user
          (num (getf ret :|num|))
          (d (getf ret :|detail|)))
     (page
-      (:h2 "submit your answer to " (str num))
-      (:p (str d))
-      (:ul
-       (:li :class "warn" "同じような回答とともに、わかりにくい回答が増えている。"
-            "どんな方針で問題を解こうとするのか、"
-            "その for, if で何をするのか、回答にコメントを入れよう。")
-       (:li :class "warn" "動作確認していない回答出すな。減点。")
-       (:li :class "warn" "回答提出後 3 時間は訂正できない。慎重に回答すること。")
-       (:li :class "warn" "submit したら他の回答と自分の回答をよく見比べること。"))
+     (:h2 "submit your answer to " (str num))
+     (:p (str d))
+     (:ul
+      (:li :class "warn" "同じような回答とともに、わかりにくい回答が増えている。"
+           "どんな方針で問題を解こうとしたのか、"
+           "回答の上に簡単な説明コメント入れること。")
+      (:li :class "warn" "回答提出後 3 時間は訂正できない。")
+      (:li :class "warn" "submit したら他の回答を読んで（コメントもな）、"
+           "気に入った回答、勉強になった回答あったらコメントつけよう。"))
 
-
-      (:form :method "post" :action "/submit"
-             (:input :type "hidden" :name "num" :value num)
-             (:textarea :name "answer" :cols 60 :rows 10
-                        :placeholder "プログラムの動作を確認後、
+     (:form :method "post" :action "/submit"
+            (:input :type "hidden" :name "num" :value num)
+            (:textarea :name "answer" :cols 60 :rows 10
+                       :placeholder "プログラムの動作を確認後、
           correct indentation して、送信するのがルール。
           ケータイで回答もらって平常点インチキしても
           中間テスト・期末テストで確実に負けるから。
           マジ勉した方がいい。")
-             (:br)
-             (:input :type "submit" :class "btn btn-sm btn-primary")))))
+            (:br)
+            (:input :type "submit" :class "btn btn-sm btn-primary")))))
 
 (defun solved (myid)
   (let* ((q (format
