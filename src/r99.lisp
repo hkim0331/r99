@@ -428,6 +428,7 @@ db-user
      ;;(:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
      ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
      (:h1)
+     (:p (:img :src "/by-numbers.svg" :with "80%"))
      ;; (:p :style "color:orange; font-size: 24pt"
      ;;     "ただ単に回答を埋めるために r99 やってないか？"
      ;;     "r99 はスマして回答しているのに、"
@@ -718,7 +719,8 @@ db-user
         (page
          (:h2 (format t "Sin-Bin: ~a seconds" (- sin-bin now)))
          (:p "一定時間以内のアップデートは禁止です。")
-         (:p "バカな野郎が数人いるだけでみんなが迷惑。")))))
+         ;(:p "バカな野郎が数人いるだけでみんなが迷惑。")
+         ))))
 
 (define-easy-handler (submit :uri "/submit") (num answer)
   (if (myid)
@@ -992,7 +994,8 @@ answer like '%/* comment from%' order by num"
             "readme.html"
             "robots.txt"
             "sakura.png"
-            "sorry-2900.png")))
+            "sorry-2900.png"
+            "by-numbers.svg")))
     (loop for i in entities
        do
          (push (create-static-file-dispatcher-and-handler
