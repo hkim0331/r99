@@ -17,3 +17,5 @@
 env.sh
 .rebel_readline_history
 /log
+*.dat
+*.svg
