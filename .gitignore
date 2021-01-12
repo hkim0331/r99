@@ -18,3 +18,5 @@ env.sh
 .rebel_readline_history
 /src/static/by-answers.svg
 /src/static/by-numbers.svg
+/log
+*.dat
