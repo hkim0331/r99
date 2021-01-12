@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.32.4")
+(defvar *version* "2.33.6")
 
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
@@ -336,6 +336,10 @@ db-user
    ;;     "moodle の授業資料を最初から読み返したらどうか？"
    ;;     "そんな努力をせん試験対策はゴミ以下やろ。"
    ;;     "コロナは学生にサボる口実を与えただけか。")
+   (:p (:img :src "/by-answers.svg" :width "80%"))
+   (:p "横軸：回答数、縦軸：回答数答えた人の数。"
+       "グラフの積分値が受講生の数になる。"
+       "グラフは数日ごとに手動作成します。")
    (:h1)
    (:h2 "誰が何問?")
    (let* ((n 0)
@@ -368,36 +372,36 @@ db-user
       ;;  (format
       ;;   t
       ;;   " ~a、~a さんが
-      ;; <a href='/answer?num=~a'>~a</a> に回答しました。<a href='/recent'>最近の10</a>。"
-      ;;   (short (getf recent :|timestamp|))
-      ;;   (getf recent :|myid|)
-      ;;   (getf recent :|num|)
-      ;;   (getf recent :|num|)))
-      (:li
-       (format
-        t
-        "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
+       ;; <a href='/answer?num=~a'>~a</a> に回答しました。<a href='/recent'>最近の10</a>。"
+       ;;   (short (getf recent :|timestamp|))
+       ;;   (getf recent :|myid|)
+       ;;   (getf recent :|num|)
+       ;;   (getf recent :|num|)))
+       (:li
+        (format
+         t
+         "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
       があった受講生です。"))
-      (:li "( ) は中間テスト点数。30点満点。NIL は未受験（再試なし）。")
-      (:hr))
+       (:li "( ) は中間テスト点数。30点満点。NIL は未受験（再試なし）。")
+       (:hr))
 
-     (loop for row = (dbi:fetch results)
-           while row
-           do
-           (let* ((myid (getf row :|myid|))
-                  (working (if (find myid working-users) "yes" "no")))
-             (format
-              t
-              "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
-              working
-              myid
-              (cdr (assoc myid *mt*))
-              (stars (getf row :|count|))
-              myid
-              (getf row :|count|)))
-           (incf n))
+   (loop for row = (dbi:fetch results)
+         while row
+         do
+         (let* ((myid (getf row :|myid|))
+                (working (if (find myid working-users) "yes" "no")))
+           (format
+            t
+            "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
+            working
+            myid
+            (cdr (assoc myid *mt*))
+            (stars (getf row :|count|))
+            myid
+            (getf row :|count|)))
+         (incf n))
 
-     (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
+   (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -428,6 +432,9 @@ db-user
      ;;(:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
      ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
      (:h1)
+     (:p (:img :src "/by-numbers.svg" :with "80%"))
+     (:p "横軸:問題番号、縦軸:回答数。"
+         "グラフは手動で作成してます。数日ごとにアップデートします。")
      ;; (:p :style "color:orange; font-size: 24pt"
      ;;     "ただ単に回答を埋めるために r99 やってないか？"
      ;;     "r99 はスマして回答しているのに、"
@@ -659,27 +666,26 @@ db-user
          (num (getf ret :|num|))
          (d (getf ret :|detail|)))
     (page
-      (:h2 "submit your answer to " (str num))
-      (:p (str d))
-      (:ul
-       (:li :class "warn" "同じような回答とともに、わかりにくい回答が増えている。"
-            "どんな方針で問題を解こうとするのか、"
-            "その for, if で何をするのか、回答にコメントを入れよう。")
-       (:li :class "warn" "動作確認していない回答出すな。減点。")
-       (:li :class "warn" "回答提出後 3 時間は訂正できない。慎重に回答すること。")
-       (:li :class "warn" "submit したら他の回答と自分の回答をよく見比べること。"))
+     (:h2 "submit your answer to " (str num))
+     (:p (str d))
+     (:ul
+      (:li :class "warn" "同じような回答とともに、わかりにくい回答が増えている。"
+           "どんな方針で問題を解こうとしたのか、"
+           "回答の上に簡単な説明コメント入れること。")
+      (:li :class "warn" "回答提出後 3 時間は訂正できない。")
+      (:li :class "warn" "submit したら他の回答を読んで（コメントもな）、"
+           "気に入った回答、勉強になった回答あったらコメントつけよう。"))
 
-
-      (:form :method "post" :action "/submit"
-             (:input :type "hidden" :name "num" :value num)
-             (:textarea :name "answer" :cols 60 :rows 10
-                        :placeholder "プログラムの動作を確認後、
+     (:form :method "post" :action "/submit"
+            (:input :type "hidden" :name "num" :value num)
+            (:textarea :name "answer" :cols 60 :rows 10
+                       :placeholder "プログラムの動作を確認後、
           correct indentation して、送信するのがルール。
           ケータイで回答もらって平常点インチキしても
           中間テスト・期末テストで確実に負けるから。
           マジ勉した方がいい。")
-             (:br)
-             (:input :type "submit" :class "btn btn-sm btn-primary")))))
+            (:br)
+            (:input :type "submit" :class "btn btn-sm btn-primary")))))
 
 (defun solved (myid)
   (let* ((q (format
@@ -718,7 +724,8 @@ db-user
         (page
          (:h2 (format t "Sin-Bin: ~a seconds" (- sin-bin now)))
          (:p "一定時間以内のアップデートは禁止です。")
-         (:p "バカな野郎が数人いるだけでみんなが迷惑。")))))
+         ;(:p "バカな野郎が数人いるだけでみんなが迷惑。")
+         ))))
 
 (define-easy-handler (submit :uri "/submit") (num answer)
   (if (myid)
@@ -972,33 +979,35 @@ answer like '%/* comment from%' order by num"
 ;; dry!
 (defun publish-static-content ()
   (let ((entities
-          '("a-gift-of-the-sea.jpg"
-            "cat2.png"
-            "dog.png"
-            "favicon.ico"
-            "fight.png"
-            "fuji.png"
-            "goku.png"
-            "guernica.jpg"
-            "hakone.jpg"
-            "happier.png"
-            "happiest.png"
-            "happy.png"
-            "integers.txt"
-            "kame.png"
-            "kutsugen.jpg"
-            "panda.png"
-            "r99.css"
-            "readme.html"
-            "robots.txt"
-            "sakura.png"
-            "sorry-2900.png")))
+         '("a-gift-of-the-sea.jpg"
+           "cat2.png"
+           "dog.png"
+           "favicon.ico"
+           "fight.png"
+           "fuji.png"
+           "goku.png"
+           "guernica.jpg"
+           "hakone.jpg"
+           "happier.png"
+           "happiest.png"
+           "happy.png"
+           "integers.txt"
+           "kame.png"
+           "kutsugen.jpg"
+           "panda.png"
+           "r99.css"
+           "readme.html"
+           "robots.txt"
+           "sakura.png"
+           "sorry-2900.png"
+           "by-numbers.svg"
+           "by-answers.svg")))
     (loop for i in entities
-       do
-         (push (create-static-file-dispatcher-and-handler
-                (format nil "/~a" i)
-                (format nil "static/~a" i))
-               *dispatch-table*))))
+          do
+          (push (create-static-file-dispatcher-and-handler
+                 (format nil "/~a" i)
+                 (format nil "static/~a" i))
+                *dispatch-table*))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;

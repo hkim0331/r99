@@ -7,6 +7,21 @@
 
 ## Released
 
+### [2.33.4] - 2020-12-31
+* ADDED: by-numbers と同じく、by-answers プロット。
+
+### [2.33.3] - 2020-12-31
+* CHANGED: submit したらコメントを促すメッセージ。
+* ADDED: make reinstall で svg をアップデートする。
+
+### [2.33.1] - 2020-12-31
+* REMOVED: app.melt で r99/static を git add/commit してしまった間違いを
+  取り消す。static は r99/src/static にあるべき。
+
+### [2.33.0] - 2020-12-31
+* ADDED: plot-by-numbers 設問ごとの回答数を svg グラフにセーブ。
+  /problems ページの上部に表示する。
+
 ### [2.32.3] - 2020-12-09
 * bugfix: sql にスペースが入り込んでしまった。
 
