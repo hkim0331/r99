@@ -4,27 +4,23 @@
 
 // s1 と s2、先に '\0' が見つかるまでループ、
 // ループ中、s1[i] != s2[i] があったら false。
-// どっちかが s*[i]=='\0' でループを抜けたら、
-// もう片方も s#[i]=='\0' であれば true。
+// どっちかが '\0' でループを抜けたら、
+// もう片方も '\0' であれば true。
 int str_eql(char* s1, char* s2) {
   int i;
 
-  for (i=0; s1[i] != '\0' || (s2[i] != '\0'); i++) {
+  for (i=0; ; i++) {
     if (s1[i] != s2[i]) {
       return 0;
     }
+    if (s1[i]=='\0' || s2[i]=='\0') {
+      break;
+    }
   }
-  return s1[i]==s2[i];
+  return s1[i] == s2[i];
 }
 
-int main(void) {
-  char s1[100];
-  char s2[100];
-
-  for (;;) {
-    scanf("%s", s1);
-    scanf("%s", s2);
-    printf("%i\n", str_eql(s1,s2));
-  }
+int main(int argc, char *argv[]) {
+  printf("%i\n", str_eql(argv[1], argv[2]));
   return 0;
 }
