@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// 文字列を破壊しないバージョンに全部書き換えようか。
+// 文字列を破壊しないバージョンに全部書き換えよう。
 
-// p78 
+// p78
 int is_empty(char* s) {
   return s[0] == '\0';
 }
@@ -48,7 +48,7 @@ int str_eql_n(char* s1, char* s2, int n) {
   return 1;
 }
 
-// p83, s1 -> s2
+// p83, copy s1 -> s2
 void str_copy(char* s1, char* s2) {
   int i;
 
@@ -95,8 +95,7 @@ int str_search(char* s1, char* s2) {
   return -1;
 }
 
-// p87
-// 書き換えようか。
+// p87 書き換えようか。
 char* str_remove(char* s, int n, int m) {
   int len = str_len(s);
   if (len < n + m) {
@@ -105,8 +104,10 @@ char* str_remove(char* s, int n, int m) {
   }
   char* s1 = (char*)malloc(sizeof(char)*(len-m)+1);
   char* s3 = (char*)malloc(sizeof(char)*(len-(n+m)+1));
-  str_take(s1, 0, n, s1);
-  str_take(s1, n + m, len-(n+m),s3);
+  str_take(s, 0, n, s1);
+  str_take(s, n + m, len-(n+m),s3);
+  printf("s1:%s\n",s1);
+  printf("s3:%s\n",s3);
   return str_append(s1, s3);
 }
 
@@ -129,7 +130,7 @@ char * str_insert(char *s1, int n, char *s2) {
   char* tmp = (char* )malloc(sizeof(char) * (l1 - n + 1));
 
   //BUG FIXED
-  str_take(s1, 0, n, ret);  // p85 
+  str_take(s1, 0, n, ret);  // p85
   //BUG FIXED
   str_copy(s1 + n, tmp);     // p83
   return str_append(str_append(ret, s2), tmp); // p84
@@ -140,17 +141,17 @@ char* str_subst(char* s1, char* s2, char* s3) {
   if (n == -1) {
     return s1;
   }
+  printf("remove: %s\n", str_remove(s1, n, str_len(s2)));
   return str_insert(str_remove(s1, n, str_len(s2)), n, s3);
  }
 
 int main(int argc, char* argv []) {
-  char s[100] = "The long and winding road 123 123 123.";
+  char s[100] = "The long and winding road 123 123 123. long long road.";
 
   printf("%s\n", str_subst(s, "nothing", "changes"));
-  printf("%s\n", str_subst(s, "The long", "The most shortest"));
+  printf("%s\n", str_subst(s, "long and winding", "most shortest, straight"));
   printf("s:%s\n", s);
-  printf("%s\n", str_subst(s, "winding", "straight"));   
-  printf("%s\n", str_subst(s, "123", "456"));   
-
+  printf("%s\n", str_subst(s, "winding", "straight"));
+  printf("%s\n", str_subst(s, "123", "456"));
   return 0;
 }
