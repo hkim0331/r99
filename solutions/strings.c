@@ -69,10 +69,11 @@ char* str_append(char* s1, char* s2) {
   return s3;
 }
 
-// p85 みんなのほうがええな。差し替え。
+// p85, s1 の n 文字目からの m 文字を s2 にコピー。
+// みんなのほうがええな。差し替え。
 char* str_take(char* s1, int n, int m, char* s2) {
   int i;
-  for (i=n; i<m; i++) {
+  for (i=n; i<n+m; i++) {
     s2[i-n] = s1[i];
   }
   s2[i-n] = '\0';
@@ -95,19 +96,17 @@ int str_search(char* s1, char* s2) {
   return -1;
 }
 
-// p87 書き換えようか。
+// p87, 文字列 s の n 文字目からの m 文字を削除。
 char* str_remove(char* s, int n, int m) {
   int len = str_len(s);
   if (len < n + m) {
     printf("s1 is too short.\n");
     exit(1);
   }
-  char* s1 = (char*)malloc(sizeof(char)*(len-m)+1);
+  char* s1 = (char*)malloc(sizeof(char)*(n+1));
   char* s3 = (char*)malloc(sizeof(char)*(len-(n+m)+1));
   str_take(s, 0, n, s1);
-  str_take(s, n + m, len-(n+m),s3);
-  printf("s1:%s\n",s1);
-  printf("s3:%s\n",s3);
+  str_take(s, n + m, len-(n+m), s3);
   return str_append(s1, s3);
 }
 
@@ -129,9 +128,7 @@ char * str_insert(char *s1, int n, char *s2) {
   char* ret = (char* )malloc(sizeof(char) * (l1 + l2 + 1));
   char* tmp = (char* )malloc(sizeof(char) * (l1 - n + 1));
 
-  //BUG FIXED
   str_take(s1, 0, n, ret);  // p85
-  //BUG FIXED
   str_copy(s1 + n, tmp);     // p83
   return str_append(str_append(ret, s2), tmp); // p84
 }
@@ -141,17 +138,16 @@ char* str_subst(char* s1, char* s2, char* s3) {
   if (n == -1) {
     return s1;
   }
-  printf("remove: %s\n", str_remove(s1, n, str_len(s2)));
   return str_insert(str_remove(s1, n, str_len(s2)), n, s3);
  }
 
 int main(int argc, char* argv []) {
   char s[100] = "The long and winding road 123 123 123. long long road.";
 
-  printf("%s\n", str_subst(s, "nothing", "changes"));
-  printf("%s\n", str_subst(s, "long and winding", "most shortest, straight"));
-  printf("s:%s\n", s);
-  printf("%s\n", str_subst(s, "winding", "straight"));
-  printf("%s\n", str_subst(s, "123", "456"));
+  printf("%s->\n%s\n\n", s, str_subst(s, "nothing", "changes"));
+  printf("%s->\n%s\n\n", s, str_subst(s, "long and winding", "most shortest, straight"));
+  printf("%s->\n%s\n\n", s, str_subst(s, "winding", "straight"));
+  printf("%s->\n%s\n\n", s, str_subst(s, "123", "456"));
+
   return 0;
 }
