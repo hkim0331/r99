@@ -1,6 +1,9 @@
 all: new-plot
 
 new-plot: by-answers.svg
+	if [ -f "../static/by-answers.svg" ]; then \\
+		mv "../static/by-answers.svg" "../static/by-answers-$(date +%F).svg"
+	fi
 	cp by-answers.svg ../static/
 
 by-answers.dat:
