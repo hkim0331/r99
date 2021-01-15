@@ -13,31 +13,16 @@
       (in fname)
     (let ((ret nil))
       (loop for line = (read-line in nil)
-            while line do
-              (destructuring-bind
-                  (f s) (ppcre:split " " line)
-                (push (cons (parse-integer f) (parse-integer s)) ret)))
+         while line do
+           (destructuring-bind
+                 (f s) (ppcre:split " " line)
+             (push (cons (parse-integer f) (parse-integer s)) ret)))
       ret)))
 
 ;; required.
 ;; moved to start-server
 ;;(read-midterm "midterm.txt")
 
-
-;; hard to read
-;; (defun read-env (name)
-;;   (with-open-file (in "env.sh")
-;;     (let ((ret nil))
-;;       (loop for line = (read-line in nil)
-;;             while line do
-;;               (when (ppcre:scan "export" line)
-;;                 (print line)
-;;                 (destructuring-bind (e b) (ppcre:split " " line)
-;;                   (when (string= "export" e)
-;;                     (destructuring-bind (k v) (ppcre:split "=" b)
-;;                       (when (string= name k)
-;;                         (setf ret v)))))))
-;;       ret)))
 (defun read-env (name)
   nil)
 ;;(read-env "R99_USER")
@@ -137,10 +122,14 @@ db-user
          (s3 (regex-replace-all "？"     s2 "?")))
     s3))
 
+;; FIXME: コメントだけ送ってくるやつを弾く。
+;;        このくらいで十分か。
 (defun check (answer)
   (and
-   (scan "^/" answer) ;; has comment?
-   (scan "\\S" answer)
+   (scan "^/" answer)  ;; has comment?
+   (scan ";" answer)   ;; 回答には ';'が含まれて
+   (scan "\\)" answer) ;; ')' もないとな。
+   (scan "\\}" answer) ;; '}' もな。この後、文法チェックする。
    (let* ((cl-fad:*default-template* "temp%.c")
           (pathname (with-output-to-temporary-file (f)
                       (write-string "#include <stdio.h>" f)
