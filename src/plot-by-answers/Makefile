@@ -1,6 +1,9 @@
 all: new-plot
 
 new-plot: by-answers.svg
+	$(eval DATE := $(shell date +%F))
+	[ -f "../static/by-answers.svg" ] && \
+		mv "../static/by-answers.svg" "../static/by-answers-${DATE}.svg"
 	cp by-answers.svg ../static/
 
 by-answers.dat:
