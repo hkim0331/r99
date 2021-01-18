@@ -1,11 +1,14 @@
 # R99
 
 ## Unreleased
-* 最近の10件からコメントからの戻りがスムーズじゃない。
-  迂回している感じ。
-
+* src/plot-by-{answers,numnbers} をひとつにまとめる。
+* cd src && make plot を定時実行する。
+* plot をアップデートした日時を表示する。
 
 ## Released
+
+### 2021-01-18
+* update-r99/src/update_r99.clj を update-r99/src/r99/update_r99.clj に移動。
 
 ### [2.33.7] - 2021-01-12
 * answer は // に続き、';', ')' を含むテキストでなければならない。
