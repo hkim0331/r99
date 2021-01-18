@@ -1,7 +1,7 @@
+// 2021-01-13
+// 文字列を破壊しないバージョンに全部書き換えよう。
 #include <stdio.h>
 #include <stdlib.h>
-
-// 文字列を破壊しないバージョンに全部書き換えよう。
 
 // p78
 int is_empty(char* s) {
@@ -121,7 +121,7 @@ char* str_remove_str(char* s1, char *s2) {
   }
 }
 
-// 89
+// p89
 char * str_insert(char *s1, int n, char *s2) {
   int l1 = str_len(s1);    // p79
   int l2 = str_len(s2);    // p79
@@ -133,19 +133,21 @@ char * str_insert(char *s1, int n, char *s2) {
   return str_append(str_append(ret, s2), tmp); // p84
 }
 
+// p90
 char* str_subst(char* s1, char* s2, char* s3) {
   int n = str_search(s1, s2);
   if (n == -1) {
     return s1;
   }
   return str_insert(str_remove(s1, n, str_len(s2)), n, s3);
- }
+}
 
 int main(int argc, char* argv []) {
   char s[100] = "The long and winding road 123 123 123. long long road.";
 
   printf("%s->\n%s\n\n", s, str_subst(s, "nothing", "changes"));
-  printf("%s->\n%s\n\n", s, str_subst(s, "long and winding", "most shortest, straight"));
+  printf("%s->\n%s\n\n", s,
+         str_subst(s, "long and winding", "most shortest, straight"));
   printf("%s->\n%s\n\n", s, str_subst(s, "winding", "straight"));
   printf("%s->\n%s\n\n", s, str_subst(s, "123", "456"));
 
