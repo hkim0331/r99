@@ -18,6 +18,7 @@ char* str_take(char* s1, int n, int m, char* s2) {
 int main(void) {
   char s2[100];
 
-  printf("%s\n", str_take("0123456",1,3,s2));
+  printf("%s\n", str_take("0123456", 1, 3, s2));
+  printf("%s\n", s2);
   return 0;
 }
