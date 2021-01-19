@@ -1,16 +1,15 @@
 // 数学を使うと
-// p^2+q^2=r^2 を満たす素数 p,q,r は存在しないことが
+// p^2 + q^2= r^2 を満たす素数 p,q,r は存在しないことが
 // 証明できる。
-// p102では範囲を制限して全探索する。
-// lisp でさらっと書きたいぞ。
+// ないことを承知で全探索する。
 #include <stdio.h>
 #define MAX 200
 
 int is_prime_odd(int n) {
   int i;
 
-  for (i=3; i*i<=n; i+=2) {
-    if (n%i==0) {
+  for (i = 3; i*i <= n; i+=2) {
+    if (n%i == 0) {
       return 0;
     }
   }
@@ -18,7 +17,7 @@ int is_prime_odd(int n) {
 }
 
 int is_prime(int n) {
-  if (n<3) {
+  if (n < 3) {
     return n==2;
   }
   if (n%2 == 0) {
@@ -34,7 +33,7 @@ int init_primes_sq(int p2[]) {
 
   p2[0] = 4;
   for (i=3; i<=1000; i+=2) {
-    if (is_prime(i)) {
+    if (is_prime(i)) { // p32
       p2[j] =i*i;
       j++;
       // need error check here.
@@ -47,8 +46,8 @@ int init_primes_sq(int p2[]) {
 int exists(int x, int p[], int n) {
   int i;
 
-  for (i=0;i<n;i++) {
-    if (x==p[i]) {
+  for (i = 0;i < n; i++) {
+    if (x == p[i]) {
       return x;
     }
   }
@@ -56,7 +55,7 @@ int exists(int x, int p[], int n) {
 }
 
 
-void p102(void) {
+void p103(void) {
   int p[MAX];
   int n = init_primes_sq(p);
   int i;
@@ -65,7 +64,7 @@ void p102(void) {
 
   for (i=0; i<n; i++) {
     for (j=0; j<=i; j++) {
-      r = exists(p[i]+p[j], p, n);
+      r = exists(p[i] + p[j], p, n);
       if (r) {
         printf("ウッソー、そんな数ねーはず？ %i+%i=%i\n",p[i],p[j],r);
       }
@@ -75,5 +74,6 @@ void p102(void) {
 }
 
 int main(void) {
-  p102();
+  p103();
+  return 0;
 }
