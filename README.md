@@ -4,6 +4,9 @@
 * src/plot-by-{answers,numnbers} をひとつにまとめる。
 * cd src && make plot を定時実行する。
 * plot をアップデートした日時を表示する。
+* copy コマンド
+  copy src dest
+  copy src
 
 ## Released
 
