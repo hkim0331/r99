@@ -1,0 +1,32 @@
+version: '3.3'
+services:
+  r99:
+    image: hkim/roswell:1.4
+    ports:
+      - "4005:4005"
+    volumes:
+      - ~/common-lisp/r99:/home/ubuntu/common-lisp/r99
+    depends_on:
+      - postgres
+    environment:
+      R99_HOST: pg
+      R99_DB:   r99
+      R99_USER: user1
+      R99_PASS: pass1
+
+  postgres:
+    image: postgres
+    container_name: pg
+    expose: ["5432"]
+    ports:
+      - "5432:5432"
+    volumes:
+      - "postgresql-data:/var/lib/postgresql/data"
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --locale=C"
+      TZ: "Asia/Tokyo"
+
+volumes:
+  postgresql-data:
+    driver: local
