@@ -4,19 +4,20 @@ services:
     image: hkim/roswell:1.4
     ports:
       - "4005:4005"
+      - "3030:3030"
     volumes:
       - ~/common-lisp/r99:/home/ubuntu/common-lisp/r99
     depends_on:
       - postgres
     environment:
-      R99_HOST: pg
+      R99_HOST: pg-server
       R99_DB:   r99
       R99_USER: user1
       R99_PASS: pass1
 
   postgres:
     image: postgres
-    container_name: pg
+    hostname: pg-server
     expose: ["5432"]
     ports:
       - "5432:5432"
