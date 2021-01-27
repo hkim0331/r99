@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.33.8")
+(defvar *version* "2.33.10")
 
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
@@ -23,8 +23,8 @@
 ;; moved to start-server
 ;;(read-midterm "midterm.txt")
 
-(defun read-env (name)
-  nil)
+;;(defun read-env (name)
+;;  nil)
 ;;(read-env "R99_USER")
 
 (defparameter *mt*
@@ -52,11 +52,10 @@
 
 ;; 2019-12-18, 関数に変更。
 ;; 2020-11-02, 定数に戻す。
-(defvar db-host  (or (read-env "R99_HOST") (getenv "R99_HOST") "localhost"))
-(defvar db-user  (or (read-env "R99_USER") (getenv "R99_USER") "user"))
-(defvar db-pass  (or (read-env "R99_PASS") (getenv "R99_PASS") "pass"))
+(defvar db-host  (or (getenv "R99_HOST") "localhost"))
+(defvar db-user  (or (getenv "R99_USER") "user"))
+(defvar db-pass  (or (getenv "R99_PASS") "pass"))
 (defvar db "r99")
-db-user
 
 (defun query (sql)
   (dbi:with-connection
@@ -325,7 +324,9 @@ db-user
    ;;     "moodle の授業資料を最初から読み返したらどうか？"
    ;;     "そんな努力をせん試験対策はゴミ以下やろ。"
    ;;     "コロナは学生にサボる口実を与えただけか。")
-   (:p (:img :src "/by-answers.svg" :width "80%"))
+   ;;
+    ;; (:p (:img :src "/by-answers.svg" :width "80%"))
+   (:p (:a :href "http://app.melt.kyutech.ac.jp/144-warn-r99.html" "README"))
    (:p "横軸：回答数、縦軸：回答数答えた人の数。"
        "グラフの積分値が受講生の数になる。"
        "グラフは数日ごとに手動作成します。")
@@ -366,31 +367,31 @@ db-user
        ;;   (getf recent :|myid|)
        ;;   (getf recent :|num|)
        ;;   (getf recent :|num|)))
-       (:li
-        (format
-         t
-         "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
+      (:li
+       (format
+        t
+        "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
       があった受講生です。"))
-       (:li "( ) は中間テスト点数。30点満点。NIL は未受験（再試なし）。")
-       (:hr))
+      (:li "( ) は中間テスト点数。30点満点。NIL は未受験（再試なし）。")
+      (:hr))
 
-   (loop for row = (dbi:fetch results)
-         while row
-         do
-         (let* ((myid (getf row :|myid|))
-                (working (if (find myid working-users) "yes" "no")))
-           (format
-            t
-            "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
-            working
-            myid
-            (cdr (assoc myid *mt*))
-            (stars (getf row :|count|))
-            myid
-            (getf row :|count|)))
-         (incf n))
+    (loop for row = (dbi:fetch results)
+          while row
+          do
+          (let* ((myid (getf row :|myid|))
+                 (working (if (find myid working-users) "yes" "no")))
+            (format
+             t
+             "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
+             working
+             myid
+             (cdr (assoc myid *mt*))
+             (stars (getf row :|count|))
+             myid
+             (getf row :|count|)))
+          (incf n))
 
-   (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
+    (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -421,7 +422,8 @@ db-user
      ;;(:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
      ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
      (:h1)
-     (:p (:img :src "/by-numbers.svg" :with "80%"))
+     ;;(:p (:img :src "/by-numbers.svg" :with "80%"))
+     (:p (:a :href "http://app.melt.kyutech.ac.jp/144-warn-r99.html" "README"))
      (:p "横軸:問題番号、縦軸:回答数。"
          "グラフは手動で作成してます。数日ごとにアップデートします。")
      ;; (:p :style "color:orange; font-size: 24pt"
@@ -712,9 +714,9 @@ db-user
               (:p "ビルドに失敗。アップデートでバグが入ったか？"))))
         (page
          (:h2 (format t "Sin-Bin: ~a seconds" (- sin-bin now)))
-         (:p "一定時間以内のアップデートは禁止です。")
+         (:p "一定時間以内のアップデートは禁止です。")))))
          ;(:p "バカな野郎が数人いるだけでみんなが迷惑。")
-         ))))
+
 
 (define-easy-handler (submit :uri "/submit") (num answer)
   (if (myid)
@@ -756,8 +758,8 @@ db-user
                 "ブラウザのバックで戻り、"
                 "回答の最初、関数定義の上にコメントを書き足して、"
                 "再提出してください。")
-            (:p "p1, p11, p22, p41 の hkimura(2999) の回答を参考に。")
-            ))
+            (:p "p1, p11, p22, p41 の hkimura(2999) の回答を参考に。")))
+
       (redirect "/login")))
 
 
@@ -1095,7 +1097,7 @@ answer like '%/* comment from%' order by num"
   (if (localtime)
       (format t "database connection OK.~%")
       (error "check your datanase connection.~%"))
-  (read-midterm "midterm.txt")
+  ;;(read-midterm "midterm.txt")
   (publish-static-content)
   (setf *server* (make-instance 'easy-acceptor
                                 :address "0.0.0.0"
