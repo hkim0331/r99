@@ -324,7 +324,9 @@
    ;;     "moodle の授業資料を最初から読み返したらどうか？"
    ;;     "そんな努力をせん試験対策はゴミ以下やろ。"
    ;;     "コロナは学生にサボる口実を与えただけか。")
-   (:p (:img :src "/by-answers.svg" :width "80%"))
+   ;;
+    ;; (:p (:img :src "/by-answers.svg" :width "80%"))
+   (:p (:a :href "http://app.melt.kyutech.ac.jp/144-warn-r99.html" "README"))
    (:p "横軸：回答数、縦軸：回答数答えた人の数。"
        "グラフの積分値が受講生の数になる。"
        "グラフは数日ごとに手動作成します。")
@@ -420,7 +422,8 @@
      ;;(:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
      ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
      (:h1)
-     (:p (:img :src "/by-numbers.svg" :with "80%"))
+     ;;(:p (:img :src "/by-numbers.svg" :with "80%"))
+     (:p (:a :href "http://app.melt.kyutech.ac.jp/144-warn-r99.html" "README"))
      (:p "横軸:問題番号、縦軸:回答数。"
          "グラフは手動で作成してます。数日ごとにアップデートします。")
      ;; (:p :style "color:orange; font-size: 24pt"
