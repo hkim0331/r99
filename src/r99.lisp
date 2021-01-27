@@ -366,31 +366,31 @@ db-user
        ;;   (getf recent :|myid|)
        ;;   (getf recent :|num|)
        ;;   (getf recent :|num|)))
-       (:li
-        (format
-         t
-         "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
+      (:li
+       (format
+        t
+        "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
       があった受講生です。"))
-       (:li "( ) は中間テスト点数。30点満点。NIL は未受験（再試なし）。")
-       (:hr))
+      (:li "( ) は中間テスト点数。30点満点。NIL は未受験（再試なし）。")
+      (:hr))
 
-   (loop for row = (dbi:fetch results)
-         while row
-         do
-         (let* ((myid (getf row :|myid|))
-                (working (if (find myid working-users) "yes" "no")))
-           (format
-            t
-            "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
-            working
-            myid
-            (cdr (assoc myid *mt*))
-            (stars (getf row :|count|))
-            myid
-            (getf row :|count|)))
-         (incf n))
+    (loop for row = (dbi:fetch results)
+          while row
+          do
+          (let* ((myid (getf row :|myid|))
+                 (working (if (find myid working-users) "yes" "no")))
+            (format
+             t
+             "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
+             working
+             myid
+             (cdr (assoc myid *mt*))
+             (stars (getf row :|count|))
+             myid
+             (getf row :|count|)))
+          (incf n))
 
-   (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
+    (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -712,9 +712,9 @@ db-user
               (:p "ビルドに失敗。アップデートでバグが入ったか？"))))
         (page
          (:h2 (format t "Sin-Bin: ~a seconds" (- sin-bin now)))
-         (:p "一定時間以内のアップデートは禁止です。")
+         (:p "一定時間以内のアップデートは禁止です。")))))
          ;(:p "バカな野郎が数人いるだけでみんなが迷惑。")
-         ))))
+
 
 (define-easy-handler (submit :uri "/submit") (num answer)
   (if (myid)
@@ -756,8 +756,8 @@ db-user
                 "ブラウザのバックで戻り、"
                 "回答の最初、関数定義の上にコメントを書き足して、"
                 "再提出してください。")
-            (:p "p1, p11, p22, p41 の hkimura(2999) の回答を参考に。")
-            ))
+            (:p "p1, p11, p22, p41 の hkimura(2999) の回答を参考に。")))
+
       (redirect "/login")))
 
 
