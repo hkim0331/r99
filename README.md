@@ -10,6 +10,9 @@
 
 ## Released
 
+### [2.33.10] - 2021-01-27
+* svg グラフに代わって 144-warn-r99.html
+
 ### 2021-01-18
 * update-r99/src/update_r99.clj を update-r99/src/r99/update_r99.clj に移動。
 
