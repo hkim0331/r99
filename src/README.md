@@ -1,3 +1,17 @@
+## 環境変数でデータベースサーバを渡すような場合。
+
+docker-compose.yml:
+environment:
+    R99_HOST: pg-server として、
+
+postgres:
+    hostname: pg-server
+
+をしないと通信しないよな。
+
+これは本当か？
+
+
 ## 2020-01-23
 
 プログラムをアップデートしようとすると、たまにビルドできなくなることがあります。
