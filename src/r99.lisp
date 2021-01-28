@@ -815,6 +815,8 @@
 ;;;
 (defun cheerup (sc)
   (cond
+    ((< 110 sc)
+     (list "kame-sennin.jpg" ""))
     ((< 99 sc)
      (list "goku.png" " 期末テストは 100 点取れよ！"))
     ((= 99 sc)
@@ -984,6 +986,7 @@ answer like '%/* comment from%' order by num"
            "happy.png"
            "integers.txt"
            "kame.png"
+           "kame-sennin.jpg"
            "kutsugen.jpg"
            "panda.png"
            "r99.css"
