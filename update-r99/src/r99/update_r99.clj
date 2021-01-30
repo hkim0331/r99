@@ -1,4 +1,4 @@
-(ns update-r99
+(ns r99.update-r99
   (:require [clojure.java.jdbc :as jdbc]
             [clojure.string :as string]
             [clojure.edn :as edn]
