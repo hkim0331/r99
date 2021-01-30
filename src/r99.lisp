@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.33.8")
+(defvar *version* "2.33.10")
 
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
@@ -325,10 +325,16 @@
    ;;     "そんな努力をせん試験対策はゴミ以下やろ。"
    ;;     "コロナは学生にサボる口実を与えただけか。")
    (:p (:img :src "/ng.png"))
-  ;;  (:p (:img :src "/by-answers.svg" :width "80%"))
-  ;;  (:p "横軸：回答数、縦軸：回答数答えた人の数。"
-  ;;      "グラフの積分値が受講生の数になる。"
-  ;;      "グラフは数日ごとに手動作成します。")
+   ;;  (:p (:img :src "/by-answers.svg" :width "80%"))
+   ;;  (:p "横軸：回答数、縦軸：回答数答えた人の数。"
+   ;;      "グラフの積分値が受講生の数になる。"
+   ;;      "グラフは数日ごとに手動作成します。")
+   ;;
+   ;; (:p (:img :src "/by-answers.svg" :width "80%"))
+   ;; (:p (:a :href "http://app.melt.kyutech.ac.jp/144-warn-r99.html" "README"))
+   ;; (:p "横軸：回答数、縦軸：回答数答えた人の数。"
+   ;;     "グラフの積分値が受講生の数になる。"
+   ;;     "グラフは数日ごとに手動作成します。")
    (:h1)
    (:h2 "誰が何問?")
    (let* ((n 0)
@@ -361,11 +367,11 @@
       ;;  (format
       ;;   t
       ;;   " ~a、~a さんが
-       ;; <a href='/answer?num=~a'>~a</a> に回答しました。<a href='/recent'>最近の10</a>。"
-       ;;   (short (getf recent :|timestamp|))
-       ;;   (getf recent :|myid|)
-       ;;   (getf recent :|num|)
-       ;;   (getf recent :|num|)))
+      ;; <a href='/answer?num=~a'>~a</a> に回答しました。<a href='/recent'>最近の10</a>。"
+      ;;   (short (getf recent :|timestamp|))
+      ;;   (getf recent :|myid|)
+      ;;   (getf recent :|num|)
+      ;;   (getf recent :|num|)))
       (:li
        (format
         t
@@ -374,23 +380,23 @@
       (:li "( ) は中間テスト点数。30点満点。NIL は未受験（再試なし）。")
       (:hr))
 
-    (loop for row = (dbi:fetch results)
-          while row
-          do
-          (let* ((myid (getf row :|myid|))
-                 (working (if (find myid working-users) "yes" "no")))
-            (format
-             t
-             "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
-             working
-             myid
-             (cdr (assoc myid *mt*))
-             (stars (getf row :|count|))
-             myid
-             (getf row :|count|)))
-          (incf n))
+     (loop for row = (dbi:fetch results)
+           while row
+           do
+           (let* ((myid (getf row :|myid|))
+                  (working (if (find myid working-users) "yes" "no")))
+             (format
+              t
+              "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
+              working
+              myid
+              (cdr (assoc myid *mt*))
+              (stars (getf row :|count|))
+              myid
+              (getf row :|count|)))
+           (incf n))
 
-    (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
+     (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -421,10 +427,17 @@
      ;;(:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
      ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
      (:h1)
+     
      ;; (:p (:img :src "/by-numbers.svg" :with "80%"))
      ;; (:p "横軸:問題番号、縦軸:回答数。"
-      ;;     "グラフは手動で作成してます。数日ごとにアップデートします。")
-       (:p (:img :src "/ng.png"))
+     ;;     "グラフは手動で作成してます。数日ごとにアップデートします。")
+     (:p (:img :src "/ng.png"))
+     
+     ;;(:p (:img :src "/by-numbers.svg" :with "80%"))
+     ;; (:p (:a :href "http://app.melt.kyutech.ac.jp/144-warn-r99.html" "README"))
+     ;; (:p "横軸:問題番号、縦軸:回答数。"
+     ;;     "グラフは手動で作成してます。数日ごとにアップデートします。")
+     
      ;; (:p :style "color:orange; font-size: 24pt"
      ;;     "ただ単に回答を埋めるために r99 やってないか？"
      ;;     "r99 はスマして回答しているのに、"
