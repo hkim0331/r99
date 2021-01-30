@@ -22,4 +22,4 @@ plot:
 	(cd plot-by-answers && make clean all)
 
 reinstall:
-	make clean plot install
+	make clean install

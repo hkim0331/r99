@@ -3,8 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.33.13")
-
+(defvar *version* "2.33.14")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
@@ -324,6 +323,7 @@
    ;;     "moodle の授業資料を最初から読み返したらどうか？"
    ;;     "そんな努力をせん試験対策はゴミ以下やろ。"
    ;;     "コロナは学生にサボる口実を与えただけか。")
+   (:h3 "こんな調子で 100 番やっても無意味。減点。")
    (:p (:img :src "/ng.png"))
    ;;  (:p (:img :src "/by-answers.svg" :width "80%"))
    ;;  (:p "横軸：回答数、縦軸：回答数答えた人の数。"
@@ -431,6 +431,7 @@
      ;; (:p (:img :src "/by-numbers.svg" :with "80%"))
      ;; (:p "横軸:問題番号、縦軸:回答数。"
      ;;     "グラフは手動で作成してます。数日ごとにアップデートします。")
+     (:h3 "こんな調子で 100 番やっても無意味。減点。")
      (:p (:img :src "/ng.png"))
      
      ;;(:p (:img :src "/by-numbers.svg" :with "80%"))
@@ -827,6 +828,8 @@
 ;;;
 (defun cheerup (sc)
   (cond
+    ((< 110 sc)
+     (list "kame-sennin.jpg" ""))
     ((< 99 sc)
      (list "goku.png" " 期末テストは 100 点取れよ！"))
     ((= 99 sc)
@@ -996,6 +999,7 @@ answer like '%/* comment from%' order by num"
            "happy.png"
            "integers.txt"
            "kame.png"
+           "kame-sennin.jpg"
            "kutsugen.jpg"
            "ng.png"
            "panda.png"
