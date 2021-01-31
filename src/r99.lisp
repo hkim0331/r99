@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.33.14")
+(defvar *version* "2.33.15")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
@@ -323,12 +323,14 @@
    ;;     "moodle の授業資料を最初から読み返したらどうか？"
    ;;     "そんな努力をせん試験対策はゴミ以下やろ。"
    ;;     "コロナは学生にサボる口実を与えただけか。")
-   (:h3 "こんな調子で 100 番やっても無意味。減点。")
-   (:p (:img :src "/ng.png"))
-   ;;  (:p (:img :src "/by-answers.svg" :width "80%"))
-   ;;  (:p "横軸：回答数、縦軸：回答数答えた人の数。"
-   ;;      "グラフの積分値が受講生の数になる。"
-   ;;      "グラフは数日ごとに手動作成します。")
+   ;; (:h3 "こんな調子で 100 番やっても無意味。減点。")
+   ;; (:p (:img :src "/ng.png"))
+   (:p "こんな調子で 100 番やっても無意味 &rArr;"
+       (:a :href "http://app.melt.kyutech.ac.jp/r101.html" "README"))
+   (:p (:img :src "/by-answers.svg" :width "80%"))
+   (:p "横軸：回答数、縦軸：回答数答えた人の数。"
+        "グラフの積分値が受講生の数になる。"
+        "グラフは数日ごとに手動作成します。")
    ;;
    ;; (:p (:img :src "/by-answers.svg" :width "80%"))
    ;; (:p (:a :href "http://app.melt.kyutech.ac.jp/144-warn-r99.html" "README"))
@@ -427,19 +429,18 @@
      ;;(:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
      ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
      (:h1)
-     
      ;; (:p (:img :src "/by-numbers.svg" :with "80%"))
      ;; (:p "横軸:問題番号、縦軸:回答数。"
      ;;     "グラフは手動で作成してます。数日ごとにアップデートします。")
-     (:h3 "こんな調子で 100 番やっても無意味。減点。")
-     (:p (:img :src "/ng.png"))
-     
-     ;;(:p (:img :src "/by-numbers.svg" :with "80%"))
-     ;; (:p (:a :href "http://app.melt.kyutech.ac.jp/144-warn-r99.html" "README"))
-     ;; (:p "横軸:問題番号、縦軸:回答数。"
-     ;;     "グラフは手動で作成してます。数日ごとにアップデートします。")
-     
-     ;; (:p :style "color:orange; font-size: 24pt"
+     ;; (:h3 "こんな調子で 100 番やっても無意味。減点。")
+     ;; (:p (:img :src "/ng.png"))
+     (:p "こんな調子で 100 番やっても無意味 &rArr;"
+         (:a :href "http://app.melt.kyutech.ac.jp/r101.html" "README"))
+     (:p (:img :src "/by-numbers.svg" :with "80%"))
+     (:p "横軸:問題番号、縦軸:回答数。"
+         "グラフは手動で作成してます。数日ごとにアップデートします。")
+     ;;(:p (:a :href "http://app.melt.kyutech.ac.jp/144-warn-r99.html" "README"))
+     ;;(:p :style "color:orange; font-size: 24pt"
      ;;     "ただ単に回答を埋めるために r99 やってないか？"
      ;;     "r99 はスマして回答しているのに、"
      ;;     "中間テストはまったく全然カスリもしないてのが目に付く。"
