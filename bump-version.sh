@@ -9,7 +9,7 @@ else
 fi
 
 # linux's sed is gnu sed, macOS not.
-SED=/bin/sh
+SED=/usr/bin/sed
 if [ -e $HOMEBREW_PREFIX/bin/gsed ]; then
     SED=$HOMEBREW_PREFIX/bin/gsed
 fi
