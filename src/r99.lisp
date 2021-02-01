@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.33.15")
+(defvar *version* "2.33.16")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
@@ -325,7 +325,7 @@
    ;;     "コロナは学生にサボる口実を与えただけか。")
    ;; (:h3 "こんな調子で 100 番やっても無意味。減点。")
    ;; (:p (:img :src "/ng.png"))
-   (:p "こんな調子で 100 番やっても無意味 &rArr;"
+   (:p "こんな調子で R99 やっても無意味 &rArr;"
        (:a :href "http://app.melt.kyutech.ac.jp/r101.html" "README"))
    (:p (:img :src "/by-answers.svg" :width "80%"))
    (:p "横軸：回答数、縦軸：回答数答えた人の数。"
@@ -434,7 +434,7 @@
      ;;     "グラフは手動で作成してます。数日ごとにアップデートします。")
      ;; (:h3 "こんな調子で 100 番やっても無意味。減点。")
      ;; (:p (:img :src "/ng.png"))
-     (:p "こんな調子で 100 番やっても無意味 &rArr;"
+     (:p "こんな調子で R99 やっても無意味 &rArr;"
          (:a :href "http://app.melt.kyutech.ac.jp/r101.html" "README"))
      (:p (:img :src "/by-numbers.svg" :with "80%"))
      (:p "横軸:問題番号、縦軸:回答数。"
