@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.33.16")
+(defvar *version* "2.34.0")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
@@ -760,19 +760,16 @@
                (t (htm (:p "received."))))
              (:p "さらに R99 にはげみましょう。")
              (:ul
-              (:li (:a :href "/status" "自分の回答状況")
-                   "のチェックのほか、")
-              (:li (:a :href (format
-                              nil
-                              "/answer?num=~a" num)
-                       "他ユーザの回答を見る")
-                   "ことも勉強になるぞ。")
-              (:li "それとも直接 "
-                   (:a :href (format
-                              nil "/answer?num=~a"
-                              (+ 1 (parse-integer num)))
-                       "次の問題の回答ページ")
-                   "、行く？"))))
+              ;(:li (:a :href "/status" "自分の回答状況") "のチェックのほか、")
+              (:li (:a :href (format nil "/answer?num=~a" num)
+                       "他ユーザの回答にコメント") "する前に、次、行くな。")
+              ; (:li "それとも直接 "
+              ;      (:a :href (format
+              ;                 nil "/answer?num=~a"
+              ;                 (+ 1 (parse-integer num)))
+              ;          "次の問題の回答ページ")
+              ;      "、行く？")
+              )))
           (page
             (:h3 "error")
             (:p "問題を解くアイデア、アプローチを関数定義の前に"
