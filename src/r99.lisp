@@ -3,20 +3,23 @@
 
 (in-package :r99)
 
-(defvar *version* "2.33.16")
+(defvar *version* "2.34.3")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
+;; 2021-02-02
+(defvar *how-many-answers* 10)
+
 (defun read-midterm (fname)
   (with-open-file
-      (in fname)
-    (let ((ret nil))
-      (loop for line = (read-line in nil)
-         while line do
+   (in fname)
+   (let ((ret nil))
+     (loop for line = (read-line in nil)
+           while line do
            (destructuring-bind
-                 (f s) (ppcre:split " " line)
-             (push (cons (parse-integer f) (parse-integer s)) ret)))
-      ret)))
+            (f s) (ppcre:split " " line)
+            (push (cons (parse-integer f) (parse-integer s)) ret)))
+     ret)))
 
 ;; required.
 ;; moved to start-server
@@ -326,9 +329,13 @@
    ;; (:h3 "こんな調子で 100 番やっても無意味。減点。")
    ;; (:p (:img :src "/ng.png"))
    (:p :style "color:red"
-       "見せかけの回答数増やすことだけに血眼で、"
-       "プログラムの動作をチェックしないアップロードが最近特に目立つ。"
-       "それ、減点だから。真面目なやつにコメントつけられなくなる。")
+       "プログラムの動作をチェックしないアップロードは減点。"
+       "真面目なやつにコメントつけられなくなる。")
+   (:p "どんな風に動作チェックしたかもコメントに書こう。"
+       "「R99の問題できちんと動作確認して出したのに、確認してない、"
+       "だめというコメントをいただきました。"
+       "確認してから出しているのにこれで減点されるのは理不尽だと思います。」"
+       "つうクレームもあるようなので。")
    (:p "こんな調子で 100 番やっても無意味 &rArr;"
        (:a :href "http://app.melt.kyutech.ac.jp/r101.html" "README"))
    (:p (:img :src "/by-answers.svg" :width "80%"))
@@ -439,11 +446,15 @@
      ;; (:h3 "こんな調子で 100 番やっても無意味。減点。")
      ;; (:p (:img :src "/ng.png"))
      (:p :style "color:red"
-       "見せかけの回答数増やすことだけに血眼で、"
-       "プログラムの動作をチェックしないアップロードが最近特に目立つ。"
-       "それ、減点だから。真面目なやつにコメントつけられなくなる。")
+       "プログラムの動作をチェックしないアップロードは減点。"
+       "真面目なやつにコメントつけられなくなる。")
+     (:p "どんな風に動作チェックしたかもコメントに書こう。"
+       "「R99の問題できちんと動作確認して出したのに、確認してない、"
+       "だめというコメントをいただきました。"
+       "確認してから出しているのにこれで減点されるのは理不尽だと思います。」"
+       "つうクレームもあるようなので。")
      (:p "こんな調子で 100 番やっても無意味 &rArr;"
-         (:a :href "http://app.melt.kyutech.ac.jp/r101.html" "README"))
+       (:a :href "http://app.melt.kyutech.ac.jp/r101.html" "README"))
      (:p (:img :src "/by-numbers.svg" :with "80%"))
      (:p "横軸:問題番号、縦軸:回答数。"
          "グラフは手動で作成してます。数日ごとにアップデートします。")
@@ -562,7 +573,7 @@
           where not (myid='~a') and not (myid='8000') and not (myid='8001')
           and num='~a'
           order by timestamp desc
-          limit 5" (myid) num)))
+          limit ~a" (myid) num *how-many-answers*)))
 
 
 (define-easy-handler (old-version :uri "/old-version") (myid num)
@@ -682,7 +693,7 @@
      (:h2 "submit your answer to " (str num))
      (:p (str d))
      (:ul
-      (:li :class "warn" "同じような回答とともに、わかりにくい回答が増えている。"
+      (:li :class "warn" "同じような回答、わかりにくい回答が増えている。"
            "どんな方針で問題を解こうとしたのか、"
            "回答の上に簡単な説明コメント入れること。")
       (:li :class "warn" "回答提出後 3 時間は訂正できない。")
@@ -758,21 +769,20 @@
                 (htm (:p (:img :src "happy.png"))
                      (:p "おめでとう! 通算 " (str count) " 番目の回答です。")))
                (t (htm (:p "received."))))
-             (:p "さらに R99 にはげみましょう。")
+             (:p "さらに R99 にはげむ前に、他の受講生の回答読んでコメントつけよう。"
+                 "間違いあったら　hkimura が見つける前に指摘してあげよう。"
+                 "「いい」と思ったら自分がもらって嬉しいと思うコメントを。")
              (:ul
-              (:li (:a :href "/status" "自分の回答状況")
-                   "のチェックのほか、")
-              (:li (:a :href (format
-                              nil
-                              "/answer?num=~a" num)
-                       "他ユーザの回答を見る")
-                   "ことも勉強になるぞ。")
-              (:li "それとも直接 "
-                   (:a :href (format
-                              nil "/answer?num=~a"
-                              (+ 1 (parse-integer num)))
-                       "次の問題の回答ページ")
-                   "、行く？"))))
+              ;(:li (:a :href "/status" "自分の回答状況") "のチェックのほか、")
+              (:li (:a :href (format nil "/answer?num=~a" num)
+                       "他ユーザの回答読んでコメント"))
+              ; (:li "それとも直接 "
+              ;      (:a :href (format
+              ;                 nil "/answer?num=~a"
+              ;                 (+ 1 (parse-integer num)))
+              ;          "次の問題の回答ページ")
+              ;      "、行く？")
+              )))
           (page
             (:h3 "error")
             (:p "問題を解くアイデア、アプローチを関数定義の前に"
