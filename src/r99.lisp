@@ -7,16 +7,19 @@
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
+;; 2021-02-02
+(defvar *how-many-answers* 10)
+
 (defun read-midterm (fname)
   (with-open-file
-      (in fname)
-    (let ((ret nil))
-      (loop for line = (read-line in nil)
-         while line do
+   (in fname)
+   (let ((ret nil))
+     (loop for line = (read-line in nil)
+           while line do
            (destructuring-bind
-                 (f s) (ppcre:split " " line)
-             (push (cons (parse-integer f) (parse-integer s)) ret)))
-      ret)))
+            (f s) (ppcre:split " " line)
+            (push (cons (parse-integer f) (parse-integer s)) ret)))
+     ret)))
 
 ;; required.
 ;; moved to start-server
@@ -564,7 +567,7 @@
           where not (myid='~a') and not (myid='8000') and not (myid='8001')
           and num='~a'
           order by timestamp desc
-          limit 5" (myid) num)))
+          limit ~a" (myid) num *how-many-answers*)))
 
 
 (define-easy-handler (old-version :uri "/old-version") (myid num)
