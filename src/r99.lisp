@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.34.4")
+(defvar *version* "2.34.5")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
@@ -328,17 +328,15 @@
    ;;     "コロナは学生にサボる口実を与えただけか。")
    ;; (:h3 "こんな調子で 100 番やっても無意味。減点。")
    ;; (:p (:img :src "/ng.png"))
-   (:p
-     (:span :style "color:red"
-       "プログラムの動作をチェックしないアップロードは減点。"
-       "どんな風に動作チェックしたかもコメントに書こう。")
-     "と、言ってるのにチェック用コード書かないアップロードは点数着くかな？")
+   (:p "R99は試験前の月曜24時で止めます。")
+   (:p "プログラムの動作をどうチェックしたか、コメント書いてるか？")
+   (:p "他の回答に適切なコメントするといいことあるぞ。")
    (:p "こんな調子で R99 やっても無意味 &rArr;"
        (:a :href "http://app.melt.kyutech.ac.jp/r101.html" "README"))
    (:p (:img :src "/by-answers.svg" :width "80%"))
    (:p "横軸：回答数、縦軸：回答数答えた人の数。"
-        "グラフの積分値が受講生の数になる。"
-        "グラフは数日ごとに手動作成します。")
+       "グラフの積分値が受講生の数になる。"
+       "グラフは数日ごとに手動作成します。")
    ;;
    ;; (:p (:img :src "/by-answers.svg" :width "80%"))
    ;; (:p (:a :href "http://app.melt.kyutech.ac.jp/144-warn-r99.html" "README"))
@@ -349,20 +347,20 @@
    (:h2 "誰が何問?")
    (let* ((n 0)
           (recent
-           (dbi:fetch
-            (query "select myid, num, timestamp::text from answers
+            (dbi:fetch
+             (query "select myid, num, timestamp::text from answers
        order by timestamp desc limit 1")))
           (results
-           (query "select users.myid, count(distinct answer)
+            (query "select users.myid, count(distinct answer)
        from users
        inner join answers
        on users.myid=answers.myid
        group by users.myid
        order by users.myid"))
           (working-users
-           (mapcar (lambda (x) (getf x :|myid|))
-                   (dbi:fetch-all
-                    (query  "select distinct(myid) from answers
+            (mapcar (lambda (x) (getf x :|myid|))
+                    (dbi:fetch-all
+                     (query  "select distinct(myid) from answers
        where now() - timestamp < '48 hours'")))))
 
      ;; BUG: 回答が一つもないとエラーになる。
@@ -393,18 +391,18 @@
      (loop for row = (dbi:fetch results)
            while row
            do
-           (let* ((myid (getf row :|myid|))
-                  (working (if (find myid working-users) "yes" "no")))
-             (format
-              t
-              "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
-              working
-              myid
-              (cdr (assoc myid *mt*))
-              (stars (getf row :|count|))
-              myid
-              (getf row :|count|)))
-           (incf n))
+              (let* ((myid (getf row :|myid|))
+                     (working (if (find myid working-users) "yes" "no")))
+                (format
+                 t
+                 "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
+                 working
+                 myid
+                 (cdr (assoc myid *mt*))
+                 (stars (getf row :|count|))
+                 myid
+                 (getf row :|count|)))
+              (incf n))
 
      (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
 
@@ -442,11 +440,9 @@
      ;;     "グラフは手動で作成してます。数日ごとにアップデートします。")
      ;; (:h3 "こんな調子で 100 番やっても無意味。減点。")
      ;; (:p (:img :src "/ng.png"))
-     (:p
-      (:span :style "color:red"
-       "プログラムの動作をチェックしないアップロードは減点。"
-       "どんな風に動作チェックしたかもコメントに書こう。")
-       "と、言ってるのにチェック用コード書かないアップロードは点数着くかな？")
+     (:p "R99は試験前の月曜24時で止めます。")
+     (:p "プログラムの動作をどうチェックしたか、コメント書いてるか？")
+     (:p "他の回答に適切なコメントするといいことあるぞ。")
      (:p "こんな調子で R99 やっても無意味 &rArr;"
        (:a :href "http://app.melt.kyutech.ac.jp/r101.html" "README"))
      (:p (:img :src "/by-numbers.svg" :with "80%"))
