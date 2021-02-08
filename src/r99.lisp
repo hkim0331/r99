@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.34.3")
+(defvar *version* "2.34.7")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
@@ -328,20 +328,19 @@
    ;;     "コロナは学生にサボる口実を与えただけか。")
    ;; (:h3 "こんな調子で 100 番やっても無意味。減点。")
    ;; (:p (:img :src "/ng.png"))
-   (:p :style "color:red"
-       "プログラムの動作をチェックしないアップロードは減点。"
-       "真面目なやつにコメントつけられなくなる。")
-   (:p "どんな風に動作チェックしたかもコメントに書こう。"
-       "「R99の問題できちんと動作確認して出したのに、確認してない、"
-       "だめというコメントをいただきました。"
-       "確認してから出しているのにこれで減点されるのは理不尽だと思います。」"
-       "つうクレームもあるようなので。")
+   (:p "心ない受講生によって R99 はもう役目を果たしてない。"
+        "ダメ出しコメント出すべきだろうが、評価できない投稿多すぎ。"
+        "真面目な前向き受講生が沈んでいる。ごめんね。")
+   ;;(:p "ng だろな" (:img :src "/ng-2--3.png") "これで勉強なるんかね？")
+   (:p "R99は試験前の月曜24時で止めます。")
+   ;;(:p "プログラムの動作をどうチェックしたか、コメント書いてるか？")
+   ;;(:p "他の回答に適切なコメントするといいことあるぞ。")
    (:p "こんな調子で R99 やっても無意味 &rArr;"
        (:a :href "http://app.melt.kyutech.ac.jp/r101.html" "README"))
    (:p (:img :src "/by-answers.svg" :width "80%"))
    (:p "横軸：回答数、縦軸：回答数答えた人の数。"
-        "グラフの積分値が受講生の数になる。"
-        "グラフは数日ごとに手動作成します。")
+       "グラフの積分値が受講生の数になる。"
+       "グラフは数日ごとに手動作成します。")
    ;;
    ;; (:p (:img :src "/by-answers.svg" :width "80%"))
    ;; (:p (:a :href "http://app.melt.kyutech.ac.jp/144-warn-r99.html" "README"))
@@ -352,20 +351,20 @@
    (:h2 "誰が何問?")
    (let* ((n 0)
           (recent
-           (dbi:fetch
-            (query "select myid, num, timestamp::text from answers
+            (dbi:fetch
+             (query "select myid, num, timestamp::text from answers
        order by timestamp desc limit 1")))
           (results
-           (query "select users.myid, count(distinct answer)
+            (query "select users.myid, count(distinct answer)
        from users
        inner join answers
        on users.myid=answers.myid
        group by users.myid
        order by users.myid"))
           (working-users
-           (mapcar (lambda (x) (getf x :|myid|))
-                   (dbi:fetch-all
-                    (query  "select distinct(myid) from answers
+            (mapcar (lambda (x) (getf x :|myid|))
+                    (dbi:fetch-all
+                     (query  "select distinct(myid) from answers
        where now() - timestamp < '48 hours'")))))
 
      ;; BUG: 回答が一つもないとエラーになる。
@@ -396,18 +395,18 @@
      (loop for row = (dbi:fetch results)
            while row
            do
-           (let* ((myid (getf row :|myid|))
-                  (working (if (find myid working-users) "yes" "no")))
-             (format
-              t
-              "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
-              working
-              myid
-              (cdr (assoc myid *mt*))
-              (stars (getf row :|count|))
-              myid
-              (getf row :|count|)))
-           (incf n))
+              (let* ((myid (getf row :|myid|))
+                     (working (if (find myid working-users) "yes" "no")))
+                (format
+                 t
+                 "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
+                 working
+                 myid
+                 (cdr (assoc myid *mt*))
+                 (stars (getf row :|count|))
+                 myid
+                 (getf row :|count|)))
+              (incf n))
 
      (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
 
@@ -445,14 +444,13 @@
      ;;     "グラフは手動で作成してます。数日ごとにアップデートします。")
      ;; (:h3 "こんな調子で 100 番やっても無意味。減点。")
      ;; (:p (:img :src "/ng.png"))
-     (:p :style "color:red"
-       "プログラムの動作をチェックしないアップロードは減点。"
-       "真面目なやつにコメントつけられなくなる。")
-     (:p "どんな風に動作チェックしたかもコメントに書こう。"
-       "「R99の問題できちんと動作確認して出したのに、確認してない、"
-       "だめというコメントをいただきました。"
-       "確認してから出しているのにこれで減点されるのは理不尽だと思います。」"
-       "つうクレームもあるようなので。")
+     ;;(:p "ng か？" (:img :src "/ng-2--3.png") "勉強なってんの？")
+     (:p "心ない受講生によって R99 はもう役目を果たしてない。"
+         "ダメ出しコメント出すべきだろうが、評価できない投稿多すぎ。"
+         "真面目な前向き受講生が沈んでいる。ごめんね。")
+     (:p "R99は試験前の月曜24時で止めます。")
+     ;;(:p "プログラムの動作をどうチェックしたか、コメント書いてるか？")
+     ;;(:p "他の回答に適切なコメントするといいことあるぞ。")
      (:p "こんな調子で R99 やっても無意味 &rArr;"
        (:a :href "http://app.melt.kyutech.ac.jp/r101.html" "README"))
      (:p (:img :src "/by-numbers.svg" :with "80%"))
@@ -693,12 +691,13 @@
      (:h2 "submit your answer to " (str num))
      (:p (str d))
      (:ul
-      (:li :class "warn" "同じような回答、わかりにくい回答が増えている。"
+      (:li "同じような回答、わかりにくい回答が増えている。"
            "どんな方針で問題を解こうとしたのか、"
            "回答の上に簡単な説明コメント入れること。")
-      (:li :class "warn" "回答提出後 3 時間は訂正できない。")
-      (:li :class "warn" "submit したら他の回答を読んで（コメントもな）、"
-           "気に入った回答、勉強になった回答あったらコメントつけよう。"))
+      (:li :class "warn" "どんな風に動作確認したかもだぞ。")
+      (:li "回答提出後 3 時間は訂正できない。")
+      (:li :class "warn" "submit したら他の回答、コメントを読み、"
+           "ビシッと来たもの、勉強になった点あったらコメントつけよう。"))
 
      (:form :method "post" :action "/submit"
             (:input :type "hidden" :name "num" :value num)
@@ -775,14 +774,14 @@
              (:ul
               ;(:li (:a :href "/status" "自分の回答状況") "のチェックのほか、")
               (:li (:a :href (format nil "/answer?num=~a" num)
-                       "他ユーザの回答読んでコメント"))
+                       "他ユーザの回答読んでコメント")))))
               ; (:li "それとも直接 "
               ;      (:a :href (format
               ;                 nil "/answer?num=~a"
               ;                 (+ 1 (parse-integer num)))
               ;          "次の問題の回答ページ")
               ;      "、行く？")
-              )))
+
           (page
             (:h3 "error")
             (:p "問題を解くアイデア、アプローチを関数定義の前に"
@@ -1021,6 +1020,7 @@ answer like '%/* comment from%' order by num"
            "kame-sennin.jpg"
            "kutsugen.jpg"
            "ng.png"
+           "ng-2--3.png"
            "panda.png"
            "r99.css"
            "readme.html"
