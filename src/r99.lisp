@@ -328,11 +328,13 @@
    ;;     "コロナは学生にサボる口実を与えただけか。")
    ;; (:h3 "こんな調子で 100 番やっても無意味。減点。")
    ;; (:p (:img :src "/ng.png"))
-   (:p
-     (:span :style "color:red"
-       "プログラムの動作をチェックしないアップロードは減点。"
-       "どんな風に動作チェックしたかもコメントに書こう。")
-     "と、言ってるのにチェック用コード書かないアップロードは点数着くかな？")
+   (:p "良い子は何を思いますか。")
+   (:p (:img :src "/2__9.png"))
+   ;;(:p
+   ;;  (:span :style "color:red"
+   ;;    "プログラムの動作をチェックしないアップロードは減点。"
+   ;;    "どんな風に動作チェックしたかもコメントに書こう。")
+   ;;  "と、言ってるのにチェック用コード書かないアップロードは点数着くかな？")
    (:p "こんな調子で R99 やっても無意味 &rArr;"
        (:a :href "http://app.melt.kyutech.ac.jp/r101.html" "README"))
    (:p (:img :src "/by-answers.svg" :width "80%"))
@@ -442,11 +444,8 @@
      ;;     "グラフは手動で作成してます。数日ごとにアップデートします。")
      ;; (:h3 "こんな調子で 100 番やっても無意味。減点。")
      ;; (:p (:img :src "/ng.png"))
-     (:p
-      (:span :style "color:red"
-       "プログラムの動作をチェックしないアップロードは減点。"
-       "どんな風に動作チェックしたかもコメントに書こう。")
-       "と、言ってるのにチェック用コード書かないアップロードは点数着くかな？")
+     (:p "良い子は何を思いますか。")
+     (:p (:img :src "/2__9.png"))
      (:p "こんな調子で R99 やっても無意味 &rArr;"
        (:a :href "http://app.melt.kyutech.ac.jp/r101.html" "README"))
      (:p (:img :src "/by-numbers.svg" :with "80%"))
@@ -999,7 +998,8 @@ answer like '%/* comment from%' order by num"
 ;; dry!
 (defun publish-static-content ()
   (let ((entities
-         '("a-gift-of-the-sea.jpg"
+         '("2__9.png"
+           "a-gift-of-the-sea.jpg"
            "cat2.png"
            "dog.png"
            "favicon.ico"
