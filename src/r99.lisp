@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.34.8")
+(defvar *version* "2.35.0")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
