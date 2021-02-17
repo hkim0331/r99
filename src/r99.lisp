@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.34.7")
+(defvar *version* "2.35.0")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
@@ -316,6 +316,25 @@
 
 (define-easy-handler (users :uri "/others") ()
   (page
+   (:p "採点中なんだけど、全く同じように間違った回答が学生番号連番で"
+       "出てくる。"
+       "晒そうか。"
+       "こんなの。字下げをずらすような小賢しいテクニック使うやつも。")
+   (:pre
+"void factors(int n){"
+"  int i;"
+"  int j = 0;"
+"  printf(&quot;%iの素因数は&quot;,n);"
+"  for(i = 1; n > 1; i++){"
+"    if(n % i == 0){"
+"      if(my_prime(i)){"
+"	printf(&quot;%i&quot;,i);"
+"      }"
+"    }"
+"    n /= i;"
+"  }"
+"  printf(&quot;です\n&quot;);"
+"}")
    ;;    (:p (:img :src "/guernica.jpg" :width "100%"))
    ;; (:p (:img :src "/kutsugen.jpg" :width "100%"))
    ;; (:p :align "right" "「屈原」横山大観(1868-1958), 1898.")
@@ -328,20 +347,19 @@
    ;;     "コロナは学生にサボる口実を与えただけか。")
    ;; (:h3 "こんな調子で 100 番やっても無意味。減点。")
    ;; (:p (:img :src "/ng.png"))
-   (:p "心ない受講生によって R99 はもう役目を果たしてない。"
-        "ダメ出しコメント出すべきだろうが、評価できない投稿多すぎ。"
-        "真面目な前向き受講生が沈んでいる。ごめんね。")
-   ;;(:p "ng だろな" (:img :src "/ng-2--3.png") "これで勉強なるんかね？")
-   (:p "R99は試験前の月曜24時で止めます。")
-   ;;(:p "プログラムの動作をどうチェックしたか、コメント書いてるか？")
-   ;;(:p "他の回答に適切なコメントするといいことあるぞ。")
-   (:p "こんな調子で R99 やっても無意味 &rArr;"
-       (:a :href "http://app.melt.kyutech.ac.jp/r101.html" "README"))
+   ;;(:p "良い子は何を思いますか。")
+   ;;(:p (:img :src "/2__9.png"))
+   ;;(:p
+   ;;  (:span :style "color:red"
+   ;;    "プログラムの動作をチェックしないアップロードは減点。"
+   ;;    "どんな風に動作チェックしたかもコメントに書こう。")
+   ;;  "と、言ってるのにチェック用コード書かないアップロードは点数着くかな？")
+   ;;(:p "こんな調子で R99 やっても無意味 &rArr;"
+   ;;    (:a :href "http://app.melt.kyutech.ac.jp/r101.html" "README")
    (:p (:img :src "/by-answers.svg" :width "80%"))
    (:p "横軸：回答数、縦軸：回答数答えた人の数。"
        "グラフの積分値が受講生の数になる。"
        "グラフは数日ごとに手動作成します。")
-   ;;
    ;; (:p (:img :src "/by-answers.svg" :width "80%"))
    ;; (:p (:a :href "http://app.melt.kyutech.ac.jp/144-warn-r99.html" "README"))
    ;; (:p "横軸：回答数、縦軸：回答数答えた人の数。"
@@ -439,20 +457,33 @@
      ;;(:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
      ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
      (:h1)
+        (:p "採点中なんだけど、全く同じように間違った回答が学生番号連番で"
+       "出てくる。字下げをずらすようなテクニック使うのもある。晒す？"
+       "これで素因数出るんかなー。自首をまつかな。")
+      (:pre
+"void factors(int n){
+  int i;
+  int j = 0;
+  printf(&quot;%iの素因数は&quot;,n);
+  for(i = 1; n > 1; i++){
+    if(n % i == 0){
+      if(my_prime(i)){
+	printf(&quot;%i&quot;,i);
+      }
+    }
+    n /= i;
+  }
+  printf(&quot;です\n&quot;);
+}")
      ;; (:p (:img :src "/by-numbers.svg" :with "80%"))
      ;; (:p "横軸:問題番号、縦軸:回答数。"
      ;;     "グラフは手動で作成してます。数日ごとにアップデートします。")
      ;; (:h3 "こんな調子で 100 番やっても無意味。減点。")
      ;; (:p (:img :src "/ng.png"))
-     ;;(:p "ng か？" (:img :src "/ng-2--3.png") "勉強なってんの？")
-     (:p "心ない受講生によって R99 はもう役目を果たしてない。"
-         "ダメ出しコメント出すべきだろうが、評価できない投稿多すぎ。"
-         "真面目な前向き受講生が沈んでいる。ごめんね。")
-     (:p "R99は試験前の月曜24時で止めます。")
-     ;;(:p "プログラムの動作をどうチェックしたか、コメント書いてるか？")
-     ;;(:p "他の回答に適切なコメントするといいことあるぞ。")
-     (:p "こんな調子で R99 やっても無意味 &rArr;"
-       (:a :href "http://app.melt.kyutech.ac.jp/r101.html" "README"))
+     ;;(:p "良い子は何を思いますか。")
+     ;;(:p (:img :src "/2__9.png"))
+     ;;(:p "こんな調子で R99 やっても無意味 &rArr;"
+     ;;  (:a :href "http://app.melt.kyutech.ac.jp/r101.html" "README"))
      (:p (:img :src "/by-numbers.svg" :with "80%"))
      (:p "横軸:問題番号、縦軸:回答数。"
          "グラフは手動で作成してます。数日ごとにアップデートします。")
@@ -769,7 +800,7 @@
                      (:p "おめでとう! 通算 " (str count) " 番目の回答です。")))
                (t (htm (:p "received."))))
              (:p "さらに R99 にはげむ前に、他の受講生の回答読んでコメントつけよう。"
-                 "間違いあったら　hkimura が見つける前に指摘してあげよう。"
+                 "間違いあったら hkimura が見つける前に指摘してあげよう。"
                  "「いい」と思ったら自分がもらって嬉しいと思うコメントを。")
              (:ul
               ;(:li (:a :href "/status" "自分の回答状況") "のチェックのほか、")
@@ -1003,7 +1034,8 @@ answer like '%/* comment from%' order by num"
 ;; dry!
 (defun publish-static-content ()
   (let ((entities
-         '("a-gift-of-the-sea.jpg"
+         '("2__9.png"
+           "a-gift-of-the-sea.jpg"
            "cat2.png"
            "dog.png"
            "favicon.ico"
