@@ -1,7 +1,7 @@
 version: '3.3'
 services:
   r99:
-    image: roswell
+    image: hkim/roswell
     container_name: app_r99
     ports:
       - "4005:4005"

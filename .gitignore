@@ -6,6 +6,8 @@
 *.x86f
 *~
 .#*
+*.dat
+*.svg
 /data
 /db/.cpcache
 /db/.nrepl-port
@@ -16,8 +18,4 @@
 /src/r99
 env.sh
 .rebel_readline_history
-*.svg
-!/src/static/by-answers.svg
-!/src/static/by-numbers.svg
 /log
-*.dat
