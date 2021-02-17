@@ -316,25 +316,42 @@
 
 (define-easy-handler (users :uri "/others") ()
   (page
-   (:p "採点中なんだけど、全く同じように間違った回答が学生番号連番で"
-       "出てくる。"
-       "晒そうか。"
-       "こんなの。字下げをずらすような小賢しいテクニック使うやつも。")
-   (:pre
-"void factors(int n){"
-"  int i;"
-"  int j = 0;"
-"  printf(&quot;%iの素因数は&quot;,n);"
-"  for(i = 1; n > 1; i++){"
-"    if(n % i == 0){"
-"      if(my_prime(i)){"
-"	printf(&quot;%i&quot;,i);"
-"      }"
-"    }"
-"    n /= i;"
-"  }"
-"  printf(&quot;です\n&quot;);"
-"}")
+   (:p "採点終わり。r99は2、3日中にいったんリセットします。")
+   (:p
+    "不合格の中には r99 ウソでやり切りましたーみたいなのたくさん。
+    左から、中間、r99解いた問題数、r99に取り組んだ日数、期末テスト。
+    r99 を7日間で乗り切れる実力者が期末テスト0点か？
+    中間テストでもテクニック使ったのかな？
+    真ん中は中間と期末受けてないhkimuraのデータ。")
+   (:p (:img :src "/results-low.png"))
+   (:p "成績上位者のデータは下になります。30点満点のはずの期末に35点は"
+       "エラーなくコンパイルできたボーナス5点が入ってるから。")
+   (:p (:img :src "/results-high.png"))
+   (:p "やるはずのなかった追試を受ける意思のある学生は
+    リセット後のr99でもう一度努力しなさい。
+    やったら問題解けるようになるさ。
+    追試験当日までに解いて来た問題数、かけた日数は、当然、成績に反映する。
+    試験の期日？関係ねーだろ。今日から努力を始めること。
+    ただし、出席数が足りない人は受験資格ない。")
+                                        ;    (:p "採点中なんだけど、全く同じように間違った回答が学生番号連番で"
+                                        ;        "出てくる。"
+                                        ;        "晒そうか。"
+                                        ;        "こんなの。字下げをずらすような小賢しいテクニック使うやつも。")
+                                        ;    (:pre
+                                        ; "void factors(int n){"
+                                        ; "  int i;"
+                                        ; "  int j = 0;"
+                                        ; "  printf(&quot;%iの素因数は&quot;,n);"
+                                        ; "  for(i = 1; n > 1; i++){"
+                                        ; "    if(n % i == 0){"
+                                        ; "      if(my_prime(i)){"
+                                        ; "	printf(&quot;%i&quot;,i);"
+                                        ; "      }"
+                                        ; "    }"
+                                        ; "    n /= i;"
+                                        ; "  }"
+                                        ; "  printf(&quot;です\n&quot;);"
+                                        ; "}")
    ;;    (:p (:img :src "/guernica.jpg" :width "100%"))
    ;; (:p (:img :src "/kutsugen.jpg" :width "100%"))
    ;; (:p :align "right" "「屈原」横山大観(1868-1958), 1898.")
@@ -369,20 +386,20 @@
    (:h2 "誰が何問?")
    (let* ((n 0)
           (recent
-            (dbi:fetch
-             (query "select myid, num, timestamp::text from answers
+           (dbi:fetch
+            (query "select myid, num, timestamp::text from answers
        order by timestamp desc limit 1")))
           (results
-            (query "select users.myid, count(distinct answer)
+           (query "select users.myid, count(distinct answer)
        from users
        inner join answers
        on users.myid=answers.myid
        group by users.myid
        order by users.myid"))
           (working-users
-            (mapcar (lambda (x) (getf x :|myid|))
-                    (dbi:fetch-all
-                     (query  "select distinct(myid) from answers
+           (mapcar (lambda (x) (getf x :|myid|))
+                   (dbi:fetch-all
+                    (query  "select distinct(myid) from answers
        where now() - timestamp < '48 hours'")))))
 
      ;; BUG: 回答が一つもないとエラーになる。
@@ -413,18 +430,18 @@
      (loop for row = (dbi:fetch results)
            while row
            do
-              (let* ((myid (getf row :|myid|))
-                     (working (if (find myid working-users) "yes" "no")))
-                (format
-                 t
-                 "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
-                 working
-                 myid
-                 (cdr (assoc myid *mt*))
-                 (stars (getf row :|count|))
-                 myid
-                 (getf row :|count|)))
-              (incf n))
+           (let* ((myid (getf row :|myid|))
+                  (working (if (find myid working-users) "yes" "no")))
+             (format
+              t
+              "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
+              working
+              myid
+              (cdr (assoc myid *mt*))
+              (stars (getf row :|count|))
+              myid
+              (getf row :|count|)))
+           (incf n))
 
      (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
 
@@ -457,24 +474,41 @@
      ;;(:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
      ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
      (:h1)
-        (:p "採点中なんだけど、全く同じように間違った回答が学生番号連番で"
-       "出てくる。字下げをずらすようなテクニック使うのもある。晒す？"
-       "これで素因数出るんかなー。自首をまつかな。")
-      (:pre
-"void factors(int n){
-  int i;
-  int j = 0;
-  printf(&quot;%iの素因数は&quot;,n);
-  for(i = 1; n > 1; i++){
-    if(n % i == 0){
-      if(my_prime(i)){
-	printf(&quot;%i&quot;,i);
-      }
-    }
-    n /= i;
-  }
-  printf(&quot;です\n&quot;);
-}")
+     (:p "採点終わり。r99は2、3日中にいったんリセットします。")
+     (:p
+      "不合格の中には r99 ウソでやり切りましたーみたいなのたくさん。
+    左から、中間、r99解いた問題数、r99に取り組んだ日数、期末テスト。
+    r99 を7日間で乗り切れる実力者が期末テスト0点か？
+    中間テストでもテクニック使ったのかな？
+    真ん中は中間と期末受けてないhkimuraのデータ。")
+     (:p (:img :src "/results-low.png"))
+     (:p "成績上位者のデータは下になります。30点満点のはずの期末に35点は"
+         "エラーなくコンパイルできたボーナス5点が入ってるから。")
+     (:p (:img :src "/results-high.png"))
+     (:p "やるはずのなかった追試を受ける意思のある学生は
+    リセット後のr99でもう一度努力しなさい。
+    やったら問題解けるようになるさ。
+    追試験当日までに解いて来た問題数、かけた日数は、当然、成績に反映する。
+    試験の期日？関係ねーだろ。今日から努力を始めること。
+    ただし、出席数が足りない人は受験資格ない。")
+                                        ;         (:p "採点中なんだけど、全く同じように間違った回答が学生番号連番で"
+                                        ;        "出てくる。字下げをずらすようなテクニック使うのもある。晒す？"
+                                        ;        "これで素因数出るんかなー。自首をまつかな。")
+                                        ;       (:pre
+                                        ; "void factors(int n){
+                                        ;   int i;
+                                        ;   int j = 0;
+                                        ;   printf(&quot;%iの素因数は&quot;,n);
+                                        ;   for(i = 1; n > 1; i++){
+                                        ;     if(n % i == 0){
+                                        ;       if(my_prime(i)){
+                                        ; 	printf(&quot;%i&quot;,i);
+                                        ;       }
+                                        ;     }
+                                        ;     n /= i;
+                                        ;   }
+                                        ;   printf(&quot;です\n&quot;);
+                                        ; }")
      ;; (:p (:img :src "/by-numbers.svg" :with "80%"))
      ;; (:p "横軸:問題番号、縦軸:回答数。"
      ;;     "グラフは手動で作成してます。数日ごとにアップデートします。")
@@ -1034,7 +1068,9 @@ answer like '%/* comment from%' order by num"
 ;; dry!
 (defun publish-static-content ()
   (let ((entities
-         '("2__9.png"
+         '("results-high.png"
+           "results-low.png"
+           "2__9.png"
            "a-gift-of-the-sea.jpg"
            "cat2.png"
            "dog.png"
