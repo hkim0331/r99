@@ -9,9 +9,9 @@ else
 fi
 
 # linux's sed is gnu sed, macOS not.
-SED=/bin/sh
-if [ -e /usr/local/bin/gsed ]; then
-    SED=/usr/local/bin/gsed
+SED=/usr/bin/sed
+if [ -e $HOMEBREW_PREFIX/bin/gsed ]; then
+    SED=$HOMEBREW_PREFIX/bin/gsed
 fi
 
 ${SED} -i.bak "/^\s*:version/ c\

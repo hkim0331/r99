@@ -3,21 +3,23 @@
 
 (in-package :r99)
 
-(defvar *version* "2.33.10")
-
+(defvar *version* "2.34.7")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
+;; 2021-02-02
+(defvar *how-many-answers* 10)
+
 (defun read-midterm (fname)
   (with-open-file
-      (in fname)
-    (let ((ret nil))
-      (loop for line = (read-line in nil)
-         while line do
+   (in fname)
+   (let ((ret nil))
+     (loop for line = (read-line in nil)
+           while line do
            (destructuring-bind
-                 (f s) (ppcre:split " " line)
-             (push (cons (parse-integer f) (parse-integer s)) ret)))
-      ret)))
+            (f s) (ppcre:split " " line)
+            (push (cons (parse-integer f) (parse-integer s)) ret)))
+     ret)))
 
 ;; required.
 ;; moved to start-server
@@ -324,30 +326,45 @@
    ;;     "moodle の授業資料を最初から読み返したらどうか？"
    ;;     "そんな努力をせん試験対策はゴミ以下やろ。"
    ;;     "コロナは学生にサボる口実を与えただけか。")
-   ;;
-    ;; (:p (:img :src "/by-answers.svg" :width "80%"))
-   (:p (:a :href "http://app.melt.kyutech.ac.jp/144-warn-r99.html" "README"))
+   ;; (:h3 "こんな調子で 100 番やっても無意味。減点。")
+   ;; (:p (:img :src "/ng.png"))
+   (:p "心ない受講生によって R99 はもう役目を果たしてない。"
+        "ダメ出しコメント出すべきだろうが、評価できない投稿多すぎ。"
+        "真面目な前向き受講生が沈んでいる。ごめんね。")
+   ;;(:p "ng だろな" (:img :src "/ng-2--3.png") "これで勉強なるんかね？")
+   (:p "R99は試験前の月曜24時で止めます。")
+   ;;(:p "プログラムの動作をどうチェックしたか、コメント書いてるか？")
+   ;;(:p "他の回答に適切なコメントするといいことあるぞ。")
+   (:p "こんな調子で R99 やっても無意味 &rArr;"
+       (:a :href "http://app.melt.kyutech.ac.jp/r101.html" "README"))
+   (:p (:img :src "/by-answers.svg" :width "80%"))
    (:p "横軸：回答数、縦軸：回答数答えた人の数。"
        "グラフの積分値が受講生の数になる。"
        "グラフは数日ごとに手動作成します。")
+   ;;
+   ;; (:p (:img :src "/by-answers.svg" :width "80%"))
+   ;; (:p (:a :href "http://app.melt.kyutech.ac.jp/144-warn-r99.html" "README"))
+   ;; (:p "横軸：回答数、縦軸：回答数答えた人の数。"
+   ;;     "グラフの積分値が受講生の数になる。"
+   ;;     "グラフは数日ごとに手動作成します。")
    (:h1)
    (:h2 "誰が何問?")
    (let* ((n 0)
           (recent
-           (dbi:fetch
-            (query "select myid, num, timestamp::text from answers
+            (dbi:fetch
+             (query "select myid, num, timestamp::text from answers
        order by timestamp desc limit 1")))
           (results
-           (query "select users.myid, count(distinct answer)
+            (query "select users.myid, count(distinct answer)
        from users
        inner join answers
        on users.myid=answers.myid
        group by users.myid
        order by users.myid"))
           (working-users
-           (mapcar (lambda (x) (getf x :|myid|))
-                   (dbi:fetch-all
-                    (query  "select distinct(myid) from answers
+            (mapcar (lambda (x) (getf x :|myid|))
+                    (dbi:fetch-all
+                     (query  "select distinct(myid) from answers
        where now() - timestamp < '48 hours'")))))
 
      ;; BUG: 回答が一つもないとエラーになる。
@@ -362,11 +379,11 @@
       ;;  (format
       ;;   t
       ;;   " ~a、~a さんが
-       ;; <a href='/answer?num=~a'>~a</a> に回答しました。<a href='/recent'>最近の10</a>。"
-       ;;   (short (getf recent :|timestamp|))
-       ;;   (getf recent :|myid|)
-       ;;   (getf recent :|num|)
-       ;;   (getf recent :|num|)))
+      ;; <a href='/answer?num=~a'>~a</a> に回答しました。<a href='/recent'>最近の10</a>。"
+      ;;   (short (getf recent :|timestamp|))
+      ;;   (getf recent :|myid|)
+      ;;   (getf recent :|num|)
+      ;;   (getf recent :|num|)))
       (:li
        (format
         t
@@ -375,23 +392,23 @@
       (:li "( ) は中間テスト点数。30点満点。NIL は未受験（再試なし）。")
       (:hr))
 
-    (loop for row = (dbi:fetch results)
-          while row
-          do
-          (let* ((myid (getf row :|myid|))
-                 (working (if (find myid working-users) "yes" "no")))
-            (format
-             t
-             "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
-             working
-             myid
-             (cdr (assoc myid *mt*))
-             (stars (getf row :|count|))
-             myid
-             (getf row :|count|)))
-          (incf n))
+     (loop for row = (dbi:fetch results)
+           while row
+           do
+              (let* ((myid (getf row :|myid|))
+                     (working (if (find myid working-users) "yes" "no")))
+                (format
+                 t
+                 "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
+                 working
+                 myid
+                 (cdr (assoc myid *mt*))
+                 (stars (getf row :|count|))
+                 myid
+                 (getf row :|count|)))
+              (incf n))
 
-    (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
+     (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -422,11 +439,25 @@
      ;;(:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
      ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
      (:h1)
-     ;;(:p (:img :src "/by-numbers.svg" :with "80%"))
-     (:p (:a :href "http://app.melt.kyutech.ac.jp/144-warn-r99.html" "README"))
+     ;; (:p (:img :src "/by-numbers.svg" :with "80%"))
+     ;; (:p "横軸:問題番号、縦軸:回答数。"
+     ;;     "グラフは手動で作成してます。数日ごとにアップデートします。")
+     ;; (:h3 "こんな調子で 100 番やっても無意味。減点。")
+     ;; (:p (:img :src "/ng.png"))
+     ;;(:p "ng か？" (:img :src "/ng-2--3.png") "勉強なってんの？")
+     (:p "心ない受講生によって R99 はもう役目を果たしてない。"
+         "ダメ出しコメント出すべきだろうが、評価できない投稿多すぎ。"
+         "真面目な前向き受講生が沈んでいる。ごめんね。")
+     (:p "R99は試験前の月曜24時で止めます。")
+     ;;(:p "プログラムの動作をどうチェックしたか、コメント書いてるか？")
+     ;;(:p "他の回答に適切なコメントするといいことあるぞ。")
+     (:p "こんな調子で R99 やっても無意味 &rArr;"
+       (:a :href "http://app.melt.kyutech.ac.jp/r101.html" "README"))
+     (:p (:img :src "/by-numbers.svg" :with "80%"))
      (:p "横軸:問題番号、縦軸:回答数。"
          "グラフは手動で作成してます。数日ごとにアップデートします。")
-     ;; (:p :style "color:orange; font-size: 24pt"
+     ;;(:p (:a :href "http://app.melt.kyutech.ac.jp/144-warn-r99.html" "README"))
+     ;;(:p :style "color:orange; font-size: 24pt"
      ;;     "ただ単に回答を埋めるために r99 やってないか？"
      ;;     "r99 はスマして回答しているのに、"
      ;;     "中間テストはまったく全然カスリもしないてのが目に付く。"
@@ -540,7 +571,7 @@
           where not (myid='~a') and not (myid='8000') and not (myid='8001')
           and num='~a'
           order by timestamp desc
-          limit 5" (myid) num)))
+          limit ~a" (myid) num *how-many-answers*)))
 
 
 (define-easy-handler (old-version :uri "/old-version") (myid num)
@@ -660,12 +691,13 @@
      (:h2 "submit your answer to " (str num))
      (:p (str d))
      (:ul
-      (:li :class "warn" "同じような回答とともに、わかりにくい回答が増えている。"
+      (:li "同じような回答、わかりにくい回答が増えている。"
            "どんな方針で問題を解こうとしたのか、"
            "回答の上に簡単な説明コメント入れること。")
-      (:li :class "warn" "回答提出後 3 時間は訂正できない。")
-      (:li :class "warn" "submit したら他の回答を読んで（コメントもな）、"
-           "気に入った回答、勉強になった回答あったらコメントつけよう。"))
+      (:li :class "warn" "どんな風に動作確認したかもだぞ。")
+      (:li "回答提出後 3 時間は訂正できない。")
+      (:li :class "warn" "submit したら他の回答、コメントを読み、"
+           "ビシッと来たもの、勉強になった点あったらコメントつけよう。"))
 
      (:form :method "post" :action "/submit"
             (:input :type "hidden" :name "num" :value num)
@@ -736,21 +768,20 @@
                 (htm (:p (:img :src "happy.png"))
                      (:p "おめでとう! 通算 " (str count) " 番目の回答です。")))
                (t (htm (:p "received."))))
-             (:p "さらに R99 にはげみましょう。")
+             (:p "さらに R99 にはげむ前に、他の受講生の回答読んでコメントつけよう。"
+                 "間違いあったら　hkimura が見つける前に指摘してあげよう。"
+                 "「いい」と思ったら自分がもらって嬉しいと思うコメントを。")
              (:ul
-              (:li (:a :href "/status" "自分の回答状況")
-                   "のチェックのほか、")
-              (:li (:a :href (format
-                              nil
-                              "/answer?num=~a" num)
-                       "他ユーザの回答を見る")
-                   "ことも勉強になるぞ。")
-              (:li "それとも直接 "
-                   (:a :href (format
-                              nil "/answer?num=~a"
-                              (+ 1 (parse-integer num)))
-                       "次の問題の回答ページ")
-                   "、行く？"))))
+              ;(:li (:a :href "/status" "自分の回答状況") "のチェックのほか、")
+              (:li (:a :href (format nil "/answer?num=~a" num)
+                       "他ユーザの回答読んでコメント")))))
+              ; (:li "それとも直接 "
+              ;      (:a :href (format
+              ;                 nil "/answer?num=~a"
+              ;                 (+ 1 (parse-integer num)))
+              ;          "次の問題の回答ページ")
+              ;      "、行く？")
+
           (page
             (:h3 "error")
             (:p "問題を解くアイデア、アプローチを関数定義の前に"
@@ -815,6 +846,8 @@
 ;;;
 (defun cheerup (sc)
   (cond
+    ((< 110 sc)
+     (list "kame-sennin.jpg" ""))
     ((< 99 sc)
      (list "goku.png" " 期末テストは 100 点取れよ！"))
     ((= 99 sc)
@@ -984,7 +1017,10 @@ answer like '%/* comment from%' order by num"
            "happy.png"
            "integers.txt"
            "kame.png"
+           "kame-sennin.jpg"
            "kutsugen.jpg"
+           "ng.png"
+           "ng-2--3.png"
            "panda.png"
            "r99.css"
            "readme.html"
