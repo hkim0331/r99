@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.39.0")
+(defvar *version* "2.39.1")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
@@ -293,6 +293,7 @@
 (define-easy-handler (users-alias :uri "/answers") ()
   (redirect "/others"))
 
+;; FIXME: slow.
 (defun work-days (myid)
   (let* ((q (format nil "select count (date(timestamp)) from answers
              where myid=~a group by date(timestamp)" myid))
@@ -349,11 +350,12 @@
        (format
         t
         "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
-      があった受講生です。"))
-      (:li "( ) は中間テスト点数。30点満点。NIL は未受験（再試なし）。")
+      があった受講生。"))
+      (:li "( ) は中間テスト点数。30点満点。NIL は未受験。")
       (:li "一番右はR99に費やした日数。"
-	   "できるようにならんと不合格ってまだわからんやついるな。"
-	   "やるはずのなかった追試に出るような問題解けるようにならんとダメだろ。")
+	   "やらんとできるようにならないよ。"
+  	   "まだ懲りないの？数合わせはムダ。"
+	   "追試に出るような問題を解けるようにならないとダメだろ。")
       (:hr))
 
      (loop for row = (dbi:fetch results)
