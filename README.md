@@ -9,6 +9,10 @@
   copy src
 
 ## Released
+
+### [2.38.0] - 2021-03-02
+* added static/grading.html.
+
 ### [2.37.0] - 2021-02-26
 * リセット。
 
