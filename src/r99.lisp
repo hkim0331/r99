@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.39.2")
+(defvar *version* "2.39.3")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
@@ -365,10 +365,12 @@
            do
            (let* ((myid (getf row :|myid|))
                   (working (if (find myid working-users) "yes" "no")))
+
+	     ;; FIXME: ここは 80 cols に収まらない。<pre>で囲んでいるので、
+	     ;;        改行できない。
              (format
               t
-              "<pre><span class=~a>~A</span>
-               (~a) ~A<a href='/last?myid=~d'>~d</a>,~a</pre>"
+              "<pre><span class=~a>~A</span>(~a) ~A<a href='/last?myid=~d'>~d</a>,~a</pre>"
               working
               myid
               (cdr (assoc myid *mt*))
