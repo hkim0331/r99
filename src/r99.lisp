@@ -308,16 +308,6 @@
 (define-easy-handler (users-alias :uri "/answers") ()
   (redirect "/others"))
 
-
-(defparameter comment-top
-  (concatenate 'string "r99リセットした。2021-02-10以前の回答は全部消した。"
-      "やらないはずの追試は4月以降、オフラインで。"
-      "時間は十分ある。r99を偽りの回答で埋めたぼくたち、"
-      "試験と真面目に受験した人たちを愚弄したぼくたちは"
-      "深く反省し、再度、r99に取り組め。追試を受ける条件に"
-      "これからr99に取り組んだ日数もバリバリ入る。"
-      "目安は一日３題、三十日で完走だな。"))
-
 ;; FIXED: UTC => JST
 ;; 2018-12-08 以降、記録が JST になる。
 ;; どうやったんだっけ？
@@ -325,6 +315,7 @@
 
 (define-easy-handler (users :uri "/others") ()
   (page
+    (:p (:a :href "/grading.html" "grading.html"))
     (:p "r99リセットしました。2021-02-10以前の回答は全部消した。"
       "やらないはずの追試は4月以降、オフラインで。"
       "時間は十分ある。r99を偽りの回答で埋めたぼくたち、"
@@ -484,6 +475,7 @@
           do
           (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
     (page
+      (:p (:a :href "/grading.html" "grading.html"))
       (:p "r99リセットしました。2021-02-10以前の回答は全部消した。")
       "やらないはずの追試は4月以降、オフラインで。"
       "時間は十分ある。r99を偽りの回答で埋めたぼくたち、"
@@ -1089,7 +1081,8 @@ answer like '%/* comment from%' order by num"
 ;; dry!
 (defun publish-static-content ()
   (let ((entities
-         '("results-high.png"
+	  '("grading.html"
+	    "results-high.png"
            "results-low.png"
            "2__9.png"
            "a-gift-of-the-sea.jpg"
