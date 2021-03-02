@@ -9,6 +9,9 @@
   copy src
 
 ## Released
+### [2.39.0] - 2021-03-02
+* count working days.
+* FIXME: slow. need improvements.
 
 ### [2.38.0] - 2021-03-02
 * added static/grading.html.
