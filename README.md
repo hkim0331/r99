@@ -9,6 +9,18 @@
   copy src
 
 ## Released
+### [2.39.2] - 2021-03-02
+* fill 80 columns.
+
+### [2.39.0] - 2021-03-02
+* count working days.
+* FIXME: slow. need improvements.
+
+### [2.38.0] - 2021-03-02
+* added static/grading.html.
+
+### [2.37.0] - 2021-02-26
+* リセット。
 
 ### [2.35.0] - 2021-02-10
 * 期末試験終了、受講生の希望により、r99 動かしておく。

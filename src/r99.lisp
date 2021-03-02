@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.36.0")
+(defvar *version* "2.39.2")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
@@ -20,14 +20,6 @@
             (f s) (ppcre:split " " line)
             (push (cons (parse-integer f) (parse-integer s)) ret)))
      ret)))
-
-;; required.
-;; moved to start-server
-;;(read-midterm "midterm.txt")
-
-;;(defun read-env (name)
-;;  nil)
-;;(read-env "R99_USER")
 
 (defparameter *mt*
   (if (probe-file "midterm.txt")
@@ -52,8 +44,6 @@
 (defvar *http-port* 3030)
 (defvar *myid* "r99");; cookie name
 
-;; 2019-12-18, 関数に変更。
-;; 2020-11-02, 定数に戻す。
 (defvar db-host  (or (getenv "R99_HOST") "localhost"))
 (defvar db-user  (or (getenv "R99_USER") "user"))
 (defvar db-pass  (or (getenv "R99_PASS") "pass"))
@@ -127,10 +117,10 @@
 ;;        このくらいで十分か。
 (defun check (answer)
   (and
-   (scan "^/" answer)  ;; has comment?
-   (scan ";" answer)   ;; 回答には ';'が含まれて
-   (scan "\\)" answer) ;; ')' もないとな。
-   (scan "\\}" answer) ;; '}' もな。この後、文法チェックする。
+   (scan "^/" answer)  ; has comment?
+   (scan ";" answer)   ; 回答には ';'が含まれて
+   (scan "\\)" answer) ; ')' もないとな。
+   (scan "\\}" answer) ; '}' もな。この後、文法チェックする。
    (let* ((cl-fad:*default-template* "temp%.c")
           (pathname (with-output-to-temporary-file (f)
                       (write-string "#include <stdio.h>" f)
@@ -175,8 +165,8 @@
        (:link
         :rel "stylesheet"
         :href "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-        :integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-        :crossorigin="anonymous")
+        :integrity "sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+        :crossorigin "anonymous")
        (:title "R99")
        (:link :type "text/css" :rel "stylesheet" :href "/r99.css")
        (:body
@@ -227,17 +217,13 @@
    (dbi:fetch (query "select count(*) from answers"))
    :|count|))
 
-;; readme
-;;   admin に変わってメニューに出す。
-;;   当面はスタティックリンクで OK。2020-11-02
-
-
 ;; /recent or /recent?n=10 2020-11-03
 (define-easy-handler (recent :uri "/recent") (n)
   (let* ((nn (or n 10))
          (q (format
              nil
-             "select myid,num,timestamp::text from answers order by id desc limit '~a'"
+             "select myid,num,timestamp::text from answers
+               order by id desc limit '~a'"
              nn))
          (ret (query q)))
     (page
@@ -257,7 +243,8 @@
 (define-easy-handler (show-old :uri "/show-old") (id)
   (let* ((q (format
              nil
-             "select myid,num,answer,timestamp::text from old_answers where id='~a'"
+             "select myid,num,answer,timestamp::text from old_answers
+               where id='~a'"
              id))
          (ret (dbi:fetch (query q)))
          (myid (getf ret :|myid|))
@@ -308,82 +295,33 @@
 (define-easy-handler (users-alias :uri "/answers") ()
   (redirect "/others"))
 
-
-;; FIXED: UTC => JST
-;; 2018-12-08 以降、記録が JST になる。
-;; どうやったんだっけ？
-;; () は中間試験成績を出していた。
-
+;; FIXME: slow.
+(defun work-days (myid)
+  (let* ((q (format nil "select count (date(timestamp)) from answers
+             where myid=~a group by date(timestamp)" myid))
+	(ret (dbi:fetch-all (query q))))
+    (length ret)))
+	
+;; /others
 (define-easy-handler (users :uri "/others") ()
   (page
-   (:p "採点終わり。r99は2、3日中にいったんリセットします。")
-   (:p
-    "不合格の中には r99 ウソでやり切りましたーみたいなのたくさん。
-    左から、中間、r99解いた問題数、r99に取り組んだ日数、期末テスト。
-    r99 を7日間で乗り切れる実力者が期末テスト0点か？
-    中間テストでもテクニック使ったのかな？
-    真ん中は中間と期末受けてないhkimuraのデータ。")
-   (:p (:img :src "/results-low.png"))
-   (:p "成績上位者のデータは下になります。30点満点のはずの期末に35点は"
-       "エラーなくコンパイルできたボーナス5点が入ってるから。")
-   (:p (:img :src "/results-high.png"))
-   (:p "やるはずのなかった追試を受ける意思のある学生は
-    リセット後のr99でもう一度努力しなさい。
-    やったら問題解けるようになるさ。
-    追試験当日までに解いて来た問題数、かけた日数は、当然、成績に反映する。
-    試験の期日？関係ねーだろ。今日から努力を始めること。
-    ただし、出席数が足りない人は受験資格ない。")
-                                        ;    (:p "採点中なんだけど、全く同じように間違った回答が学生番号連番で"
-                                        ;        "出てくる。"
-                                        ;        "晒そうか。"
-                                        ;        "こんなの。字下げをずらすような小賢しいテクニック使うやつも。")
-                                        ;    (:pre
-                                        ; "void factors(int n){"
-                                        ; "  int i;"
-                                        ; "  int j = 0;"
-                                        ; "  printf(&quot;%iの素因数は&quot;,n);"
-                                        ; "  for(i = 1; n > 1; i++){"
-                                        ; "    if(n % i == 0){"
-                                        ; "      if(my_prime(i)){"
-                                        ; "	printf(&quot;%i&quot;,i);"
-                                        ; "      }"
-                                        ; "    }"
-                                        ; "    n /= i;"
-                                        ; "  }"
-                                        ; "  printf(&quot;です\n&quot;);"
-                                        ; "}")
-   ;;    (:p (:img :src "/guernica.jpg" :width "100%"))
+    (:p (:a :href "/grading.html" "grading.html"))
+    (:p
+     "r99リセットしました。2021-02-10以前の回答は全部消した。"
+     "やらないはずの追試は4月以降、オフラインで。"
+     "時間は十分ある。r99を偽りの回答で埋めたぼくたち、"
+     "試験と真面目に受験した人たちを愚弄したぼくたちは"
+     "深く反省し、再度、r99に取り組め。追試を受ける条件に"
+     "これからr99に取り組んだ日数も入る。")
    ;; (:p (:img :src "/kutsugen.jpg" :width "100%"))
    ;; (:p :align "right" "「屈原」横山大観(1868-1958), 1898.")
-   ;; (:p :style "color:red; font-size: 24pt"
-   ;;     "ただ単に回答を埋めるために r99 やってないか？"
-   ;;     "スマホで回答の融通はガチためにならん。"
-   ;;     "君らに必要なのは一発逆転の再試よりも地道な勉強だ。"
-   ;;     "moodle の授業資料を最初から読み返したらどうか？"
-   ;;     "そんな努力をせん試験対策はゴミ以下やろ。"
-   ;;     "コロナは学生にサボる口実を与えただけか。")
-   ;; (:h3 "こんな調子で 100 番やっても無意味。減点。")
-   ;; (:p (:img :src "/ng.png"))
-   ;;(:p "良い子は何を思いますか。")
-   ;;(:p (:img :src "/2__9.png"))
-   ;;(:p
-   ;;  (:span :style "color:red"
-   ;;    "プログラムの動作をチェックしないアップロードは減点。"
-   ;;    "どんな風に動作チェックしたかもコメントに書こう。")
-   ;;  "と、言ってるのにチェック用コード書かないアップロードは点数着くかな？")
-   ;;(:p "こんな調子で R99 やっても無意味 &rArr;"
-   ;;    (:a :href "http://app.melt.kyutech.ac.jp/r101.html" "README")
    (:p (:img :src "/by-answers.svg" :width "80%"))
-   (:p "横軸：回答数、縦軸：回答数答えた人の数。"
-       "グラフの積分値が受講生の数になる。"
-       "グラフは数日ごとに手動作成します。")
-   ;; (:p (:img :src "/by-answers.svg" :width "80%"))
-   ;; (:p (:a :href "http://app.melt.kyutech.ac.jp/144-warn-r99.html" "README"))
-   ;; (:p "横軸：回答数、縦軸：回答数答えた人の数。"
-   ;;     "グラフの積分値が受講生の数になる。"
-   ;;     "グラフは数日ごとに手動作成します。")
+   (:p
+     "横軸：回答数、縦軸：回答数答えた人の数。"
+     "グラフの積分値が受講生の数になる。"
+     "グラフは数日ごとに手動作成します。")
    (:h1)
-   (:h2 "誰が何問?")
+   (:h2 "自分のためにやるんだよ")
    (let* ((n 0)
           (recent
            (dbi:fetch
@@ -410,21 +348,16 @@
         "<a href='/recent'>最近の 10 回答</a>。最新は ~a、全回答数 ~a。"
         (short (getf recent :|timestamp|))
         (count-answers)))
-      ;; (:li
-      ;;  (format
-      ;;   t
-      ;;   " ~a、~a さんが
-      ;; <a href='/answer?num=~a'>~a</a> に回答しました。<a href='/recent'>最近の10</a>。"
-      ;;   (short (getf recent :|timestamp|))
-      ;;   (getf recent :|myid|)
-      ;;   (getf recent :|num|)
-      ;;   (getf recent :|num|)))
       (:li
        (format
         t
         "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
-      があった受講生です。"))
-      (:li "( ) は中間テスト点数。30点満点。NIL は未受験（再試なし）。")
+      があった受講生。"))
+      (:li "( ) は中間テスト点数。30点満点。NIL は未受験。")
+      (:li "一番右はR99に費やした日数。"
+	   "やらんとできるようにならないよ。"
+  	   "まだ懲りないの？数合わせはムダ。"
+	   "追試に出るような問題を解けるようにならないとダメだろ。")
       (:hr))
 
      (loop for row = (dbi:fetch results)
@@ -434,18 +367,20 @@
                   (working (if (find myid working-users) "yes" "no")))
              (format
               t
-              "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a></pre>"
+              "<pre><span class=~a>~A</span>
+               (~a) ~A<a href='/last?myid=~d'>~d</a>,~a</pre>"
               working
               myid
               (cdr (assoc myid *mt*))
               (stars (getf row :|count|))
               myid
-              (getf row :|count|)))
+              (getf row :|count|)
+	      (work-days myid)));;slow
            (incf n))
 
      (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; problems
 ;;;
@@ -469,87 +404,29 @@
           do
           (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
     (page
+      (:p (:a :href "/grading.html" "grading.html"))
+      (:p
+       "r99リセットしました。2021-02-10以前の回答は全部消した。")
+       "やらないはずの追試は4月以降、オフラインで。"
+       "時間は十分ある。r99を偽りの回答で埋めたぼくたち、"
+       "試験と真面目に受験した人たちを愚弄したぼくたちは"
+       "深く反省し、再度、r99に取り組め。追試を受ける条件に"
+       "これからr99に取り組んだ日数も入る。"
      ;;(:h1 :style "color:red; font-size:24pt" "🔥UNDER CONSTRUCTION🔥")
      ;;(:p "利用開始までもうちょっと。")
      ;;(:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
      ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
-     (:h1)
-     (:p "採点終わり。r99は2、3日中にいったんリセットします。")
-     (:p
-      "不合格の中には r99 ウソでやり切りましたーみたいなのたくさん。
-    左から、中間、r99解いた問題数、r99に取り組んだ日数、期末テスト。
-    r99 を7日間で乗り切れる実力者が期末テスト0点か？
-    中間テストでもテクニック使ったのかな？
-    真ん中は中間と期末受けてないhkimuraのデータ。")
-     (:p (:img :src "/results-low.png"))
-     (:p "成績上位者のデータは下になります。30点満点のはずの期末に35点は"
-         "エラーなくコンパイルできたボーナス5点が入ってるから。")
-     (:p (:img :src "/results-high.png"))
-     (:p "やるはずのなかった追試を受ける意思のある学生は
-    リセット後のr99でもう一度努力しなさい。
-    やったら問題解けるようになるさ。
-    追試験当日までに解いて来た問題数、かけた日数は、当然、成績に反映する。
-    試験の期日？関係ねーだろ。今日から努力を始めること。
-    ただし、出席数が足りない人は受験資格ない。")
-                                        ;         (:p "採点中なんだけど、全く同じように間違った回答が学生番号連番で"
-                                        ;        "出てくる。字下げをずらすようなテクニック使うのもある。晒す？"
-                                        ;        "これで素因数出るんかなー。自首をまつかな。")
-                                        ;       (:pre
-                                        ; "void factors(int n){
-                                        ;   int i;
-                                        ;   int j = 0;
-                                        ;   printf(&quot;%iの素因数は&quot;,n);
-                                        ;   for(i = 1; n > 1; i++){
-                                        ;     if(n % i == 0){
-                                        ;       if(my_prime(i)){
-                                        ; 	printf(&quot;%i&quot;,i);
-                                        ;       }
-                                        ;     }
-                                        ;     n /= i;
-                                        ;   }
-                                        ;   printf(&quot;です\n&quot;);
-                                        ; }")
-     ;; (:p (:img :src "/by-numbers.svg" :with "80%"))
-     ;; (:p "横軸:問題番号、縦軸:回答数。"
-     ;;     "グラフは手動で作成してます。数日ごとにアップデートします。")
-     ;; (:h3 "こんな調子で 100 番やっても無意味。減点。")
-     ;; (:p (:img :src "/ng.png"))
-     ;;(:p "良い子は何を思いますか。")
-     ;;(:p (:img :src "/2__9.png"))
-     ;;(:p "こんな調子で R99 やっても無意味 &rArr;"
-     ;;  (:a :href "http://app.melt.kyutech.ac.jp/r101.html" "README"))
      (:p (:img :src "/by-numbers.svg" :with "80%"))
      (:p "横軸:問題番号、縦軸:回答数。"
          "グラフは手動で作成してます。数日ごとにアップデートします。")
-     ;;(:p (:a :href "http://app.melt.kyutech.ac.jp/144-warn-r99.html" "README"))
-     ;;(:p :style "color:orange; font-size: 24pt"
-     ;;     "ただ単に回答を埋めるために r99 やってないか？"
-     ;;     "r99 はスマして回答しているのに、"
-     ;;     "中間テストはまったく全然カスリもしないてのが目に付く。"
-     ;;     "引き数、戻り値、副作用、しっかりわからん時は"
-     ;;     "moodle の授業資料を最初から読み返せ。"
-     ;;     "要領よく単位だけ取ろうとするやつは嫌いです。"
-     ;;     "真面目に努力する学生には付き合います。")
      (:h2 "problems")
      (:ul
       (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
       (:li "上の方で定義した関数を利用する場合、上の関数定義は回答に含めないでOK。")
-      (:li "すべての回答関数の上には #include &lt;stdio.h> #include &lt;stdlib.h> があると仮定してよい。")
+      (:li "すべての回答関数の上には"
+           "#include &lt;stdio.h> #include &lt;stdlib.h> があると仮定してよい。")
       (:li :class "warn"
            "正真正銘自分作のプログラムでも、動作を確認してないプログラムはゴミです。"))
-
-     ;;(:h1 :class "warn" "WARNING")
-     ;;(:p :class "warn"
-     ;;    "回答にならない答を一旦提出、他人の回答をコピーし、"
-     ;;    "自分の回答としてアップデートするの、やめよう。"
-     ;;    "発覚しないと思っていたら大間違い。")
-     ;;(:p :class "warnwarn" "と授業で何度も言っても、"
-     ;;    "ここに書いてもわからない奴がいるな。myid は 9037。"
-     ;;    " <a href='https://r.hkim.jp/9037.html'>そいつの回答</a>、"
-     ;;    "見てみよう、全部 hello, robocar だから。"
-     ;;    "回答変更できないようパスワード変えた。しばらく晒しとく。単位はあるかな？"
-     ;;    (:span :class "warn" "ないでしょ。"))
-
      (:hr)
      (loop for row = (dbi:fetch results)
            while row
@@ -614,7 +491,9 @@
              (:input :type "hidden" :name "id" :value id)
              (:textarea :rows 5 :cols 50 :name "comment"
                         :placeholder "暖かいコメントをお願いします。")
-             (:p (:input :type "submit" :value "comment" :class "btn btn-sm btn-info")
+             (:p (:input :type "submit"
+                         :value "comment"
+                         :class "btn btn-sm btn-info")
                  " (your comment is displayed with your myid)")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -642,7 +521,8 @@
 (define-easy-handler (old-version :uri "/old-version") (myid num)
   (let* ((q (format
               nil
-              "select answer, timestamp::text from old_answers where myid='~a' and num='~a'"
+              "select answer, timestamp::text from old_answers
+                where myid='~a' and num='~a'"
               myid
               num))
          (ret (dbi:fetch (query q))))
@@ -650,11 +530,13 @@
         (page
           (:h4 (format t "~a, at ~a," num (getf ret :|timestamp|)))
           (:pre (str (escape (getf ret :|answer|))))
-          (:p "back to " (:a :href (format nil "/answer?num=~a" num) "answers")))
+          (:p "back to "
+              (:a :href (format nil "/answer?num=~a" num)
+              "answers")))
         (page
           (:p "no previous versions")
-          (:p "back to " (:a :href (format nil "/answer?num=~a" num) "answers"))))))
-
+          (:p "back to " (:a :href (format nil "/answer?num=~a" num)
+                                    "answers"))))))
 
 (defun show-answers (num)
   (let ((my-answer (r99-answer (myid) num))
@@ -669,7 +551,9 @@
                         :rows (+ 1 (count #\linefeed my-answer :test #'equal))
                         (str (unescape-apos my-answer)))
              (:br)
-             (:input :type "submit" :value "update" :class "btn btn-sm btn-warning"))
+             (:input :type "submit"
+                     :value "update"
+                     :class "btn btn-sm btn-warning"))
       (:br)
       (:h3 "Other Users' Answers")
       (loop for row = (dbi:fetch other-answers)
@@ -678,7 +562,8 @@
                 t
                 "<b>~a</b> at ~a
           <a href='/comment?id=~a' class='btn btn-sm btn-info'> comment</a>
-          <a href='/old-version?myid=~a&num=~a' class='btn btn-sm btn-success'>prev version</a>
+          <a href='/old-version?myid=~a&num=~a'
+                  class='btn btn-sm btn-success'>prev version</a>
           <pre class='answer'><code>~a</code></pre><hr>"
                 (getf row :|myid|)
                 (short (getf row :|timestamp|))
@@ -800,8 +685,10 @@
 ;;
 ;; sin-bin 3hours. 2020-11-09
 (define-easy-handler (update-answer :uri "/update-answer") (num answer)
-  (let* ((now (getf (dbi:fetch (query "select localtimestamp")) :|localtimestamp|))
-         (q (format nil "select timestamp + interval '3 hour' from answers where myid='~a' and num='~a'" (myid) num))
+  (let* ((now (getf (dbi:fetch (query "select localtimestamp"))
+                    :|localtimestamp|))
+         (q (format nil "select timestamp + interval '3 hour' from answers
+                          where myid='~a' and num='~a'" (myid) num))
          (sin-bin (second (dbi:fetch (query q)))))
     (if (< sin-bin now)
         (if (check answer)
@@ -952,26 +839,13 @@
     (query "select count(distinct myid) from answers"))
    :|count|))
 
-;; BUG 名前が返らない。
 (defun get-jname ()
   (let* ((myid (myid))
          (q (format nil "select jname from users where myid='~a'" myid))
          (ret (dbi:fetch (query q))))
-    ;; (print (format t "myid: ~a" myid))
-    ;; (print (format t "q: ~a" q))
-    ;; (print (format t "ret: ~a" ret))
     (getf ret :|jname|)))
 
-  ;; (getf
-  ;;  (dbi:fetch
-  ;;   (query
-  ;;    (format
-  ;;     nil
-  ;;     "select jname from users where myid='~a'"
-  ;;     (parse-integer (myid)))))
-  ;;  :|jname|))
-
-;;CHECK: work?
+;; CHECK: work?
 (defun answers-with-comment (id)
   (mapcar
    (lambda (x) (getf x :|num|))
@@ -1068,7 +942,8 @@ answer like '%/* comment from%' order by num"
 ;; dry!
 (defun publish-static-content ()
   (let ((entities
-         '("results-high.png"
+	  '("grading.html"
+	    "results-high.png"
            "results-low.png"
            "2__9.png"
            "a-gift-of-the-sea.jpg"
@@ -1142,7 +1017,8 @@ answer like '%/* comment from%' order by num"
          (if (string= new1 new2)
              (query (format
                      nil
-                     "update users set password='~a', timestamp='now()' where myid='~a'"
+                     "update users set password='~a', timestamp='now()'
+                       where myid='~a'"
                      new1
                      myid))
              (setf stat "パスワードが一致しません。"))
