@@ -10,7 +10,7 @@ services:
     depends_on:
       - r99_db
     environment:
-      R99_HOST: postgres
+      R99_HOST: r99_db
       R99_DB:   r99
       R99_USER: user1
       R99_PASS: pass1
@@ -31,4 +31,3 @@ services:
 volumes:
   r99-data:
     driver: local
-
