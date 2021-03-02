@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.39.1")
+(defvar *version* "2.39.2")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
@@ -165,8 +165,8 @@
        (:link
         :rel "stylesheet"
         :href "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-        :integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-        :crossorigin="anonymous")
+        :integrity "sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+        :crossorigin "anonymous")
        (:title "R99")
        (:link :type "text/css" :rel "stylesheet" :href "/r99.css")
        (:body
@@ -222,7 +222,8 @@
   (let* ((nn (or n 10))
          (q (format
              nil
-             "select myid,num,timestamp::text from answers order by id desc limit '~a'"
+             "select myid,num,timestamp::text from answers
+               order by id desc limit '~a'"
              nn))
          (ret (query q)))
     (page
@@ -242,7 +243,8 @@
 (define-easy-handler (show-old :uri "/show-old") (id)
   (let* ((q (format
              nil
-             "select myid,num,answer,timestamp::text from old_answers where id='~a'"
+             "select myid,num,answer,timestamp::text from old_answers
+               where id='~a'"
              id))
          (ret (dbi:fetch (query q)))
          (myid (getf ret :|myid|))
@@ -365,7 +367,8 @@
                   (working (if (find myid working-users) "yes" "no")))
              (format
               t
-              "<pre><span class=~a>~A</span> (~a) ~A<a href='/last?myid=~d'>~d</a>,~a</pre>"
+              "<pre><span class=~a>~A</span>
+               (~a) ~A<a href='/last?myid=~d'>~d</a>,~a</pre>"
               working
               myid
               (cdr (assoc myid *mt*))
@@ -420,7 +423,8 @@
      (:ul
       (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
       (:li "上の方で定義した関数を利用する場合、上の関数定義は回答に含めないでOK。")
-      (:li "すべての回答関数の上には #include &lt;stdio.h> #include &lt;stdlib.h> があると仮定してよい。")
+      (:li "すべての回答関数の上には"
+           "#include &lt;stdio.h> #include &lt;stdlib.h> があると仮定してよい。")
       (:li :class "warn"
            "正真正銘自分作のプログラムでも、動作を確認してないプログラムはゴミです。"))
      (:hr)
@@ -487,7 +491,9 @@
              (:input :type "hidden" :name "id" :value id)
              (:textarea :rows 5 :cols 50 :name "comment"
                         :placeholder "暖かいコメントをお願いします。")
-             (:p (:input :type "submit" :value "comment" :class "btn btn-sm btn-info")
+             (:p (:input :type "submit"
+                         :value "comment"
+                         :class "btn btn-sm btn-info")
                  " (your comment is displayed with your myid)")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -515,7 +521,8 @@
 (define-easy-handler (old-version :uri "/old-version") (myid num)
   (let* ((q (format
               nil
-              "select answer, timestamp::text from old_answers where myid='~a' and num='~a'"
+              "select answer, timestamp::text from old_answers
+                where myid='~a' and num='~a'"
               myid
               num))
          (ret (dbi:fetch (query q))))
@@ -523,11 +530,13 @@
         (page
           (:h4 (format t "~a, at ~a," num (getf ret :|timestamp|)))
           (:pre (str (escape (getf ret :|answer|))))
-          (:p "back to " (:a :href (format nil "/answer?num=~a" num) "answers")))
+          (:p "back to "
+              (:a :href (format nil "/answer?num=~a" num)
+              "answers")))
         (page
           (:p "no previous versions")
-          (:p "back to " (:a :href (format nil "/answer?num=~a" num) "answers"))))))
-
+          (:p "back to " (:a :href (format nil "/answer?num=~a" num)
+                                    "answers"))))))
 
 (defun show-answers (num)
   (let ((my-answer (r99-answer (myid) num))
@@ -542,7 +551,9 @@
                         :rows (+ 1 (count #\linefeed my-answer :test #'equal))
                         (str (unescape-apos my-answer)))
              (:br)
-             (:input :type "submit" :value "update" :class "btn btn-sm btn-warning"))
+             (:input :type "submit"
+                     :value "update"
+                     :class "btn btn-sm btn-warning"))
       (:br)
       (:h3 "Other Users' Answers")
       (loop for row = (dbi:fetch other-answers)
@@ -551,7 +562,8 @@
                 t
                 "<b>~a</b> at ~a
           <a href='/comment?id=~a' class='btn btn-sm btn-info'> comment</a>
-          <a href='/old-version?myid=~a&num=~a' class='btn btn-sm btn-success'>prev version</a>
+          <a href='/old-version?myid=~a&num=~a'
+                  class='btn btn-sm btn-success'>prev version</a>
           <pre class='answer'><code>~a</code></pre><hr>"
                 (getf row :|myid|)
                 (short (getf row :|timestamp|))
@@ -673,8 +685,10 @@
 ;;
 ;; sin-bin 3hours. 2020-11-09
 (define-easy-handler (update-answer :uri "/update-answer") (num answer)
-  (let* ((now (getf (dbi:fetch (query "select localtimestamp")) :|localtimestamp|))
-         (q (format nil "select timestamp + interval '3 hour' from answers where myid='~a' and num='~a'" (myid) num))
+  (let* ((now (getf (dbi:fetch (query "select localtimestamp"))
+                    :|localtimestamp|))
+         (q (format nil "select timestamp + interval '3 hour' from answers
+                          where myid='~a' and num='~a'" (myid) num))
          (sin-bin (second (dbi:fetch (query q)))))
     (if (< sin-bin now)
         (if (check answer)
@@ -1003,7 +1017,8 @@ answer like '%/* comment from%' order by num"
          (if (string= new1 new2)
              (query (format
                      nil
-                     "update users set password='~a', timestamp='now()' where myid='~a'"
+                     "update users set password='~a', timestamp='now()'
+                       where myid='~a'"
                      new1
                      myid))
              (setf stat "パスワードが一致しません。"))
