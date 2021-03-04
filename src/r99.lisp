@@ -7,24 +7,12 @@
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
+(defvar *server* nil)
+(defvar *http-port* 3030)
+(defvar *myid* "r99");; cookie name
+
 ;; 2021-02-02
-(defvar *how-many-answers* 10)
-
-(defun read-midterm (fname)
-  (with-open-file
-   (in fname)
-   (let ((ret nil))
-     (loop for line = (read-line in nil)
-           while line do
-           (destructuring-bind
-            (f s) (ppcre:split " " line)
-            (push (cons (parse-integer f) (parse-integer s)) ret)))
-     ret)))
-
-(defparameter *mt*
-  (if (probe-file "midterm.txt")
-      (read-midterm "midterm.txt")
-      nil))
+(defparameter *how-many-answers* 10) ; check
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -40,14 +28,26 @@
         #+sbcl (sb-ext:posix-getenv name)
         default)))
 
-(defvar *server* nil)
-(defvar *http-port* 3030)
-(defvar *myid* "r99");; cookie name
-
 (defvar db-host  (or (getenv "R99_HOST") "localhost"))
 (defvar db-user  (or (getenv "R99_USER") "user"))
 (defvar db-pass  (or (getenv "R99_PASS") "pass"))
 (defvar db "r99")
+
+(defun read-midterm (fname)
+  (with-open-file
+      (in fname)
+    (let ((ret nil))
+      (loop for line = (read-line in nil)
+            while line do
+              (destructuring-bind
+                  (f s) (ppcre:split " " line)
+                (push (cons (parse-integer f) (parse-integer s)) ret)))
+      ret)))
+
+(defparameter *mt*
+  (if (probe-file "midterm.txt")
+      (read-midterm "midterm.txt")
+      nil))
 
 (defun query (sql)
   (dbi:with-connection
@@ -1085,7 +1085,7 @@ answer like '%/* comment from%' order by num"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun start-server (&optional (port *http-port*))
+(defun r99-start (&optional (port *http-port*))
   (if (localtime)
       (format t "database connection OK.~%")
       (error "check your datanase connection.~%"))
@@ -1098,9 +1098,9 @@ answer like '%/* comment from%' order by num"
   (start *server*)
   (format t "r99-~a started at ~d.~%" *version* port))
 
-(defun stop-server ()
+(defun r99-stop ()
   (stop *server*))
 
 (defun main ()
-  (start-server)
+  (r99-start)
   (loop (sleep 60)))
