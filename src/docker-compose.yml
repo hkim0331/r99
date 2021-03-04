@@ -7,6 +7,8 @@ services:
       - "3030:3030"
     volumes:
       - ~/common-lisp/r99:/home/ubuntu/common-lisp/r99
+    working_dir: /home/ubuntu/common-lisp/r99/src
+    restart: always
     depends_on:
       - r99_db
     environment:
