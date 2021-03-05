@@ -7,5 +7,4 @@ pg_dump -U user1 -w -h localhost r99 > ${DEST}
 
 for i in plot-by-answers plot-by-numbers; do
   (cd /srv/r99/src/$i && echo pass1 | make)
-done   
-    
+done

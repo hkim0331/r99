@@ -1,14 +1,13 @@
 # R99
 
 ## Unreleased
-* src/plot-by-{answers,numnbers} をひとつにまとめる。
-* cd src && make plot を定時実行する。
-* plot をアップデートした日時を表示する。
-* copy コマンド
-  copy src dest
-  copy src
+* ユーザごと解いた問題番号と回答。
 
 ## Released
+### [2.40.0] - 2021-03-05
+* CHANGED: bump-version.sh uses /bin/sed.
+* CHANGED: db/r99-backup-daily.sh updates plots.
+
 ### [2.39.5.1] - 2021-03-05
 * [ENBUG] m2 のを app.melt に戻してみる。
 
