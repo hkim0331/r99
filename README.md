@@ -4,17 +4,17 @@
 * ユーザごと解いた問題番号と回答。
 
 ## Released
-### [2.40.0] - 2021-03-05
+### 2.40.0 - 2021-03-05
 * CHANGED: bump-version.sh uses /bin/sed.
-* CHANGED: db/r99-backup-daily.sh updates plots.
+* CHANGED: db/r99-backup-daily.sh updates plots every morning.
 
-### [2.39.5.1] - 2021-03-05
-* [ENBUG] m2 のを app.melt に戻してみる。
+### 2.39.5.1 - 2021-03-05
+* ENBUG: m2 のを app.melt に戻してみる。
 
-### [2.39.5] - 2021-03-03
+### 2.39.5 - 2021-03-03
 * コピーを出してきたやつに警告。
 
-### [2.39.4] - 2021-03-03
+### 2.39.4 - 2021-03-03
 * tag がm2とm3で一致して運用できてないので、新しいのをつけてみる。
 
 ### [2.39.2] - 2021-03-02
@@ -167,16 +167,16 @@
 
 ---
 
-## [1.24.2] - 2020-02-06
+### [1.24.2] - 2020-02-06
 ばかなやつがいるもんだ。
 
-## [1.24.0] - 2020-02-06
-### fix
+### [1.24.0] - 2020-02-06
+fix
 * 自分のダウンロードはコピーできる。
 * コメントのコードはコピーできない。
 
-## [1.23.9] 2020-01-30
-### bugfix
+### [1.23.9] 2020-01-30
+bugfix
 now() だと timezone が余計。
 localtimestamp だと timezone がつかない。
 https://www.postgresql.jp/document/9.3/html/functions-datetime.html
@@ -184,8 +184,8 @@ https://www.postgresql.jp/document/9.3/html/functions-datetime.html
 ### add
 * アップデート制限時間(Sin-Bin)を表示
 
-## [1.22.5] 2020-01-21
-### change
+### [1.22.5] 2020-01-21
+changed
 * db/update-r99 を 上位フォルダに移す。
 * 複数の問題修正を連続してできるように。declare を覚えた。あと、input、Integer.
   (require '[clojure.edn :as edn]) しておいて、(edn/read-string "32") も覚えよう。
