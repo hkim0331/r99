@@ -404,55 +404,46 @@
 
 (define-easy-handler (problems :uri "/problems") ()
   (let ((results
-         (query "select num, detail from problems order by num"))
+          (query "select num, detail from problems order by num"))
         (answers
-         (query "select num, count(*) from answers group by num"))
+          (query "select num, count(*) from answers group by num"))
         (nums (make-hash-table)))
     (loop for row = (dbi:fetch answers)
           while row
           do
-          (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
+             (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
     (page
-     (:p (:a :href "/grading.html" "grading.html"))
-     (:p
-      :class "warn"
-      "昔の回答をコピーして提出しているバカがいる。"
-      "イージーなの一日１題でやった日数稼ぐつもりか。"
-      "そういう人は追試来ても無駄だろうな。"
-      "追試問題は簡単じゃない。"
-      "実力つけんと受からんよ。"))
-     ;; (:p
-     ;;  "r99リセット。2021-02-10以前の回答は全部消した。"
-     ;;  "やらないはずの追試は4月以降、オフラインで。"
-     ;;  "時間は十分ある。r99を偽りの回答で埋めたぼくたち、"
-     ;;  "試験と真面目に受験した人たちを愚弄したぼくたちは"
-     ;;  "深く反省し、再度、r99に取り組め。追試を受ける条件に"
-     ;;  "これからr99に取り組んだ日数も入る。")
-    ;;(:h1 :style "color:red; font-size:24pt" "🔥UNDER CONSTRUCTION🔥")
-    ;;(:p "利用開始までもうちょっと。")
-    ;;(:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
-    ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
-    (:p (:img :src "/by-numbers.svg" :with "80%"))
-    (:p "横軸:問題番号、縦軸:回答数。"
-        "グラフは毎朝アップデートします。")
-    (:h2 "problems")
-    (:ul
-     (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
-     (:li "上の方で定義した関数を利用する場合、上の関数定義は回答に含めないでOK。")
-     (:li "すべての回答関数の上には"
-          "#include &lt;stdio.h> #include &lt;stdlib.h> があると仮定してよい。")
-     (:li :class "warn"
-          "正真正銘自分作のプログラムでも、動作を確認してないプログラムはゴミ。"))
-    (:hr)
-    (loop for row = (dbi:fetch results)
-          while row
-          do
-          (let ((num (getf row :|num|)))
-            (format t "<p><a href='/answer?num=~a'>~a</a>(~a) ~a</p>~%"
-                    num
-                    num
-                    (zero_or_num (gethash num nums))
-                    (getf row :|detail|))))))
+      (:p (:a :href "/grading.html" "grading.html"))
+      (:p
+       :class "warn"
+       "昔の回答をコピーして提出しているバカがいる。"
+       "イージーなの一日１題でやった日数稼ぐつもりか。"
+       "そういう人は追試来ても無駄だろうな。"
+       "追試問題は簡単じゃない。"
+       "実力つけんと受からんよ。")
+      ;;(:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
+      ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
+      (:p (:img :src "/by-numbers.svg" :with "80%"))
+      (:p "横軸:問題番号、縦軸:回答数。"
+          "グラフは毎朝アップデートします。")
+      (:h2 "problems")
+      (:ul
+       (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
+       (:li "上の方で定義した関数を利用する場合、"
+            "上の関数定義は回答に含めないでOK。")
+       (:li "すべての回答関数の上には"
+            "#include &lt;stdio.h> #include &lt;stdlib.h>"
+            "があると仮定してよい。"))
+      (:hr)
+      (loop for row = (dbi:fetch results)
+            while row
+            do
+               (let ((num (getf row :|num|)))
+                 (format t "<p><a href='/answer?num=~a'>~a</a>(~a) ~a</p>~%"
+                         num
+                         num
+                         (zero_or_num (gethash num nums))
+                         (getf row :|detail|)))))))
 
 (defun detail (num)
   (let* ((q (format
