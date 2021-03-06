@@ -1,4 +1,4 @@
-from hkim/roswell
+FROM hkim/roswell
 
 EXPOSE 4005
 
