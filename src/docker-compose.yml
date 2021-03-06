@@ -10,11 +10,11 @@ services:
     working_dir: /home/ubuntu/common-lisp/r99/src
     depends_on:
       - r99_db
-    environment:
-      R99_HOST: r99_db
-      R99_DB:   r99
-      R99_USER: user1
-      R99_PASS: pass1
+    # environment:
+    #   R99_HOST: r99_db
+    #   R99_DB:   r99
+    #   R99_USER: user1
+    #   R99_PASS: pass1
 
   r99_db:
     image: postgres
@@ -23,9 +23,10 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - "r99-data:/var/lib/postgresql/data"
+      - r99-data:/var/lib/postgresql/data
+      - ./initdb:/docker-entrypoint-initdb.d
     environment:
-      POSTGRES_PASSWORD: password
+      # POSTGRES_PASSWORD: password
       POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --locale=C"
       TZ: "Asia/Tokyo"
 
