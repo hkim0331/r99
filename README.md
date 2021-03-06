@@ -4,6 +4,9 @@
 * ユーザごと解いた問題番号と回答。
 
 ## Released
+### 2.40.2 - 2021-03006
+* CHANGED: update message.
+
 ### 2.40.0 - 2021-03-05
 * CHANGED: bump-version.sh uses /bin/sed.
 * CHANGED: db/r99-backup-daily.sh updates plots every morning.
