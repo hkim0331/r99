@@ -740,7 +740,6 @@
               ;                 (+ 1 (parse-integer num)))
               ;          "次の問題の回答ページ")
               ;      "、行く？")
-
           (page
             (:h3 "error")
             (:p "問題を解くアイデア、アプローチを関数定義の前に"
@@ -751,7 +750,6 @@
             (:p "p1, p11, p22, p41 の hkimura(2999) の回答を参考に。")))
 
       (redirect "/login")))
-
 
 (define-easy-handler (answer :uri "/answer") (num)
   (if (myid)
