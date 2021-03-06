@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.40.1")
+(defvar *version* "2.40.2")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
@@ -299,93 +299,95 @@
 (defun work-days (myid)
   (let* ((q (format nil "select count (date(timestamp)) from answers
              where myid=~a group by date(timestamp)" myid))
-	(ret (dbi:fetch-all (query q))))
+         (ret (dbi:fetch-all (query q))))
     (length ret)))
 
 ;; /others
 (define-easy-handler (users :uri "/others") ()
   (page
-    (:p (:a :href "/grading.html" "grading.html"))
-    (:p
-     "r99リセット。2021-02-10以前の回答は全部消した。"
-     "やらないはずの追試は4月以降、オフラインで。"
-     "時間は十分ある。r99を偽りの回答で埋めたぼくたち、"
-     "試験と真面目に受験した人たちを愚弄したぼくたちは"
-     "深く反省し、再度、r99に取り組め。追試を受ける条件に"
-     "これからr99に取り組んだ日数も入る。")
-    (:p
-     :class "warn"
-     "この期に及んで昔の回答をコピーして提出しているバカがいる。"
-     "晒すか？"
-     "追試来ないでいい。来ても無駄。")
-    ;; (:p (:img :src "/kutsugen.jpg" :width "100%"))
-    ;; (:p :align "right" "「屈原」横山大観(1868-1958), 1898.")
-    (:p (:img :src "/by-answers.svg" :width "80%"))
-    (:p
-     "横軸：回答数、縦軸：回答数答えた人の数。"
-     "グラフの積分値が受講生の数になる。"
-     "グラフは毎朝アップデートします。")
-    (:h1)
-    (:h2 "自分のためにやるんだよ")
-    (let* ((n 0)
-           (recent
-             (dbi:fetch
-              (query "select myid, num, timestamp::text from answers
+   (:p (:a :href "/grading.html" "grading.html"))
+   ;; (:p
+   ;;  "r99リセット。2021-02-10以前の回答は全部消した。"
+   ;;  "やらないはずの追試は4月以降、オフラインで。"
+   ;;  "時間は十分ある。r99を偽りの回答で埋めたぼくたち、"
+   ;;  "試験と真面目に受験した人たちを愚弄したぼくたちは"
+   ;;  "深く反省し、再度、r99に取り組め。追試を受ける条件に"
+   ;;  "これからr99に取り組んだ日数も入る。")
+   (:p
+    :class "warn"
+    "昔の回答をコピーして提出しているバカがいる。"
+    "イージーなやつ一日１題で、やった日数稼ごうとか。"
+    "そういうの、追試来ないでいい。来ても無駄。"
+    "追試問題、簡単じゃない。"
+    "実力つけんと受からんよ。")
+   ;; (:p (:img :src "/kutsugen.jpg" :width "100%"))
+   ;; (:p :align "right" "「屈原」横山大観(1868-1958), 1898.")
+   (:p (:img :src "/by-answers.svg" :width "80%"))
+   (:p
+    "横軸：回答数、縦軸：回答数答えた人の数。"
+    "グラフの積分値が受講生の数になる。"
+    "グラフは毎朝アップデートします。")
+   (:h1)
+   (:h2 "自分のためにやるんだよ")
+   (let* ((n 0)
+          (recent
+           (dbi:fetch
+            (query "select myid, num, timestamp::text from answers
        order by timestamp desc limit 1")))
-           (results
-             (query "select users.myid, count(distinct answer)
+          (results
+           (query "select users.myid, count(distinct answer)
        from users
        inner join answers
        on users.myid=answers.myid
        group by users.myid
        order by users.myid"))
-           (working-users
-             (mapcar (lambda (x) (getf x :|myid|))
-                     (dbi:fetch-all
-                      (query  "select distinct(myid) from answers
+          (working-users
+           (mapcar (lambda (x) (getf x :|myid|))
+                   (dbi:fetch-all
+                    (query  "select distinct(myid) from answers
        where now() - timestamp < '48 hours'")))))
 
-      ;; BUG: 回答が一つもないとエラーになる。
-      (htm
-       (:li
-        (format
-         t
-         "<a href='/recent'>最近の 10 回答</a>。最新は ~a、全回答数 ~a。"
-         (short (getf recent :|timestamp|))
-         (count-answers)))
-       (:li
-        (format
-         t
-         "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
+     ;; BUG: 回答が一つもないとエラーになる。
+     (htm
+      (:li
+       (format
+        t
+        "<a href='/recent'>最近の 10 回答</a>。最新は ~a、全回答数 ~a。"
+        (short (getf recent :|timestamp|))
+        (count-answers)))
+      (:li
+       (format
+        t
+        "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
       があった受講生。"))
-       (:li "( ) は中間テスト点数。30点満点。NIL は未受験。")
-       (:li "一番右はR99に費やした日数。"
-            "やらんとできるようにならない。"
-            "追試に出る問題を解けるようにならないとダメだろ。"
-            "何が追試に出るか？文字列は絶対だ。")
-       (:hr))
+      (:li "( ) は中間テスト点数。30点満点。NIL は未受験。")
+      (:li "一番右はR99に費やした日数。"
+           "やらんとできるようにならない。"
+           "追試に出る問題を解けるようにならないとダメだろ。"
+           "何が追試に出るか？文字列は絶対だ。")
+      (:hr))
 
-      (loop for row = (dbi:fetch results)
-            while row
-            do
-               (let* ((myid (getf row :|myid|))
-                      (working (if (find myid working-users) "yes" "no")))
+     (loop for row = (dbi:fetch results)
+           while row
+           do
+           (let* ((myid (getf row :|myid|))
+                  (working (if (find myid working-users) "yes" "no")))
 
-                 ;; FIXME: ここは 80 cols に収まらない。<pre>で囲んでいるので、
-                 ;;        改行できない。
-                 (format
-                  t
-                  "<pre><span class=~a>~A</span>(~a) ~A<a href='/last?myid=~d'>~d</a>,~a</pre>"
-                  working
-                  myid
-                  (cdr (assoc myid *mt*))
-                  (stars (getf row :|count|))
-                  myid
-                  (getf row :|count|)
-                  (work-days myid)));;slow
-               (incf n))
+             ;; FIXME: ここは 80 cols に収まらない。<pre>で囲んでいるので、
+             ;;        改行できない。
+             (format
+              t
+              "<pre><span class=~a>~A</span>(~a) ~A<a href='/last?myid=~d'>~d</a>,~a</pre>"
+              working
+              myid
+              (cdr (assoc myid *mt*))
+              (stars (getf row :|count|))
+              myid
+              (getf row :|count|)
+              (work-days myid)));;slow
+           (incf n))
 
-      (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
+     (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -402,53 +404,55 @@
 
 (define-easy-handler (problems :uri "/problems") ()
   (let ((results
-          (query "select num, detail from problems order by num"))
+         (query "select num, detail from problems order by num"))
         (answers
-          (query "select num, count(*) from answers group by num"))
+         (query "select num, count(*) from answers group by num"))
         (nums (make-hash-table)))
     (loop for row = (dbi:fetch answers)
           while row
           do
-             (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
+          (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
     (page
-      (:p (:a :href "/grading.html" "grading.html"))
-      (:p
-       "r99リセット。2021-02-10以前の回答は全部消した。"
-       "やらないはずの追試は4月以降、オフラインで。"
-       "時間は十分ある。r99を偽りの回答で埋めたぼくたち、"
-       "試験と真面目に受験した人たちを愚弄したぼくたちは"
-       "深く反省し、再度、r99に取り組め。追試を受ける条件に"
-       "これからr99に取り組んだ日数も入る。"
-       (:p
-        :class "warn"
-        "この期に及んで昔の回答をコピーして提出しているバカがいる。"
-        "晒すか？"
-        "追試来ないでいい。来ても無駄。"))
-      ;;(:h1 :style "color:red; font-size:24pt" "🔥UNDER CONSTRUCTION🔥")
-      ;;(:p "利用開始までもうちょっと。")
-      ;;(:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
-      ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
-      (:p (:img :src "/by-numbers.svg" :with "80%"))
-      (:p "横軸:問題番号、縦軸:回答数。"
-          "グラフは毎朝アップデートします。")
-      (:h2 "problems")
-      (:ul
-       (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
-       (:li "上の方で定義した関数を利用する場合、上の関数定義は回答に含めないでOK。")
-       (:li "すべての回答関数の上には"
-            "#include &lt;stdio.h> #include &lt;stdlib.h> があると仮定してよい。")
-       (:li :class "warn"
-            "正真正銘自分作のプログラムでも、動作を確認してないプログラムはゴミ。"))
-      (:hr)
-      (loop for row = (dbi:fetch results)
-            while row
-            do
-               (let ((num (getf row :|num|)))
-                 (format t "<p><a href='/answer?num=~a'>~a</a>(~a) ~a</p>~%"
-                         num
-                         num
-                         (zero_or_num (gethash num nums))
-                         (getf row :|detail|)))))))
+     (:p (:a :href "/grading.html" "grading.html"))
+     (:p
+      :class "warn"
+      "昔の回答をコピーして提出しているバカがいる。"
+      "イージーなの一日１題でやった日数稼ぐつもりか。"
+      "そういう人は追試来ても無駄だろうな。"
+      "追試問題は簡単じゃない。"
+      "実力つけんと受からんよ。"))
+     ;; (:p
+     ;;  "r99リセット。2021-02-10以前の回答は全部消した。"
+     ;;  "やらないはずの追試は4月以降、オフラインで。"
+     ;;  "時間は十分ある。r99を偽りの回答で埋めたぼくたち、"
+     ;;  "試験と真面目に受験した人たちを愚弄したぼくたちは"
+     ;;  "深く反省し、再度、r99に取り組め。追試を受ける条件に"
+     ;;  "これからr99に取り組んだ日数も入る。")
+    ;;(:h1 :style "color:red; font-size:24pt" "🔥UNDER CONSTRUCTION🔥")
+    ;;(:p "利用開始までもうちょっと。")
+    ;;(:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
+    ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
+    (:p (:img :src "/by-numbers.svg" :with "80%"))
+    (:p "横軸:問題番号、縦軸:回答数。"
+        "グラフは毎朝アップデートします。")
+    (:h2 "problems")
+    (:ul
+     (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
+     (:li "上の方で定義した関数を利用する場合、上の関数定義は回答に含めないでOK。")
+     (:li "すべての回答関数の上には"
+          "#include &lt;stdio.h> #include &lt;stdlib.h> があると仮定してよい。")
+     (:li :class "warn"
+          "正真正銘自分作のプログラムでも、動作を確認してないプログラムはゴミ。"))
+    (:hr)
+    (loop for row = (dbi:fetch results)
+          while row
+          do
+          (let ((num (getf row :|num|)))
+            (format t "<p><a href='/answer?num=~a'>~a</a>(~a) ~a</p>~%"
+                    num
+                    num
+                    (zero_or_num (gethash num nums))
+                    (getf row :|detail|))))))
 
 (defun detail (num)
   (let* ((q (format
