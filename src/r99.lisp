@@ -223,7 +223,7 @@
          (q (format
              nil
              "select myid,num,timestamp::text from answers
-               order by id desc limit '~a'"
+               order by timestamp desc limit '~a'"
              nn))
          (ret (query q)))
     (page
