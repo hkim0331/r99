@@ -4,6 +4,9 @@
 * ユーザごと解いた問題番号と回答。
 
 ## Released
+### 2.40.5 - 2021-03-09
+* CHANGED: recent: order by timestamp.
+
 ### 2.40.4 - 2021-03-06
 * ADDED: src/initdb
 * FIXME: .env の使い方、environment の引き継ぎ

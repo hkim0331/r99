@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.40.4")
+(defvar *version* "2.40.5")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
@@ -223,7 +223,7 @@
          (q (format
              nil
              "select myid,num,timestamp::text from answers
-               order by id desc limit '~a'"
+               order by timestamp desc limit '~a'"
              nn))
          (ret (query q)))
     (page

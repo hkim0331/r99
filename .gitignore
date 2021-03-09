@@ -19,3 +19,4 @@
 env.sh
 .rebel_readline_history
 /log
+/src/.env
