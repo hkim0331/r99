@@ -4,6 +4,9 @@
 * ユーザごと解いた問題番号と回答。
 
 ## Released
+### 2.40.6 - 2021-03-09
+* REMOVED: dir solutions/. moved to outside git, ~/c/r99-solutions.
+
 ### 2.40.5 - 2021-03-09
 * CHANGED: recent: order by timestamp.
 
