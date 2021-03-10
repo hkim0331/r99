@@ -4,6 +4,9 @@
 * ユーザごと解いた問題番号と回答。
 
 ## Released
+### 2.40.6 - 2021-03-10
+* CHANGED r99.lisp: list active users only.
+
 ### 2.40.4 - 2021-03-06
 * ADDED: src/initdb
 * FIXME: .env の使い方、environment の引き継ぎ

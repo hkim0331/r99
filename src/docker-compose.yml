@@ -1,22 +1,6 @@
 version: '3.3'
 services:
-  r99_app:
-    image: hkim/roswell
-    ports:
-      - "4005:4005"
-      - "3030:3030"
-    volumes:
-      - ~/common-lisp/r99:/home/ubuntu/common-lisp/r99
-    working_dir: /home/ubuntu/common-lisp/r99/src
-    depends_on:
-      - r99_db
-    environment:
-      R99_HOST: r99_db
-      R99_DB:   r99
-      R99_USER: user1
-      R99_PASS: pass1
-
-  r99_db:
+  r99-pg:
     image: postgres
     # expose:
     #   - "5432"
@@ -29,6 +13,18 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --locale=C"
       TZ: "Asia/Tokyo"
+
+  r99-app:
+    image: hkim/roswell
+    ports:
+      - "4005:4005"
+      - "3030:3030"
+    volumes:
+      - ~/common-lisp/r99:/home/ubuntu/common-lisp/r99
+    working_dir: /home/ubuntu/common-lisp/r99/src
+    links:
+      - r99-pg
+    env_file: .env
 
 volumes:
   r99-data:
