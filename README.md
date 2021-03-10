@@ -4,8 +4,14 @@
 * ユーザごと解いた問題番号と回答。
 
 ## Released
-### 2.40.6 - 2021-03-10
+### 2.40.7 - 2021-03-10
 * CHANGED r99.lisp: list active users only.
+
+### 2.40.6 - 2021-03-09
+* REMOVED: dir solutions/. moved to outside git, ~/c/r99-solutions.
+
+### 2.40.5 - 2021-03-09
+* CHANGED: recent: order by timestamp.
 
 ### 2.40.4 - 2021-03-06
 * ADDED: src/initdb
