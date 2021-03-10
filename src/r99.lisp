@@ -302,24 +302,15 @@
          (ret (dbi:fetch-all (query q))))
     (length ret)))
 
+(defparameter *top-message*
+  (concatenate 'string
+    "追試に通る実力つけんと受からんよ。" "イージーなやつ一日１題、日数稼いで、実力つくか？"))
+
 ;; /others
 (define-easy-handler (users :uri "/others") ()
   (page
    (:p (:a :href "/grading.html" "grading.html"))
-   ;; (:p
-   ;;  "r99リセット。2021-02-10以前の回答は全部消した。"
-   ;;  "やらないはずの追試は4月以降、オフラインで。"
-   ;;  "時間は十分ある。r99を偽りの回答で埋めたぼくたち、"
-   ;;  "試験と真面目に受験した人たちを愚弄したぼくたちは"
-   ;;  "深く反省し、再度、r99に取り組め。追試を受ける条件に"
-   ;;  "これからr99に取り組んだ日数も入る。")
-   (:p
-    :class "warn"
-    "昔の回答をコピーして提出しているバカがいる。"
-    "イージーなやつ一日１題で、やった日数稼ごうとか。"
-    "そういうの、追試来ないでいい。来ても無駄。"
-    "追試問題、簡単じゃない。"
-    "実力つけんと受からんよ。")
+   (:p :class "warn" (str *top-message*))
    ;; (:p (:img :src "/kutsugen.jpg" :width "100%"))
    ;; (:p :align "right" "「屈原」横山大観(1868-1958), 1898.")
    (:p (:img :src "/by-answers.svg" :width "80%"))
@@ -414,13 +405,7 @@
              (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
     (page
       (:p (:a :href "/grading.html" "grading.html"))
-      (:p
-       :class "warn"
-       "昔の回答をコピーして提出しているバカがいる。"
-       "イージーなの一日１題でやった日数稼ぐつもりか。"
-       "そういう人は追試来ても無駄だろうな。"
-       "追試問題は簡単じゃない。"
-       "実力つけんと受からんよ。")
+      (:p :class "warn" (str *top-message*))
       ;;(:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
       ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
       (:p (:img :src "/by-numbers.svg" :with "80%"))
