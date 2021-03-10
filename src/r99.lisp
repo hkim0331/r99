@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.40.8")
+(defvar *version* "2.40.9")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
@@ -223,7 +223,7 @@
          (q (format
              nil
              "select myid,num,timestamp::text from answers
-               order by timestamp desc limit '~a'"
+               order by id desc limit '~a'"
              nn))
          (ret (query q)))
     (page
@@ -304,7 +304,8 @@
 
 (defparameter *top-message*
   (concatenate 'string
-    "追試に通る実力つけんと受からんよ。" "イージーなやつ一日１題、日数稼いで、実力つくか？"))
+    "目眩しの実働日数稼ぎで実力つくか？"
+    "追試の準備をきちんとしなさい。"))
 
 ;; /others
 (define-easy-handler (users :uri "/others") ()
@@ -346,16 +347,16 @@
         "<a href='/recent'>最近の 10 回答</a>。最新は ~a、全回答数 ~a。"
         (short (getf recent :|timestamp|))
         (count-answers)))
-      (:li
-       (format
-        t
-        "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
-      があった受講生。"))
+      ; (:li
+      ;  (format
+      ;   t
+      ;   "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
+      ; があった受講生。"))
+      (:li "48時間以内にアップデートあったユーザだけ、リストしてます。")
       (:li "( ) は中間テスト点数。30点満点。NIL は未受験。")
-      (:li "一番右はR99に費やした日数。"
-           "やらんとできるようにならない。"
-           "追試に出る問題を解けるようにならないとダメだろ。"
-           "何が追試に出るか？文字列は絶対だ。")
+      (:li "一番右はR99に費やした日数。")
+      (:li "追試に出る問題を解けるようにならないとダメだろ。"
+           "何が追試に出るか？文字列取り組まないと追試対策にならないよ。")
       (:hr))
 
      (loop for row = (dbi:fetch results)
@@ -363,19 +364,19 @@
            do
            (let* ((myid (getf row :|myid|))
                   (working (if (find myid working-users) "yes" "no")))
-
              ;; FIXME: ここは 80 cols に収まらない。<pre>で囲んでいるので、
              ;;        改行できない。
-             (format
-              t
-              "<pre><span class=~a>~A</span>(~a) ~A<a href='/last?myid=~d'>~d</a>,~a</pre>"
-              working
-              myid
-              (cdr (assoc myid *mt*))
-              (stars (getf row :|count|))
-              myid
-              (getf row :|count|)
-              (work-days myid)));;slow
+             (when (string= working "yes")
+               (format
+                t
+                "<pre><span class=~a>~A</span>(~a) ~A<a href='/last?myid=~d'>~d</a>,~a</pre>"
+                working
+                myid
+                (cdr (assoc myid *mt*))
+                (stars (getf row :|count|))
+                myid
+                (getf row :|count|)
+                (work-days myid)))) ;;slow
            (incf n))
 
      (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
