@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.40.9")
+(defvar *version* "2.41.0")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
@@ -113,8 +113,7 @@
          (s3 (regex-replace-all "？"     s2 "?")))
     s3))
 
-;; FIXME: コメントだけ送ってくるやつを弾く。
-;;        このくらいで十分か。
+;; コメントだけ送ってくるやつを弾く。
 (defun check (answer)
   (and
    (scan "^/" answer)  ; has comment?
@@ -304,83 +303,84 @@
 
 (defparameter *top-message*
   (concatenate 'string
-    "目眩しの実働日数稼ぎで実力つくか？"
-    "追試の準備をきちんとしなさい。"))
+               "また間違いプログラムのコピーが連発。身に沁みてないのか？"))
+
+
 
 ;; /others
 (define-easy-handler (users :uri "/others") ()
   (page
-   (:p (:a :href "/grading.html" "grading.html"))
-   (:p :class "warn" (str *top-message*))
-   ;; (:p (:img :src "/kutsugen.jpg" :width "100%"))
-   ;; (:p :align "right" "「屈原」横山大観(1868-1958), 1898.")
-   (:p (:img :src "/by-answers.svg" :width "80%"))
-   (:p
-    "横軸：回答数、縦軸：回答数答えた人の数。"
-    "グラフは毎朝アップデートします。"
-    "キャッシュをクリアしないとグラフがアップデートされないブラウザ"
-    "(Chromeなど)がある。")
-   (:h1)
-   (:h2 "自分のためにやるんだよ")
-   (let* ((n 0)
-          (recent
-           (dbi:fetch
-            (query "select myid, num, timestamp::text from answers
+    (:p (:a :href "/grading.html" "grading.html"))
+    (:p :class "warn" (str *top-message*))
+    ;; (:p (:img :src "/kutsugen.jpg" :width "100%"))
+    ;; (:p :align "right" "「屈原」横山大観(1868-1958), 1898.")
+    (:p (:img :src "/by-answers.svg" :width "80%"))
+    (:p
+     "横軸：回答数、縦軸：回答数答えた人の数。"
+     "グラフは毎朝アップデートします。"
+     "キャッシュをクリアしないとグラフがアップデートされないブラウザ"
+     "(Chromeなど)がある。")
+    (:h1)
+    (:h2 "自分のためにやるんだよ")
+    (let* ((n 0)
+           (recent
+             (dbi:fetch
+              (query "select myid, num, timestamp::text from answers
        order by timestamp desc limit 1")))
-          (results
-           (query "select users.myid, count(distinct answer)
+           (results
+             (query "select users.myid, count(distinct answer)
        from users
        inner join answers
        on users.myid=answers.myid
        group by users.myid
        order by users.myid"))
-          (working-users
-           (mapcar (lambda (x) (getf x :|myid|))
-                   (dbi:fetch-all
-                    (query  "select distinct(myid) from answers
+           (working-users
+             (mapcar (lambda (x) (getf x :|myid|))
+                     (dbi:fetch-all
+                      (query  "select distinct(myid) from answers
        where now() - timestamp < '48 hours'")))))
 
-     ;; BUG: 回答が一つもないとエラーになる。
-     (htm
-      (:li
-       (format
-        t
-        "<a href='/recent'>最近の 10 回答</a>。最新は ~a、全回答数 ~a。"
-        (short (getf recent :|timestamp|))
-        (count-answers)))
+      ;; BUG: 回答が一つもないとエラーになる。
+      (htm
+       (:li
+        (format
+         t
+         "<a href='/recent'>最近の 10 回答</a>。最新は ~a、全回答数 ~a。"
+         (short (getf recent :|timestamp|))
+         (count-answers)))
                                         ; (:li
                                         ;  (format
                                         ;   t
                                         ;   "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
                                         ; があった受講生。"))
-      (:li "48時間以内にアップデートあったユーザだけ、リストしてます。")
-      (:li "( ) は中間テスト点数。30点満点。NIL は未受験。")
-      (:li "一番右はR99に費やした日数。")
-      (:li "追試に出そうな問題に取り組まないと追試対策にならない。"
-           "当たり前。")
-      (:hr))
+       (:li "48時間以内にアップデートあったユーザだけ、リストしてます。")
+       (:li "( ) は中間テスト点数。30点満点。NIL は未受験。")
+       (:li "一番右はR99に費やした日数。")
+       (:li "追試に出そうな問題に取り組まないと追試対策にならない。"
+            "当たり前。")
+       (:hr))
 
-     (loop for row = (dbi:fetch results)
-           while row
-           do
-           (let* ((myid (getf row :|myid|))
-                  (working (if (find myid working-users) "yes" "no")))
-             ;; FIXME: ここは 80 cols に収まらない。<pre>で囲んでいるので、
-             ;;        改行できない。
-             (when (string= working "yes")
-               (format
-                t
-                "<pre><span class=~a>~A</span>(~a) ~A<a href='/last?myid=~d'>~d</a>,~a</pre>"
-                working
-                myid
-                (cdr (assoc myid *mt*))
-                (stars (getf row :|count|))
-                myid
-                (getf row :|count|)
-                (work-days myid)))) ;;slow
-           (incf n))
+      (loop for row = (dbi:fetch results)
+            while row
+            do
+               (let* ((myid (getf row :|myid|))
+                      (working (if (find myid working-users) "yes" "no")))
+                 ;; FIXME: ここは 80 cols に収まらない。<pre>で囲んでいるので、
+                 ;;        改行できない。
+                 (when (string= working "yes")
+                   (format
+                    t
+                    "<pre><span class=~a>~A</span>(~a) ~A<a href='/last?myid=~d'>~d</a>,~a</pre>"
+                    working
+                    myid
+                    (cdr (assoc myid *mt*))
+                    (stars (getf row :|count|))
+                    myid
+                    (getf row :|count|)
+                    (work-days myid)))) ;;slow
+               (incf n))
 
-     (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
+      (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -634,27 +634,25 @@
          (num (getf ret :|num|))
          (d (getf ret :|detail|)))
     (page
-     (:h2 "submit your answer to " (str num))
-     (:p (str d))
-     (:ul
-      (:li "同じような回答、わかりにくい回答が増えている。"
-           "どんな方針で問題を解こうとしたのか、"
-           "回答の上に簡単な説明コメント入れること。")
-      (:li :class "warn" "どんな風に動作確認したかもだぞ。")
-      (:li "回答提出後 3 時間は訂正できない。")
-      (:li :class "warn" "submit したら他の回答、コメントを読み、"
-           "ビシッと来たもの、勉強になった点あったらコメントつけよう。"))
+      (:h2 "submit your answer to " (str num))
+      (:p (str d))
+      (:ul
+       (:li "回答の上にコメントで作った関数の説明を入れること。"
+            "for と if を使った、なんつーのは説明にならない。")
+       (:li "回答提出後 3 時間は訂正できない。")
+       (:li "Submit できたら他の回答、コメントを読み、"
+            "間違いや勉強になった点があったらコメントつけよう。"))
 
-     (:form :method "post" :action "/submit"
-            (:input :type "hidden" :name "num" :value num)
-            (:textarea :name "answer" :cols 60 :rows 10
-                       :placeholder "プログラムの動作を確認後、
+      (:form :method "post" :action "/submit"
+             (:input :type "hidden" :name "num" :value num)
+             (:textarea :name "answer" :cols 60 :rows 10
+                        :placeholder "プログラムの動作を確認後、
           correct indentation して、送信するのがルール。
           ケータイで回答もらって平常点インチキしても
           中間テスト・期末テストで確実に負けるから。
           マジ勉した方がいい。")
-            (:br)
-            (:input :type "submit" :class "btn btn-sm btn-primary")))))
+             (:br)
+             (:input :type "submit" :class "btn btn-sm btn-primary")))))
 
 (defun solved (myid)
   (let* ((q (format
@@ -690,55 +688,64 @@
         (if (check answer)
             (update (myid) num answer)
             (page
-             (:h3 "error"
-              (:p "ビルドに失敗。アップデートでバグが入ったか？"))))
+              (:h3 "error"
+                   (:p "ビルドに失敗。アップデートでバグが入ったか？"))))
         (page
-         (:h2 (format t "Sin-Bin: ~a seconds" (- sin-bin now)))
-         (:p "一定時間以内のアップデートは禁止です。")))))
-         ;(:p "バカな野郎が数人いるだけでみんなが迷惑。")
+          (:h2 (format t "Sin-Bin: ~a seconds" (- sin-bin now)))
+          (:p "一定時間以内のアップデートは禁止です。")))))
 
+(defun todays-answer (id)
+  (let* ((q (format
+             nil
+             "select count(*) from answers where myid='~a' and
+              timestamp > current_date" id))
+         (ret (dbi:fetch (query q))))
+    (getf ret :|count|)))
+
+(defparameter *max-a-day* 10)
 
 (define-easy-handler (submit :uri "/submit") (num answer)
-  (if (myid)
-      (if (check answer)
-          (let* ((dummy (insert (myid) num answer))
-                 (count (count-answers)))
-            (page
-             (:h1 "received your answer to " (str num))
-             (cond
-               ((zerop (mod count 100))
-                (htm (:p (:img :src "happiest.png"))
-                     (:p "おめでとう!!! 通算 " (str count) " 番目の回答です。")))
-               ((zerop (mod count 50))
-                (htm (:p (:img :src "happier.png"))
-                     (:p "おめでとう!! 通算 " (str count) " 番目の回答です。")))
-               ((zerop (mod count 10))
-                (htm (:p (:img :src "happy.png"))
-                     (:p "おめでとう! 通算 " (str count) " 番目の回答です。")))
-               (t (htm (:p "received."))))
-             (:p "さらに R99 にはげむ前に、他の受講生の回答読んでコメントつけよう。"
-                 "間違いあったら hkimura が見つける前に指摘してあげよう。"
-                 "「いい」と思ったら自分がもらって嬉しいと思うコメントを。")
-             (:ul
-              ;(:li (:a :href "/status" "自分の回答状況") "のチェックのほか、")
-              (:li (:a :href (format nil "/answer?num=~a" num)
-                       "他ユーザの回答読んでコメント")))))
-              ; (:li "それとも直接 "
-              ;      (:a :href (format
-              ;                 nil "/answer?num=~a"
-              ;                 (+ 1 (parse-integer num)))
-              ;          "次の問題の回答ページ")
-              ;      "、行く？")
-          (page
-            (:h3 "error")
-            (:p "問題を解くアイデア、アプローチを関数定義の前に"
-                "コメントで書いてもらうことにしました。"
-                "ブラウザのバックで戻り、"
-                "回答の最初、関数定義の上にコメントを書き足して、"
-                "再提出してください。")
-            (:p "p1, p11, p22, p41 の hkimura(2999) の回答を参考に。")))
-
-      (redirect "/login")))
+  (cond
+    ((not (myid)) (redirect "/login"))
+    ((< *max-a-day* (todays-answer (myid)))
+     (page
+       (:h1 "明日にしよう")
+       (:p "期末テスト前の荒れた投稿と3月以降のみんなの状況から、"
+           "一日に投稿できる回答数を制限してます。")
+       (:p "コピーした回答をちょこっと変更し自分の回答として出すより、"
+           "じっくり考え、また、他の回答も読んだほうが勉強になるぞ。")
+       (:p "もうすぐ追試だ。できるようになってないと不合格は当たり前。"
+           "暗記しようとするんじゃなく、できるようになって来なさい。")))
+    ((not (check answer))
+     (page
+       (:h3 "error")
+       (:p "問題を解くアイデア、アプローチを関数定義の前に"
+           "コメントで書くこと。")
+       (:p "ブラウザのバックで戻り、"
+           "回答の最初、関数定義の上にコメントを書き足して、"
+           "再提出してください。")
+       (:p "p1, p11, p22, p41 の hkimura(2999) の回答を参考に。")))
+    (t
+     (let* ((_ (insert (myid) num answer))
+            (count (count-answers)))
+       (page
+         (:h1 "received your answer to " (str num))
+         (cond
+           ((zerop (mod count 100))
+            (htm (:p (:img :src "happiest.png"))
+                 (:p "おめでとう!!! 通算 " (str count) " 番目の回答です。")))
+           ((zerop (mod count 50))
+            (htm (:p (:img :src "happier.png"))
+                 (:p "おめでとう!! 通算 " (str count) " 番目の回答です。")))
+           ((zerop (mod count 10))
+            (htm (:p (:img :src "happy.png"))
+                 (:p "おめでとう! 通算 " (str count) " 番目の回答です。")))
+           (t (htm (:p "received."))))
+         (:p "さらに R99 続ける前に他の受講生の回答に"
+             (:a :href (format nil "/answer?num=~a" num) "コメント")
+             "しよう。")
+         (:p "間違いあったら hkimura が見つける前に指摘する。"
+             "「いい」と思ったら自分がもらって嬉しいと思うコメントを。"))))))
 
 (define-easy-handler (answer :uri "/answer") (num)
   (if (myid)
@@ -936,8 +943,8 @@ answer like '%/* comment from%' order by num"
 ;; dry!
 (defun publish-static-content ()
   (let ((entities
-	  '("grading.html"
-	    "results-high.png"
+          ("grading.html"
+           "results-high.png"
            "results-low.png"
            "2__9.png"
            "a-gift-of-the-sea.jpg"
@@ -968,10 +975,10 @@ answer like '%/* comment from%' order by num"
            "by-answers.svg")))
     (loop for i in entities
           do
-          (push (create-static-file-dispatcher-and-handler
-                 (format nil "/~a" i)
-                 (format nil "static/~a" i))
-                *dispatch-table*))))
+             (push (create-static-file-dispatcher-and-handler
+                    (format nil "/~a" i)
+                    (format nil "static/~a" i))
+                   *dispatch-table*))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
