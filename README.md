@@ -4,6 +4,29 @@
 * ユーザごと解いた問題番号と回答。
 
 ## Released
+### 2.41.1 - 2021-03-31
+* bugfixed: ' が一つ外れてた。
+
+### 2.41.0 - 2021-03-31
+* 一日に投稿できる回答数を10に制限。
+
+### 2.40.10 - 2021-03-11
+* キャプションに "グラフのアップデートはブラウザのキャッシュをクリア"
+（こっちの方が簡潔か）
+* img のオプションで width を with とタイポしていた。
+
+### 2.40.8 - 2021-03-10
+* 2.40.7 が app.melt に届いていないので、バージョン上げてアップし直し。
+
+### 2.40.7 - 2021-03-10
+* CHANGED r99.lisp: list active users only.
+
+### 2.40.6 - 2021-03-09
+* REMOVED: dir solutions/. moved to outside git, ~/c/r99-solutions.
+
+### 2.40.5 - 2021-03-09
+* CHANGED: recent: order by timestamp.
+
 ### 2.40.4 - 2021-03-06
 * ADDED: src/initdb
 * FIXME: .env の使い方、environment の引き継ぎ
