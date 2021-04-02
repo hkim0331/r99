@@ -9,6 +9,7 @@
 *.dat
 *.svg
 .cpcache
+.lsp
 .nrepl-history
 .nrepl-port
 .rebel_readline_history
@@ -18,4 +19,3 @@
 !/db/tables-drop.sql
 /log
 /src/.env
-/src/.lsp

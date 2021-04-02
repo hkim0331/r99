@@ -4,6 +4,9 @@
 * ユーザごと解いた問題番号と回答。
 
 ## Released
+### 2.42.2 - 2021-04-02
+* who solved more than 40?
+
 ### 2.42.1 - 2021-04-02
 * are you hkimura?
 
