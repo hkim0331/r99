@@ -12,7 +12,7 @@
 (defvar *myid* "r99");; cookie name
 
 ;; 2021-02-02
-(defparameter *how-many-answers* 10) ; check
+(defparameter *how-many-answers* 10)
 
 (defun getenv (name &optional default)
   "Obtains the current value of the POSIX environment variable NAME."
@@ -310,7 +310,8 @@
 ;; /others
 (define-easy-handler (users :uri "/others") ()
   (page
-    (:p (:a :href "/grading.html" "grading.html"))
+    ;;(:p (:a :href "/grading.html" "grading.html"))
+    (:p (format t "your ip ~a is recorded." (real-remote-addr)))
     (:p :class "warn" (str *top-message*))
     ;; (:p (:img :src "/kutsugen.jpg" :width "100%"))
     ;; (:p :align "right" "「屈原」横山大観(1868-1958), 1898.")
@@ -406,7 +407,8 @@
           do
              (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
     (page
-      (:p (:a :href "/grading.html" "grading.html"))
+      ;;(:p (:a :href "/grading.html" "grading.html"))
+      (:p (format t "your ip ~a is recorded" (real-remote-addr)))
       (:p :class "warn" (str *top-message*))
       ;;(:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
       ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
@@ -986,6 +988,7 @@ answer like '%/* comment from%' order by num"
 ;;;
 
 (define-easy-handler (auth :uri "/auth") (id pass)
+  (print (format nil "real-remote-addr is ~a" (real-remote-addr)))
   (if (or (myid)
           (and (not (null id)) (not (null pass))
                (string= (password  id) pass)))
