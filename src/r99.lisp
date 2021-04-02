@@ -385,7 +385,7 @@
                (str n)
                " 人。"
                "日数かけて問題数解いてこないと追試受験資格ない。"
-               "インチキは責任取らせる。")))))
+               "インチキは自分に跳ね返る。")))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; problems
@@ -993,7 +993,7 @@ answer like '%/* comment from%' order by num"
   (page
     (:h2 "are you hkimura?")
     (:p
-     (:a :href "/login" "no")
+     (:a :href "/logout" "no")
      " | "
      (:a :href "/problems" "yes"))))
 
@@ -1023,7 +1023,7 @@ answer like '%/* comment from%' order by num"
 
 (define-easy-handler (logout :uri "/logout") ()
   (set-cookie *myid* :max-age 0)
-  (redirect "/problems"))
+  (redirect "/login"))
 
 (define-easy-handler (passwd :uri "/passwd") (myid old new1 new2)
   (let ((stat "パスワードを変更しました。"))
