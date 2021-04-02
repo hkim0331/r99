@@ -4,6 +4,9 @@
 * ユーザごと解いた問題番号と回答。
 
 ## Released
+### 2.42.3 - 2021-04-03
+* changed redirect destination
+
 ### 2.42.2 - 2021-04-02
 * who solved more than 40?
 
