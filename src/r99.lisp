@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.42.1")
+(defvar *version* "2.43.0")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
@@ -303,8 +303,23 @@
 
 (defparameter *top-message*
   (concatenate 'string
-               "また間違いプログラムのコピーが連発。身に沁みてないのか？"))
+               "4/27 18:00- C-2F で追試。やってこない人は受験してもムダ。"))
 
+;; 2021-04-07
+(define-easy-handler (user-answers :uri "/user-answers") (myid)
+  (let* ((q (format
+             nil
+             "select num, answer from answers where myid='~a'"
+             myid))
+         (ret (dbi:fetch-all (query q))))
+    (page
+      (if (string= "2999" (myid))
+          (loop for r in ret
+                do
+                   (htm (:p "#" (str (getf r :|num|)))
+                        (:pre   (str (escape (getf r :|answer|))))
+                        (:hr)))
+          (htm (:p "access restricted."))))))
 
 
 ;; /others
@@ -327,19 +342,19 @@
            (recent
              (dbi:fetch
               (query "select myid, num, timestamp::text from answers
-       order by timestamp desc limit 1")))
+              order by timestamp desc limit 1")))
            (results
              (query "select users.myid, count(distinct answer)
-       from users
-       inner join answers
-       on users.myid=answers.myid
-       group by users.myid
-       order by users.myid"))
+             from users
+             inner join answers
+             on users.myid=answers.myid
+             group by users.myid
+             order by users.myid"))
            (working-users
              (mapcar (lambda (x) (getf x :|myid|))
                      (dbi:fetch-all
                       (query  "select distinct(myid) from answers
-       where now() - timestamp < '48 hours'")))))
+                      where now() - timestamp < '48 hours'")))))
 
       ;; BUG: 回答が一つもないとエラーになる。
       (htm
@@ -349,16 +364,9 @@
          "<a href='/recent'>最近の 10 回答</a>。最新は ~a、全回答数 ~a。"
          (short (getf recent :|timestamp|))
          (count-answers)))
-                                        ; (:li
-                                        ;  (format
-                                        ;   t
-                                        ;   "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
-                                        ; があった受講生。"))
        (:li "48時間以内にアップデートあったユーザだけ、リストしてます。")
        (:li "( ) は中間テスト点数。30点満点。NIL は未受験。")
        (:li "一番右はR99に費やした日数。")
-       (:li "追試に出そうな問題に取り組まないと追試対策にならない。"
-            "当たり前。")
        (:hr))
 
       (loop for row = (dbi:fetch results)
@@ -371,18 +379,22 @@
                  (when (string= working "yes")
                    (format
                     t
-                    "<pre><span class=~a>~A</span>(~a) ~A<a href='/last?myid=~d'>~d</a>,~a</pre>"
+                    "<pre><span class=~a><a href='/user-answers?myid=~a'>~A</a></span>(~a) ~A<a href='/last?myid=~d'>~d</a>,~a</pre>"
                     working
+                    myid
                     myid
                     (cdr (assoc myid *mt*))
                     (stars (getf row :|count|))
                     myid
                     (getf row :|count|)
                     (work-days myid)))) ;;slow
-               (incf n))
-
-      (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
-
+               (when (< 50 (getf row :|count|))
+                 (incf n)))
+      (htm (:p "2021/04/07、50題以上回答者 "
+               (str n)
+               " 人。"
+               "日数かけて問題数解いてこないと追試受験資格ない。"
+               "インチキは自分に跳ね返る。")))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; problems
@@ -990,7 +1002,7 @@ answer like '%/* comment from%' order by num"
   (page
     (:h2 "are you hkimura?")
     (:p
-     (:a :href "/login" "no")
+     (:a :href "/logout" "no")
      " | "
      (:a :href "/problems" "yes"))))
 
@@ -1020,7 +1032,7 @@ answer like '%/* comment from%' order by num"
 
 (define-easy-handler (logout :uri "/logout") ()
   (set-cookie *myid* :max-age 0)
-  (redirect "/problems"))
+  (redirect "/login"))
 
 (define-easy-handler (passwd :uri "/passwd") (myid old new1 new2)
   (let ((stat "パスワードを変更しました。"))
