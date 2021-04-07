@@ -303,9 +303,7 @@
 
 (defparameter *top-message*
   (concatenate 'string
-               "また間違いプログラムのコピーが連発。身に沁みてないのか？"))
-
-
+               "連休前に最終試験。丸暗記はムダ。"))
 
 ;; /others
 (define-easy-handler (users :uri "/others") ()
