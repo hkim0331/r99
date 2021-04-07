@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.42.1")
+(defvar *version* "2.42.3")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
@@ -347,11 +347,11 @@
          "<a href='/recent'>最近の 10 回答</a>。最新は ~a、全回答数 ~a。"
          (short (getf recent :|timestamp|))
          (count-answers)))
-                                        ; (:li
-                                        ;  (format
-                                        ;   t
-                                        ;   "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
-                                        ; があった受講生。"))
+       ;; (:li
+       ;;  (format
+       ;;   t
+       ;;   "<span class='yes'>赤</span> は過去 48 時間以内にアップデート
+       ;; があった受講生。"))
        (:li "48時間以内にアップデートあったユーザだけ、リストしてます。")
        (:li "( ) は中間テスト点数。30点満点。NIL は未受験。")
        (:li "一番右はR99に費やした日数。")
@@ -377,10 +377,13 @@
                     myid
                     (getf row :|count|)
                     (work-days myid)))) ;;slow
-               (incf n))
-
-      (htm (:p "受講生 273 人、一題以上回答者 " (str n) " 人。")))))
-
+               (when (< 40 (getf row :|count|))
+                 (incf n)))
+      (htm (:p "2021/04/01、40題以上回答者 "
+               (str n)
+               " 人。"
+               "日数かけて問題数解いてこないと追試受験資格ない。"
+               "インチキは自分に跳ね返る。")))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; problems
@@ -988,7 +991,7 @@ answer like '%/* comment from%' order by num"
   (page
     (:h2 "are you hkimura?")
     (:p
-     (:a :href "/login" "no")
+     (:a :href "/logout" "no")
      " | "
      (:a :href "/problems" "yes"))))
 
@@ -1018,7 +1021,7 @@ answer like '%/* comment from%' order by num"
 
 (define-easy-handler (logout :uri "/logout") ()
   (set-cookie *myid* :max-age 0)
-  (redirect "/problems"))
+  (redirect "/login"))
 
 (define-easy-handler (passwd :uri "/passwd") (myid old new1 new2)
   (let ((stat "パスワードを変更しました。"))
