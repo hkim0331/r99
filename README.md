@@ -1,11 +1,14 @@
 # R99
 
 ## Unreleased
-* ユーザごと解いた問題番号と回答。
 
 ## Released
+### 2.44.0 - 2021-04-07
+* loop を改良。毎回 sql を発行するのではなく、fetch-all で得たデータを
+  ループで切り出す。どっちが効率的か？
+
 ### 2.43.0 - 2021-04-07
-* added /usr-answers
+* added /usr-answers ユーザごと解いた問題番号と回答。
 
 ### 2.42.3 - 2021-04-03
 * changed redirect destination
