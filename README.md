@@ -1,11 +1,12 @@
 # R99
 
 ## Unreleased
-* ユーザごと解いた問題番号と回答。
+* loop マクロの使い方。ミスってるな。フィックスしたい。
 
 ## Released
 ### 2.43.0 - 2021-04-07
 * added /usr-answers
+  ユーザごと解いた問題番号と回答。2999 オンリー。
 
 ### 2.42.3 - 2021-04-03
 * changed redirect destination
