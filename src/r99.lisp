@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.43.0")
+(defvar *version* "2.44.0")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
@@ -224,16 +224,14 @@
              "select myid,num,timestamp::text from answers
                order by timestamp desc limit '~a'"
              nn))
-         (ret (query q)))
+         (ret (dbi:fetch-all (query q))))
     (page
-     (loop for row = (dbi:fetch ret)
-        while row
-           do
-              (format t "<p>~a | ~a | <a href='/answer?num=~a'>~a</a></p>"
-                      (short (getf row :|timestamp|))
-                      (getf row :|myid|)
-                      (getf row :|num|)
-                      (getf row :|num|))))))
+      (loop for row in ret
+            do (format t "<p>~a | ~a | <a href='/answer?num=~a'>~a</a></p>"
+                       (short (getf row :|timestamp|))
+                       (getf row :|myid|)
+                       (getf row :|num|)
+                       (getf row :|num|))))))
 
 ;;
 ;; admin
@@ -270,22 +268,19 @@
   (let ((myid (myid)))
     (if (and myid (or (= (parse-integer myid) *hkimura*)
                       (= (parse-integer myid) *nakadouzono*)))
-        (let* ((ret (query "select id, timestamp::text, myid, num,
-  answer from old_answers order by id desc")))
+        (let ((ret (dbi:fetch-all (query "select id, timestamp::text, myid, num,
+  answer from old_answers order by id desc"))))
           (page
-            (loop for row = (dbi:fetch ret)
-              while row
-              do
-                (format
-                 t
-                 "<p><a href='/show-old?id=~a'>~a</a> [~a] ~a ~a</p>"
-                 (getf row :|id|)
-                 (subseq (getf row :|timestamp|) 0 19)
-                 (getf row :|myid|)
-                 (getf row :|num|)
-                 ;; fix. 2018-12-08.
-                 (my-subseq 60 (getf row :|answer|))))))
-
+            (loop for row in ret
+                  do (format
+                      t
+                      "<p><a href='/show-old?id=~a'>~a</a> [~a] ~a ~a</p>"
+                      (getf row :|id|)
+                      (subseq (getf row :|timestamp|) 0 19)
+                      (getf row :|myid|)
+                      (getf row :|num|)
+                      ;; fix. 2018-12-08.
+                      (my-subseq 60 (getf row :|answer|))))))
         (redirect "/login"))))
 ;;
 ;; answers
@@ -410,12 +405,13 @@
 
 (define-easy-handler (problems :uri "/problems") ()
   (let ((results
-          (query "select num, detail from problems order by num"))
+          (dbi:fetch-all
+           (query "select num, detail from problems order by num")))
         (answers
-          (query "select num, count(*) from answers group by num"))
+          (dbi:fetch-all
+           (query "select num, count(*) from answers group by num")))
         (nums (make-hash-table)))
-    (loop for row = (dbi:fetch answers)
-          while row
+    (loop for row in answers
           do
              (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
     (page
@@ -438,8 +434,7 @@
             "#include &lt;stdio.h> #include &lt;stdlib.h>"
             "があると仮定してよい。"))
       (:hr)
-      (loop for row = (dbi:fetch results)
-            while row
+      (loop for row in results
             do
                (let ((num (getf row :|num|)))
                  (format t "<p><a href='/answer?num=~a'>~a</a>(~a) ~a</p>~%"
@@ -771,21 +766,21 @@
 (define-easy-handler (download :uri "/download") ()
   (if (myid)
       (let ((ret
-             (query
-              (format
-               nil
-               "select num, answer from answers where myid='~a' order by num"
-               (myid)))))
+              (dbi:fetch-all
+               (query
+                (format
+                 nil
+                 "select num, answer from answers where myid='~a' order by num"
+                 (myid))))))
         (page
-         (:pre :class "download" "#include &lt;stdio.h>
+          (:pre :class "download" "#include &lt;stdio.h>
 #include &lt;stdlib.h>")
-         (loop for row = (dbi:fetch ret)
-            while row
-            do
-              (htm
-               (:pre "//" (str (getf row :|num|)))
-               (:pre (str (escape (getf row :|answer|))))))
-         (:pre "int main(void) {
+          (loop for row in ret
+                do
+                   (htm
+                    (:pre "//" (str (getf row :|num|)))
+                    (:pre (str (escape (getf row :|answer|))))))
+          (:pre "int main(void) {
     // 定義した関数の呼び出しをここに。
     return 0;
 }")))
@@ -934,20 +929,19 @@ answer like '%/* comment from%' order by num"
 
 (define-easy-handler (activity :uri "/activity") ()
   (let ((res
-          (query
-           (format
-            nil
-            "select date(timestamp), count(date(timestamp))
+          (dbi:fetch-all
+           (query
+            (format
+             nil
+             "select date(timestamp), count(date(timestamp))
  from answers where myid='~a'
  group by date(timestamp)
- order by date(timestamp) desc" (myid)))))
+ order by date(timestamp) desc" (myid))))))
     (page
       (:h2 (str (myid)) " Activity")
       (:hr)
-      (loop for row = (dbi:fetch res)
-            while row
-            do
-               (format t "<p>~a ~a</p>"
+      (loop for row in res
+            do (format t "<p>~a ~a</p>"
                        (yyyy-mm-dd  (getf row :|date|))
                        (stars (getf row :|count|))))
       (:p (:a :href "/status" "status") "に戻る"))))
@@ -1099,6 +1093,8 @@ answer like '%/* comment from%' order by num"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun r99-start (&optional (port *http-port*))
+  (format t "R99_HOST: ~a~%" (getenv "R99_HOST"))
+  (format t "R99_DB: ~a~%"   (getenv "R99_DB"))
   (if (localtime)
       (format t "database connection OK.~%")
       (error "check your datanase connection.~%"))
