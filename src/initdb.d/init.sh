@@ -13,7 +13,7 @@ EOSQL
 # seed.sql no.
 # ./seed.sql no.
 # absolute path no.
-# docker side? maybe.
+# inside docker container? maybe.
 #psql -v ON_ERROR_STOP=1 -U ${R99_USER} ${R99_DB} < /Users/hkim/common-lisp/r99/db/backups/2021-04-07.sql
 
 
