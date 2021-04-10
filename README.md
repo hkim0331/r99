@@ -1,9 +1,13 @@
 # R99
 
 ## Unreleased
-* loop マクロの使い方。ミスってるな。フィックスしたい。
+* docker. roswell コンテナからじゃなくて、r99 コンテナを作れないか？
 
 ## Released
+### 2.44.1 - 2021-04-10
+* rename initdb to initdb.d
+* changed /user-answers 日付を表示、コメントページへのボタン追加。
+
 ### 2.44.0 - 2021-04-07
 * loop を改良。毎回 sql を発行するのではなく、fetch-all で得たデータを
   ループで切り出す。どっちが効率的か？
