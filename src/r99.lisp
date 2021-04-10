@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.44.0")
+(defvar *version* "2.44.1")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
@@ -304,15 +304,25 @@
 (define-easy-handler (user-answers :uri "/user-answers") (myid)
   (let* ((q (format
              nil
-             "select num, answer from answers where myid='~a'"
+             "select id, num, answer, timestamp::text from answers where myid='~a'
+              order by timestamp desc"
              myid))
          (ret (dbi:fetch-all (query q))))
     (page
       (if (string= "2999" (myid))
           (loop for r in ret
                 do
-                   (htm (:p "#" (str (getf r :|num|)))
+                   (htm (:p "#"
+                            (str (getf r :|num|))
+                            ", "
+                            (str (getf r :|timestamp|)))
                         (:pre   (str (escape (getf r :|answer|))))
+                        (:p (:a :href (format
+                                       nil
+                                       "/comment?id=~a"
+                                       (getf r :|id|))
+                                :class "btn btn-primary btn-sm"
+                                "comment"))
                         (:hr)))
           (htm (:p "access restricted."))))))
 
@@ -385,7 +395,7 @@
                     (work-days myid)))) ;;slow
                (when (< 50 (getf row :|count|))
                  (incf n)))
-      (htm (:p "2021/04/07、50題以上回答者 "
+      (htm (:p "50題以上回答者 "
                (str n)
                " 人。"
                "日数かけて問題数解いてこないと追試受験資格ない。"
