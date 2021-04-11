@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.44.2")
+(defvar *version* "2.44.3")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
@@ -302,33 +302,34 @@
                "やってこないと受験してもムダ。"
                "理解してないコピーはブラックリスト行き。"))
 
-
+;; 2021-04-11
 ;; 2021-04-07
 (define-easy-handler (user-answers :uri "/user-answers") (myid)
-  (let* ((q (format
-             nil
-             "select id, num, answer, timestamp::text from answers where myid='~a'
-               order by timestamp desc"
-             myid))
-         (ret (dbi:fetch-all (query q))))
-    (page
-     (if (string= "2999" (myid))
-         (loop for r in ret
-               do
-               (htm (:p "#"
-                        (str (getf r :|num|))
-                        ", "
-                        (str (getf r :|timestamp|)))
-                    (:pre   (str (escape (getf r :|answer|))))
-                    (:p (:a :href (format
-                                   nil
-                                   "/comment?id=~a"
-                                   (getf r :|id|))
-                            :class "btn btn-primary btn-sm"
-                            "comment"))
-                    (:hr)))
-       (htm (:p "access restricted."))))))
-
+  (if (or (string= myid (myid)) (string= "2999" (myid)))
+    (let* ((q (format
+                nil
+                "select id, num, answer, timestamp::text
+                from answers where myid='~a'
+                order by timestamp desc"
+                myid))
+           (ret (dbi:fetch-all (query q))))
+      (page
+        (loop for r in ret
+          do
+          (htm (:p "#"
+                   (str (getf r :|num|))
+                   ", "
+                   (str (getf r :|timestamp|)))
+               (:pre   (str (escape (getf r :|answer|))))
+               (:p (:a :href (format
+                              nil
+                              "/comment?id=~a"
+                              (getf r :|id|))
+                       :class "btn btn-primary btn-sm"
+                   "comment"))
+               (:hr)))))
+      (page
+        (:p "access restricted."))))
 
 ;; /others
 (define-easy-handler (users :uri "/others") ()
