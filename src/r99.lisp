@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.44.1")
+(defvar *version* "2.44.2")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
@@ -298,33 +298,36 @@
 
 (defparameter *top-message*
   (concatenate 'string
-               "4/27 18:00- C-2F で追試。やってこない人は受験してもムダ。"))
+               "4/27 18:00-19:00, C-2F で追試。"
+               "やってこないと受験してもムダ。"
+               "理解してないコピーはブラックリスト行き。"))
+
 
 ;; 2021-04-07
 (define-easy-handler (user-answers :uri "/user-answers") (myid)
   (let* ((q (format
              nil
              "select id, num, answer, timestamp::text from answers where myid='~a'
-              order by timestamp desc"
+               order by timestamp desc"
              myid))
          (ret (dbi:fetch-all (query q))))
     (page
-      (if (string= "2999" (myid))
-          (loop for r in ret
-                do
-                   (htm (:p "#"
-                            (str (getf r :|num|))
-                            ", "
-                            (str (getf r :|timestamp|)))
-                        (:pre   (str (escape (getf r :|answer|))))
-                        (:p (:a :href (format
-                                       nil
-                                       "/comment?id=~a"
-                                       (getf r :|id|))
-                                :class "btn btn-primary btn-sm"
-                                "comment"))
-                        (:hr)))
-          (htm (:p "access restricted."))))))
+     (if (string= "2999" (myid))
+         (loop for r in ret
+               do
+               (htm (:p "#"
+                        (str (getf r :|num|))
+                        ", "
+                        (str (getf r :|timestamp|)))
+                    (:pre   (str (escape (getf r :|answer|))))
+                    (:p (:a :href (format
+                                   nil
+                                   "/comment?id=~a"
+                                   (getf r :|id|))
+                            :class "btn btn-primary btn-sm"
+                            "comment"))
+                    (:hr)))
+       (htm (:p "access restricted."))))))
 
 
 ;; /others
@@ -347,19 +350,19 @@
            (recent
              (dbi:fetch
               (query "select myid, num, timestamp::text from answers
-              order by timestamp desc limit 1")))
+               order by timestamp desc limit 1")))
            (results
              (query "select users.myid, count(distinct answer)
-             from users
-             inner join answers
-             on users.myid=answers.myid
-             group by users.myid
-             order by users.myid"))
+               from users
+               inner join answers
+               on users.myid=answers.myid
+               group by users.myid
+               order by users.myid"))
            (working-users
              (mapcar (lambda (x) (getf x :|myid|))
                      (dbi:fetch-all
                       (query  "select distinct(myid) from answers
-                      where now() - timestamp < '48 hours'")))))
+               where now() - timestamp < '48 hours'")))))
 
       ;; BUG: 回答が一つもないとエラーになる。
       (htm
@@ -442,7 +445,7 @@
             "上の関数定義は回答に含めないでOK。")
        (:li "すべての回答関数の上には"
             "#include &lt;stdio.h> #include &lt;stdlib.h>"
-            "があると仮定してよい。"))
+               "があると仮定してよい。"))
       (:hr)
       (loop for row in results
             do
@@ -725,46 +728,45 @@
 
 (define-easy-handler (submit :uri "/submit") (num answer)
   (cond
-    ((not (myid)) (redirect "/login"))
-    ((< *max-a-day* (todays-answer (myid)))
-     (page
-       (:h1 "明日にしよう")
-       (:p "期末テスト前の荒れた投稿と3月以降のみんなの状況から、"
-           "一日に投稿できる回答数を制限してます。")
-       (:p "コピーした回答をちょこっと変更し自分の回答として出すより、"
-           "じっくり考え、また、他の回答も読んだほうが勉強になるぞ。")
-       (:p "もうすぐ追試だ。できるようになってないと不合格は当たり前。"
-           "暗記しようとするんじゃなく、できるようになって来なさい。")))
-    ((not (check answer))
-     (page
-       (:h3 "error")
-       (:p "問題を解くアイデア、アプローチを関数定義の前に"
-           "コメントで書くこと。")
-       (:p "ブラウザのバックで戻り、"
-           "回答の最初、関数定義の上にコメントを書き足して、"
-           "再提出してください。")
-       (:p "p1, p11, p22, p41 の hkimura(2999) の回答を参考に。")))
-    (t
-     (let* ((_ (insert (myid) num answer))
-            (count (count-answers)))
-       (page
-         (:h1 "received your answer to " (str num))
-         (cond
-           ((zerop (mod count 100))
-            (htm (:p (:img :src "happiest.png"))
-                 (:p "おめでとう!!! 通算 " (str count) " 番目の回答です。")))
-           ((zerop (mod count 50))
-            (htm (:p (:img :src "happier.png"))
-                 (:p "おめでとう!! 通算 " (str count) " 番目の回答です。")))
-           ((zerop (mod count 10))
-            (htm (:p (:img :src "happy.png"))
-                 (:p "おめでとう! 通算 " (str count) " 番目の回答です。")))
-           (t (htm (:p "received."))))
-         (:p "さらに R99 続ける前に他の受講生の回答に"
-             (:a :href (format nil "/answer?num=~a" num) "コメント")
-             "しよう。")
-         (:p "間違いあったら hkimura が見つける前に指摘する。"
-             "「いい」と思ったら自分がもらって嬉しいと思うコメントを。"))))))
+   ((not (myid)) (redirect "/login"))
+   ((< *max-a-day* (todays-answer (myid)))
+    (page
+     (:h1 "明日にしよう")
+     (:p "期末テスト前の荒れた投稿と3月以降のみんなの状況から"
+         "一日に投稿できる回答数を制限している。")
+     (:p "コピー回答を自分の回答として何通出しても勉強にならんやろ。")
+     (:p "もうすぐ追試だ。できるようになってないと不合格は当たり前。"
+         "暗記するんじゃなく、できるようになって来なさい。")))
+   ((not (check answer))
+    (page
+     (:h3 "error")
+     (:p "問題を解くアイデア、アプローチをコメントで書くこと。"
+         "「for と if でリターンした」なんつーのサイテー。")
+     (:p "ブラウザのバックで戻り、"
+         "関数定義の上に説明コメントを書き足して"
+         "再提出してください。")
+     (:p "p1, p11, p22, p41 の hkimura(2999) の回答を参考に。")))
+   (t
+    (let* ((_ (insert (myid) num answer))
+           (count (count-answers)))
+      (page
+       (:h1 "received your answer to " (str num))
+       (cond
+        ((zerop (mod count 100))
+         (htm (:p (:img :src "happiest.png"))
+              (:p "おめでとう!!! 通算 " (str count) " 番目の回答です。")))
+        ((zerop (mod count 50))
+         (htm (:p (:img :src "happier.png"))
+              (:p "おめでとう!! 通算 " (str count) " 番目の回答です。")))
+        ((zerop (mod count 10))
+         (htm (:p (:img :src "happy.png"))
+              (:p "おめでとう! 通算 " (str count) " 番目の回答です。")))
+        (t (htm (:p "received."))))
+       (:p "さらに R99 続ける前に他の受講生の回答に"
+           (:a :href (format nil "/answer?num=~a" num) "コメント")
+           "しよう。")
+       (:p "間違いあったら hkimura が見つける前に指摘する。"
+           "「いい」と思ったら自分がもらって嬉しいと思うコメントを。"))))))
 
 (define-easy-handler (answer :uri "/answer") (num)
   (if (myid)

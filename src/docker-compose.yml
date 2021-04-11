@@ -17,7 +17,7 @@ services:
       TZ: "Asia/Tokyo"
 
   r99-app:
-    image: hkim/r99
+    image: hkim/roswell
     ports:
       - "4005:4005"
       - "3030:3030"
