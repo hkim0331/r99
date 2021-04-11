@@ -4,6 +4,10 @@
 * docker. roswell コンテナからじゃなくて、r99 コンテナを作れないか？
 
 ## Released
+### 2.44.3 - 2021-04-11
+* users can view their own answers from /answers page by clicking their
+  own myids.
+
 ### 2.44.1 - 2021-04-10
 * rename initdb to initdb.d
 * changed /user-answers 日付を表示、コメントページへのボタン追加。
