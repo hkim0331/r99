@@ -4,6 +4,10 @@
 * docker. roswell コンテナからじゃなくて、r99 コンテナを作れないか？
 
 ## Released
+### 2.44.4 - 2021-04-15
+* added /todays
+* changed header messages
+
 ### 2.44.1 - 2021-04-10
 * rename initdb to initdb.d
 * changed /user-answers 日付を表示、コメントページへのボタン追加。
