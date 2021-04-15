@@ -414,7 +414,6 @@
                (when (< 60 (getf row :|count|))
                  (incf n)))
       (htm (:p "60題以上回答者 "
-               >>>>>>> feature/todays
                (str n)
                " 人。"
                "日数かけて問題数解いてこないと追試受験資格ない。"
