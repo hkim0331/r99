@@ -1,16 +1,18 @@
-version: '3.3'
+version: '3.8'
 services:
   r99-pg:
     image: postgres
-    # expose:
-    #   - "5432"
-    # ports:
-    #   - "5432:5432"
+    expose:
+      - "5432"
+    ports:
+      - "5432:5432"
     volumes:
       - r99-data:/var/lib/postgresql/data
-      - ./initdb:/docker-entrypoint-initdb.d
+      - ./initdb.d:/docker-entrypoint-initdb.d
+    env_file: .env
     environment:
-      POSTGRES_PASSWORD: password
+      #POSTGRES_HOST_AUTH_METHOD: "trust"
+      POSTGRES_PASSWORD: "password"
       POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --locale=C"
       TZ: "Asia/Tokyo"
 

@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.43.0")
+(defvar *version* "2.44.4")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
@@ -216,24 +216,36 @@
    (dbi:fetch (query "select count(*) from answers"))
    :|count|))
 
+
+;; 2021-04-15
+(define-easy-handler (todays :uri "/todays") ()
+  (let* ((q "select myid,num,timestamp::text from answers
+             where timestamp > CURRENT_DATE")
+         (ret (dbi:fetch-all (query q))))
+    (page
+      (loop for row in ret
+            do (format t "<p>~a | ~a | <a href='/answer?num=~a'>~a</a></p>"
+                       (short (getf row :|timestamp|))
+                       (getf row :|myid|)
+                       (getf row :|num|)
+                       (getf row :|num|))))))
+
 ;; /recent or /recent?n=10 2020-11-03
 (define-easy-handler (recent :uri "/recent") (n)
   (let* ((nn (or n 10))
          (q (format
              nil
              "select myid,num,timestamp::text from answers
-               order by timestamp desc limit '~a'"
+             order by timestamp desc limit '~a'"
              nn))
-         (ret (query q)))
+         (ret (dbi:fetch-all (query q))))
     (page
-     (loop for row = (dbi:fetch ret)
-        while row
-           do
-              (format t "<p>~a | ~a | <a href='/answer?num=~a'>~a</a></p>"
-                      (short (getf row :|timestamp|))
-                      (getf row :|myid|)
-                      (getf row :|num|)
-                      (getf row :|num|))))))
+      (loop for row in ret
+            do (format t "<p>~a | ~a | <a href='/answer?num=~a'>~a</a></p>"
+                       (short (getf row :|timestamp|))
+                       (getf row :|myid|)
+                       (getf row :|num|)
+                       (getf row :|num|))))))
 
 ;;
 ;; admin
@@ -243,7 +255,7 @@
   (let* ((q (format
              nil
              "select myid,num,answer,timestamp::text from old_answers
-               where id='~a'"
+             where id='~a'"
              id))
          (ret (dbi:fetch (query q)))
          (myid (getf ret :|myid|))
@@ -270,22 +282,19 @@
   (let ((myid (myid)))
     (if (and myid (or (= (parse-integer myid) *hkimura*)
                       (= (parse-integer myid) *nakadouzono*)))
-        (let* ((ret (query "select id, timestamp::text, myid, num,
-  answer from old_answers order by id desc")))
+        (let ((ret (dbi:fetch-all (query "select id, timestamp::text, myid, num,
+             answer from old_answers order by id desc"))))
           (page
-            (loop for row = (dbi:fetch ret)
-              while row
-              do
-                (format
-                 t
-                 "<p><a href='/show-old?id=~a'>~a</a> [~a] ~a ~a</p>"
-                 (getf row :|id|)
-                 (subseq (getf row :|timestamp|) 0 19)
-                 (getf row :|myid|)
-                 (getf row :|num|)
-                 ;; fix. 2018-12-08.
-                 (my-subseq 60 (getf row :|answer|))))))
-
+            (loop for row in ret
+                  do (format
+                      t
+                      "<p><a href='/show-old?id=~a'>~a</a> [~a] ~a ~a</p>"
+                      (getf row :|id|)
+                      (subseq (getf row :|timestamp|) 0 19)
+                      (getf row :|myid|)
+                      (getf row :|num|)
+                      ;; fix. 2018-12-08.
+                      (my-subseq 60 (getf row :|answer|))))))
         (redirect "/login"))))
 ;;
 ;; answers
@@ -303,21 +312,31 @@
 
 (defparameter *top-message*
   (concatenate 'string
-               "4/27 18:00- C-2F で追試。やってこない人は受験してもムダ。"))
+               "追試は 4/27 18:00-19:00 C-2F。丸暗記はムダ。"))
 
 ;; 2021-04-07
 (define-easy-handler (user-answers :uri "/user-answers") (myid)
   (let* ((q (format
              nil
-             "select num, answer from answers where myid='~a'"
+             "select id, num, answer, timestamp::text from answers where myid='~a'
+              order by timestamp desc"
              myid))
          (ret (dbi:fetch-all (query q))))
     (page
       (if (string= "2999" (myid))
           (loop for r in ret
                 do
-                   (htm (:p "#" (str (getf r :|num|)))
+                   (htm (:p "#"
+                            (str (getf r :|num|))
+                            ", "
+                            (str (getf r :|timestamp|)))
                         (:pre   (str (escape (getf r :|answer|))))
+                        (:p (:a :href (format
+                                       nil
+                                       "/comment?id=~a"
+                                       (getf r :|id|))
+                                :class "btn btn-primary btn-sm"
+                                "comment"))
                         (:hr)))
           (htm (:p "access restricted."))))))
 
@@ -337,12 +356,12 @@
      "キャッシュをクリアしないとグラフがアップデートされないブラウザ"
      "(Chromeなど)がある。")
     (:h1)
-    (:h2 "自分のためにやるんだよ")
+    ;;(:h2 "コピー、丸暗記はムダ")
     (let* ((n 0)
            (recent
              (dbi:fetch
               (query "select myid, num, timestamp::text from answers
-              order by timestamp desc limit 1")))
+             order by timestamp desc limit 1")))
            (results
              (query "select users.myid, count(distinct answer)
              from users
@@ -354,17 +373,21 @@
              (mapcar (lambda (x) (getf x :|myid|))
                      (dbi:fetch-all
                       (query  "select distinct(myid) from answers
-                      where now() - timestamp < '48 hours'")))))
+             where now() - timestamp < '24 hours'")))))
 
       ;; BUG: 回答が一つもないとエラーになる。
       (htm
-       (:li
-        (format
-         t
-         "<a href='/recent'>最近の 10 回答</a>。最新は ~a、全回答数 ~a。"
-         (short (getf recent :|timestamp|))
-         (count-answers)))
-       (:li "48時間以内にアップデートあったユーザだけ、リストしてます。")
+       ;; (:li
+       ;;  (format
+       ;;   t
+       ;;   "<a href='/recent'>最近の10回答</a>。最新は ~a、全回答数 ~a。"
+       ;;   (short (getf recent :|timestamp|))
+       ;;   (count-answers)))
+       ;; (:li (:a :href "/todays" "本日の回答"))
+       (:li (:a :href "/recent" "最近の10回答")
+            "。本日分は"
+            (:a :href "/todays" "こちら") "。")
+       (:li "24 時間以内にアップデートあったユーザだけリストしてます。")
        (:li "( ) は中間テスト点数。30点満点。NIL は未受験。")
        (:li "一番右はR99に費やした日数。")
        (:hr))
@@ -388,9 +411,9 @@
                     myid
                     (getf row :|count|)
                     (work-days myid)))) ;;slow
-               (when (< 50 (getf row :|count|))
+               (when (< 60 (getf row :|count|))
                  (incf n)))
-      (htm (:p "2021/04/07、50題以上回答者 "
+      (htm (:p "60題以上回答者 "
                (str n)
                " 人。"
                "日数かけて問題数解いてこないと追試受験資格ない。"
@@ -410,12 +433,13 @@
 
 (define-easy-handler (problems :uri "/problems") ()
   (let ((results
-          (query "select num, detail from problems order by num"))
+          (dbi:fetch-all
+           (query "select num, detail from problems order by num")))
         (answers
-          (query "select num, count(*) from answers group by num"))
+          (dbi:fetch-all
+           (query "select num, count(*) from answers group by num")))
         (nums (make-hash-table)))
-    (loop for row = (dbi:fetch answers)
-          while row
+    (loop for row in answers
           do
              (setf (gethash (getf row :|num|) nums) (getf row :|count|)))
     (page
@@ -436,17 +460,16 @@
             "上の関数定義は回答に含めないでOK。")
        (:li "すべての回答関数の上には"
             "#include &lt;stdio.h> #include &lt;stdlib.h>"
-            "があると仮定してよい。"))
-      (:hr)
-      (loop for row = (dbi:fetch results)
-            while row
-            do
-               (let ((num (getf row :|num|)))
-                 (format t "<p><a href='/answer?num=~a'>~a</a>(~a) ~a</p>~%"
-                         num
-                         num
-                         (zero_or_num (gethash num nums))
-                         (getf row :|detail|)))))))
+             "があると仮定してよい。"))
+         (:hr)
+         (loop for row in results
+               do
+                  (let ((num (getf row :|num|)))
+                    (format t "<p><a href='/answer?num=~a'>~a</a>(~a) ~a</p>~%"
+                            num
+                            num
+                            (zero_or_num (gethash num nums))
+                            (getf row :|detail|)))))))
 
 (defun detail (num)
   (let* ((q (format
@@ -771,21 +794,21 @@
 (define-easy-handler (download :uri "/download") ()
   (if (myid)
       (let ((ret
-             (query
-              (format
-               nil
-               "select num, answer from answers where myid='~a' order by num"
-               (myid)))))
+              (dbi:fetch-all
+               (query
+                (format
+                 nil
+                 "select num, answer from answers where myid='~a' order by num"
+                 (myid))))))
         (page
-         (:pre :class "download" "#include &lt;stdio.h>
+          (:pre :class "download" "#include &lt;stdio.h>
 #include &lt;stdlib.h>")
-         (loop for row = (dbi:fetch ret)
-            while row
-            do
-              (htm
-               (:pre "//" (str (getf row :|num|)))
-               (:pre (str (escape (getf row :|answer|))))))
-         (:pre "int main(void) {
+          (loop for row in ret
+                do
+                   (htm
+                    (:pre "//" (str (getf row :|num|)))
+                    (:pre (str (escape (getf row :|answer|))))))
+          (:pre "int main(void) {
     // 定義した関数の呼び出しをここに。
     return 0;
 }")))
@@ -934,20 +957,19 @@ answer like '%/* comment from%' order by num"
 
 (define-easy-handler (activity :uri "/activity") ()
   (let ((res
-          (query
-           (format
-            nil
-            "select date(timestamp), count(date(timestamp))
+          (dbi:fetch-all
+           (query
+            (format
+             nil
+             "select date(timestamp), count(date(timestamp))
  from answers where myid='~a'
  group by date(timestamp)
- order by date(timestamp) desc" (myid)))))
+ order by date(timestamp) desc" (myid))))))
     (page
       (:h2 (str (myid)) " Activity")
       (:hr)
-      (loop for row = (dbi:fetch res)
-            while row
-            do
-               (format t "<p>~a ~a</p>"
+      (loop for row in res
+            do (format t "<p>~a ~a</p>"
                        (yyyy-mm-dd  (getf row :|date|))
                        (stars (getf row :|count|))))
       (:p (:a :href "/status" "status") "に戻る"))))
@@ -1099,6 +1121,8 @@ answer like '%/* comment from%' order by num"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun r99-start (&optional (port *http-port*))
+  (format t "R99_HOST: ~a~%" (getenv "R99_HOST"))
+  (format t "R99_DB: ~a~%"   (getenv "R99_DB"))
   (if (localtime)
       (format t "database connection OK.~%")
       (error "check your datanase connection.~%"))

@@ -1,11 +1,24 @@
 # R99
 
 ## Unreleased
-* ユーザごと解いた問題番号と回答。
+* docker. roswell コンテナからじゃなくて、r99 コンテナを作れないか？
 
 ## Released
+### 2.44.4 - 2021-04-15
+* added /todays
+* changed header messages
+
+### 2.44.1 - 2021-04-10
+* rename initdb to initdb.d
+* changed /user-answers 日付を表示、コメントページへのボタン追加。
+
+### 2.44.0 - 2021-04-07
+* loop を改良。毎回 sql を発行するのではなく、fetch-all で得たデータを
+  ループで切り出す。どっちが効率的か？
+
 ### 2.43.0 - 2021-04-07
 * added /usr-answers
+  ユーザごと解いた問題番号と回答。2999 オンリー。
 
 ### 2.42.3 - 2021-04-03
 * changed redirect destination
