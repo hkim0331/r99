@@ -379,7 +379,7 @@
              (mapcar (lambda (x) (getf x :|myid|))
                      (dbi:fetch-all
                       (query  "select distinct(myid) from answers
-             where now() - timestamp < '24 hours'")))))
+             where now() - timestamp < '48 hours'")))))
 
       ;; BUG: 回答が一つもないとエラーになる。
       (htm
@@ -393,7 +393,7 @@
        (:li (:a :href "/recent" "最近の10回答")
             "。本日分は"
             (:a :href "/todays" "こちら") "。")
-       (:li "24 時間以内にアップデートあったユーザだけリストしてます。")
+       (:li "48 時間以内にアップデートあったユーザだけリストしてます。")
        ;;(:li "( ) は中間テスト点数。30点満点。NIL は未受験。")
        (:li "一番右はR99に費やした日数。")
        (:hr))
