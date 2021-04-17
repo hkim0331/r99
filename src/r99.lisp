@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.44.4")
+(defvar *version* "2.44.5")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
@@ -78,7 +78,6 @@
 ;; trim datetme
 (defun short (datetime)
   (subseq datetime 0 19))
-
 
 (defun yyyy-mm-dd (iso)
   (let ((ans (multiple-value-list (decode-universal-time iso))))
@@ -194,8 +193,12 @@
          :crossorigin "anonymous"))))))
 
 (defun stars-aux (n ret)
-  (if (zerop n) ret
-    (stars-aux (- n 1) (concatenate 'string ret "*"))))
+  ;; (if (zerop n) ret
+  ;;   (stars-aux (- n 1) (concatenate 'string ret "*"))))
+  (cond
+    ((zerop n ) ret)
+    ((<= 10 n) (stars-aux (- n 10) (concatenate 'string ret "😃")))
+    (t (stars-aux (- n 1) (concatenate 'string ret "・")))))
 
 (defun stars (n)
   (stars-aux n ""))
@@ -216,11 +219,12 @@
    (dbi:fetch (query "select count(*) from answers"))
    :|count|))
 
-
+;; FIXME: how to test
 ;; 2021-04-15
 (define-easy-handler (todays :uri "/todays") ()
-  (let* ((q "select myid,num,timestamp::text from answers
-             where timestamp > CURRENT_DATE")
+  (let* ((q "select myid, num, timestamp::text from answers
+             where timestamp > CURRENT_DATE
+             order by myid, num")
          (ret (dbi:fetch-all (query q))))
     (page
       (loop for row in ret
@@ -337,11 +341,11 @@
                               nil
                               "/comment?id=~a"
                               (getf r :|id|))
-                       :class "btn btn-primary btn-sm"
-                   "comment"))
-               (:hr)))))
+                       :class "btn btn-primary btn-sm")
+                   "comment")
+               (:hr))))
       (page
-        (:p "access restricted."))))
+        (:p "access restricted.")))))
 
 ;; /others
 (define-easy-handler (users :uri "/others") ()
@@ -390,7 +394,7 @@
             "。本日分は"
             (:a :href "/todays" "こちら") "。")
        (:li "24 時間以内にアップデートあったユーザだけリストしてます。")
-       (:li "( ) は中間テスト点数。30点満点。NIL は未受験。")
+       ;;(:li "( ) は中間テスト点数。30点満点。NIL は未受験。")
        (:li "一番右はR99に費やした日数。")
        (:hr))
 
@@ -404,11 +408,12 @@
                  (when (string= working "yes")
                    (format
                     t
-                    "<pre><span class=~a><a href='/user-answers?myid=~a'>~A</a></span>(~a) ~A<a href='/last?myid=~d'>~d</a>,~a</pre>"
+;;                    "<pre><span class=~a><a href='/user-answers?myid=~a'>~A</a></span>(~a) ~A <a href='/last?myid=~d'>~d</a>,~a</pre>"
+                    "<pre><span class=~a><a href='/user-answers?myid=~a'>~A</a></span> ~A <a href='/last?myid=~d'>~d</a>,~a</pre>"
                     working
                     myid
                     myid
-                    (cdr (assoc myid *mt*))
+                    ;;(cdr (assoc myid *mt*))
                     (stars (getf row :|count|))
                     myid
                     (getf row :|count|)
