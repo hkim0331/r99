@@ -355,7 +355,7 @@
     (:p :class "warn" (str *top-message*))
     ;; (:p (:img :src "/kutsugen.jpg" :width "100%"))
     ;; (:p :align "right" "「屈原」横山大観(1868-1958), 1898.")
-    (:p (:img :src "/by-answers.svg" :width "80%"))
+    (:p (:img :src "/by-answers.svg" :width "90%"))
     (:p
      "横軸：回答数、縦軸：回答数答えた人の数。"
      "グラフは毎朝アップデートします。"
@@ -455,7 +455,7 @@
       (:p :class "warn" (str *top-message*))
       ;;(:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
       ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
-      (:p (:img :src "/by-numbers.svg" :width "80%"))
+      (:p (:img :src "/by-numbers.svg" :width "90%"))
       (:p "横軸:問題番号、縦軸:回答数。"
           "グラフは毎朝アップデートします。"
           "キャッシュをクリアしないとグラフがアップデートされない"
