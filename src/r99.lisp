@@ -79,7 +79,6 @@
 (defun short (datetime)
   (subseq datetime 0 19))
 
-
 (defun yyyy-mm-dd (iso)
   (let ((ans (multiple-value-list (decode-universal-time iso))))
     (format
@@ -194,8 +193,12 @@
          :crossorigin "anonymous"))))))
 
 (defun stars-aux (n ret)
-  (if (zerop n) ret
-    (stars-aux (- n 1) (concatenate 'string ret "*"))))
+  ;; (if (zerop n) ret
+  ;;   (stars-aux (- n 1) (concatenate 'string ret "*"))))
+  (cond
+    ((zerop n ) ret)
+    ((<= 10 n) (stars-aux (- n 10) (concatenate 'string ret "😃")))
+    (t (stars-aux (- n 1) (concatenate 'string ret "・")))))
 
 (defun stars (n)
   (stars-aux n ""))
@@ -338,11 +341,11 @@
                               nil
                               "/comment?id=~a"
                               (getf r :|id|))
-                       :class "btn btn-primary btn-sm"
-                   "comment"))
-               (:hr)))))
+                       :class "btn btn-primary btn-sm")
+                   "comment")
+               (:hr))))
       (page
-        (:p "access restricted."))))
+        (:p "access restricted.")))))
 
 ;; /others
 (define-easy-handler (users :uri "/others") ()
@@ -391,7 +394,7 @@
             "。本日分は"
             (:a :href "/todays" "こちら") "。")
        (:li "24 時間以内にアップデートあったユーザだけリストしてます。")
-       (:li "( ) は中間テスト点数。30点満点。NIL は未受験。")
+       ;;(:li "( ) は中間テスト点数。30点満点。NIL は未受験。")
        (:li "一番右はR99に費やした日数。")
        (:hr))
 
@@ -405,11 +408,12 @@
                  (when (string= working "yes")
                    (format
                     t
-                    "<pre><span class=~a><a href='/user-answers?myid=~a'>~A</a></span>(~a) ~A<a href='/last?myid=~d'>~d</a>,~a</pre>"
+;;                    "<pre><span class=~a><a href='/user-answers?myid=~a'>~A</a></span>(~a) ~A <a href='/last?myid=~d'>~d</a>,~a</pre>"
+                    "<pre><span class=~a><a href='/user-answers?myid=~a'>~A</a></span> ~A <a href='/last?myid=~d'>~d</a>,~a</pre>"
                     working
                     myid
                     myid
-                    (cdr (assoc myid *mt*))
+                    ;;(cdr (assoc myid *mt*))
                     (stars (getf row :|count|))
                     myid
                     (getf row :|count|)
