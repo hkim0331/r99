@@ -4,6 +4,10 @@
 * docker. roswell コンテナからじゃなくて、r99 コンテナを作れないか？
 
 ## Released
+### 2.44.4 - 2021-04-15
+* added /todays
+* changed header messages
+
 ### 2.44.3 - 2021-04-11
 * users can view their own answers from /answers page by clicking their
   own myids.
