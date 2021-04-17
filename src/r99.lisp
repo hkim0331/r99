@@ -216,11 +216,12 @@
    (dbi:fetch (query "select count(*) from answers"))
    :|count|))
 
-
+;; FIXME: how to test
 ;; 2021-04-15
 (define-easy-handler (todays :uri "/todays") ()
-  (let* ((q "select myid,num,timestamp::text from answers
-             where timestamp > CURRENT_DATE")
+  (let* ((q "select myid, num, timestamp::text from answers
+             where timestamp > CURRENT_DATE
+             order by myid, num")
          (ret (dbi:fetch-all (query q))))
     (page
       (loop for row in ret

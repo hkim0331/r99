@@ -2,6 +2,8 @@
 
 ## Unreleased
 * docker. roswell コンテナからじゃなくて、r99 コンテナを作れないか？
+* /todays に引数。/todays?data=2021-04-17 みたいに。
+* shorten sloved
 
 ## Released
 ### 2.44.4 - 2021-04-15
