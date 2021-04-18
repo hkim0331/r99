@@ -198,7 +198,7 @@
   (cond
     ((zerop n ) ret)
     ((<= 10 n) (stars-aux (- n 10) (concatenate 'string ret "😃")))
-    (t (stars-aux (- n 1) (concatenate 'string ret "・")))))
+    (t (stars-aux (- n 1) (concatenate 'string ret ".")))))
 
 (defun stars (n)
   (stars-aux n ""))
