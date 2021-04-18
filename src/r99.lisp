@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.44.6")
+(defvar *version* "2.44.8")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
@@ -224,7 +224,7 @@
 (define-easy-handler (todays :uri "/todays") ()
   (let* ((q "select myid, num, timestamp::text from answers
              where timestamp > CURRENT_DATE
-             order by myid, num")
+             order by timestamp desc")
          (ret (dbi:fetch-all (query q))))
     (page
       (loop for row in ret
@@ -316,7 +316,9 @@
 
 (defparameter *top-message*
   (concatenate 'string
-               "追試は 4/27 18:00-19:00 C-2F。丸暗記はムダ。"))
+               "追試は 4/27 18:00-19:00 C-2F。"
+               "出そうな問題、解けるようになってないとダメ。"
+               "やったフリと丸暗記はムダ。"))
 
 ;; 2021-04-11
 ;; 2021-04-07
@@ -325,8 +327,8 @@
       (let* ((q (format
                  nil
                  "select id, num, answer, timestamp::text
-                from answers where myid='~a'
-                order by timestamp desc"
+               from answers where myid='~a'
+               order by timestamp desc"
                  myid))
              (ret (dbi:fetch-all (query q))))
         (page
@@ -358,16 +360,14 @@
     (:p (:img :src "/by-answers.svg" :width "90%"))
     (:p
      "横軸：回答数、縦軸：回答数答えた人の数。"
-     "グラフは毎朝アップデートします。"
-     "キャッシュをクリアしないとグラフがアップデートされないブラウザ"
-     "(Chromeなど)がある。")
+     "グラフは毎朝アップデート。")
     (:h1)
     ;;(:h2 "コピー、丸暗記はムダ")
     (let* ((n 0)
            (recent
              (dbi:fetch
               (query "select myid, num, timestamp::text from answers
-             order by timestamp desc limit 1")))
+               order by timestamp desc limit 1")))
            (results
              (query "select users.myid, count(distinct answer)
                from users
@@ -379,7 +379,7 @@
              (mapcar (lambda (x) (getf x :|myid|))
                      (dbi:fetch-all
                       (query  "select distinct(myid) from answers
-             where now() - timestamp < '48 hours'")))))
+               where now() - timestamp < '48 hours'")))))
 
       ;; BUG: 回答が一つもないとエラーになる。
       (htm
@@ -390,12 +390,15 @@
        ;;   (short (getf recent :|timestamp|))
        ;;   (count-answers)))
        ;; (:li (:a :href "/todays" "本日の回答"))
-       (:li (:a :href "/recent" "最近の10回答")
-            "。本日分は"
-            (:a :href "/todays" "こちら") "。")
-       (:li "48 時間以内にアップデートあったユーザだけリストしてます。")
+       (:li "リストは 48 時間以内にアップデートあったユーザ。"
+            "myid をクリックで自分回答が見える。")
+       (:li "スマホの幅でもわかるよう、10題で😃、残りは . とした。")
        ;;(:li "( ) は中間テスト点数。30点満点。NIL は未受験。")
-       (:li "一番右はR99に費やした日数。")
+       (:li "一番右は R99 に費やした日数。これと回答数を掛けたルートが追試持ち点(予定)。")
+       (:li (:a :href "/recent" "最近の10回答")
+            "と、本日分は"
+            (:a :href "/todays" "こちら") "。")
+
        (:hr))
 
       (loop for row = (dbi:fetch results)
@@ -408,23 +411,21 @@
                  (when (string= working "yes")
                    (format
                     t
-                    ;;                    "<pre><span class=~a><a href='/user-answers?myid=~a'>~A</a></span>(~a) ~A <a href='/last?myid=~d'>~d</a>,~a</pre>"
-                    "<pre><span class=~a><a href='/user-answers?myid=~a'>~A</a></span> ~A <a href='/last?myid=~d'>~d</a>,~a</pre>"
+                    ;;"<pre><span class=~a><a href='/user-answers?myid=~a'>~A</a></span>(~a) ~A <a href='/last?myid=~d'>~d</a>,~a</pre>"
+                    "<pre><span class=~a><a href='/user-answers?myid=~a'>~A</a></span> ~A ~d</pre>"
                     working
                     myid
                     myid
                     ;;(cdr (assoc myid *mt*))
                     (stars (getf row :|count|))
-                    myid
-                    (getf row :|count|)
+                    ;;myid
+                    ;;(getf row :|count|)
                     (work-days myid)))) ;;slow
+               ;;(sqrt (* (getf row :|count|) (work-days myid))))))
                (when (< 60 (getf row :|count|))
                  (incf n)))
-      (htm (:p "60題以上回答者 "
-               (str n)
-               " 人。"
-               "日数かけて問題数解いてこないと追試受験資格ない。"
-               "インチキは自分に跳ね返る。")))))
+      (htm (:p "しっかりやってきたヤツはできるようになったろう。"
+               "そうじゃない人はどこかでまた引っかかるだろう。俺はもう助けないよ。")))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; problems
@@ -457,9 +458,7 @@
       ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
       (:p (:img :src "/by-numbers.svg" :width "90%"))
       (:p "横軸:問題番号、縦軸:回答数。"
-          "グラフは毎朝アップデートします。"
-          "キャッシュをクリアしないとグラフがアップデートされない"
-          "(Chromeなど)。")
+          "グラフは毎朝アップデート。")
       (:h2 "problems")
       (:ul
        (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
@@ -467,7 +466,7 @@
             "上の関数定義は回答に含めないでOK。")
        (:li "すべての回答関数の上には"
             "#include &lt;stdio.h> #include &lt;stdlib.h>"
-               "があると仮定してよい。"))
+            "があると仮定してよい。"))
       (:hr)
       (loop for row in results
             do
@@ -1126,7 +1125,7 @@ answer like '%/* comment from%' order by num"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun r99-start (&optional (port *http-port*))
+(defun start-r99 (&optional (port *http-port*))
   (format t "R99_HOST: ~a~%" (getenv "R99_HOST"))
   (format t "R99_DB: ~a~%"   (getenv "R99_DB"))
   (if (localtime)
@@ -1141,9 +1140,9 @@ answer like '%/* comment from%' order by num"
   (start *server*)
   (format t "r99-~a started at ~d.~%" *version* port))
 
-(defun r99-stop ()
+(defun stop-r99 ()
   (stop *server*))
 
 (defun main ()
-  (r99-start)
+  (start-r99)
   (loop (sleep 60)))
