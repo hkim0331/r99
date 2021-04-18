@@ -5,6 +5,9 @@
 * /todays に引数。/todays?data=2021-04-17 みたいに。
 
 ## Released
+### 2.44.8 - 2021-04-18
+* changed /others の文章を変えた。日数*回答数で追試持ち点を公表。
+
 ### 2.44.6 - 2021-04-17
 * resumed 24hours-> 48hours
 * changed width 80% -> width 90%
