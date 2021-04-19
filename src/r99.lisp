@@ -394,7 +394,11 @@
             "myid をクリックで自分回答が見える。")
        (:li "スマホの幅でもわかるよう、10題で😃、残りは . とした。")
        ;;(:li "( ) は中間テスト点数。30点満点。NIL は未受験。")
-       (:li "一番右は R99 に費やした日数。これと回答数を掛けたルートが追試持ち点(予定)。")
+       (:li "一番右は R99 に費やした日数。これと回答数を掛けたルートが追試持ち点(予定)。コメント書いてるのに反応ないのと書き換えて知らんぷりはマイナス。失礼ってこと。")
+       (:li "実力つけた人は数人以上いると見る。"
+            "変なことせんでも追試は通るだろうし、今後も明るい。"
+            "懲りなかった人はどこかでまたやらかすやろな。"
+            "もう助けないよ。")
        (:li (:a :href "/recent" "最近の10回答")
             "と、本日分は"
             (:a :href "/todays" "こちら") "。")
@@ -422,10 +426,9 @@
                     ;;(getf row :|count|)
                     (work-days myid)))) ;;slow
                ;;(sqrt (* (getf row :|count|) (work-days myid))))))
-               (when (< 60 (getf row :|count|))
+               (when (< 70 (getf row :|count|))
                  (incf n)))
-      (htm (:p "しっかりやってきたヤツはできるようになったろう。"
-               "そうじゃない人はどこかでまた引っかかるだろう。俺はもう助けないよ。")))))
+      (htm (:p "70題以上 " (str n) " 人。")))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; problems
@@ -466,16 +469,16 @@
             "上の関数定義は回答に含めないでOK。")
        (:li "すべての回答関数の上には"
             "#include &lt;stdio.h> #include &lt;stdlib.h>"
-            "があると仮定してよい。"))
-      (:hr)
-      (loop for row in results
-            do
-               (let ((num (getf row :|num|)))
-                 (format t "<p><a href='/answer?num=~a'>~a</a>(~a) ~a</p>~%"
-                         num
-                         num
-                         (zero_or_num (gethash num nums))
-                         (getf row :|detail|)))))))
+              "があると仮定してよい。"))
+     (:hr)
+     (loop for row in results
+           do
+           (let ((num (getf row :|num|)))
+             (format t "<p><a href='/answer?num=~a'>~a</a>(~a) ~a</p>~%"
+                     num
+                     num
+                     (zero_or_num (gethash num nums))
+                     (getf row :|detail|)))))))
 
 (defun detail (num)
   (let* ((q (format
