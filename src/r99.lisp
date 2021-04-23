@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.44.9")
+(defvar *version* "2.44.10")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
@@ -316,9 +316,11 @@
 
 (defparameter *top-message*
   (concatenate 'string
-               "追試は 4/27 18:00-19:00 C-2F。"
-               "出そうな問題、解けるようになってないとダメ。"
-               "やったフリと丸暗記はムダ。"))
+               "日曜で R99 は終了。"
+               "２度目の R99 でまじ力つけた人は数人以上いるだろう。"
+               "コピペで単位だけ取ろうとするヤツは万引きと同じ。"
+               "追試の回答は晒します。一人ひとり、違う問題になる予定。"
+               "落ちて元々と思う時は受験しない方がいい。"))
 
 ;; 2021-04-11
 ;; 2021-04-07
@@ -357,10 +359,10 @@
     (:p :class "warn" (str *top-message*))
     ;; (:p (:img :src "/kutsugen.jpg" :width "100%"))
     ;; (:p :align "right" "「屈原」横山大観(1868-1958), 1898.")
-    (:p (:img :src "/by-answers.svg" :width "90%"))
-    (:p
-     "横軸：回答数、縦軸：回答数答えた人の数。"
-     "グラフは毎朝アップデート。")
+    ;; (:p (:img :src "/by-answers.svg" :width "90%"))
+    ;; (:p
+    ;;  "横軸：回答数、縦軸：回答数答えた人の数。"
+    ;;  "グラフは毎朝アップデート。")
     (:h1)
     ;;(:h2 "コピー、丸暗記はムダ")
     (let* ((n 0)
@@ -382,29 +384,30 @@
                where now() - timestamp < '48 hours'")))))
 
       ;; BUG: 回答が一つもないとエラーになる。
-      (htm
-       ;; (:li
-       ;;  (format
-       ;;   t
-       ;;   "<a href='/recent'>最近の10回答</a>。最新は ~a、全回答数 ~a。"
-       ;;   (short (getf recent :|timestamp|))
-       ;;   (count-answers)))
-       ;; (:li (:a :href "/todays" "本日の回答"))
-       (:li "リストは 48 時間以内にアップデートあったユーザ。"
-            "myid をクリックで自分回答が見える。")
-       (:li "スマホの幅でもわかるよう、10題で😃、残りは . とした。")
-       ;;(:li "( ) は中間テスト点数。30点満点。NIL は未受験。")
-       (:li "一番右は R99 に費やした日数。これと回答数を掛けたルートが追試持ち点(予定)。コメント書いてるのに反応ないのと書き換えて知らんぷりはマイナス。失礼ってこと。")
-       (:li "実力つけた人は数人以上いると見る。"
-            "変なことせんでも追試は通るだろうし、今後も明るい。"
-            "懲りなかった人はどこかでまたやらかすやろな。"
-            "もう助けないよ。")
-       (:li (:a :href "/recent" "最近の10回答")
-            "と、本日分は"
-            (:a :href "/todays" "こちら") "。")
+      ;;(htm
+      ;; (:li
+      ;;  (format
+      ;;   t
+      ;;   "<a href='/recent'>最近の10回答</a>。最新は ~a、全回答数 ~a。"
+      ;;   (short (getf recent :|timestamp|))
+      ;;   (count-answers)))
+      ;; (:li (:a :href "/todays" "本日の回答"))
+      ;; ****
+      ;; (:li "リストは 48 時間以内にアップデートあったユーザ。"
+      ;;      "myid をクリックで自分回答が見える。")
+      ;; (:li "スマホの幅でもわかるよう、10題で😃、残りは . とした。")
+      ;; ;;(:li "( ) は中間テスト点数。30点満点。NIL は未受験。")
+      ;; (:li "一番右は R99 に費やした日数。これと回答数を掛けたルートが追試持ち点(予定)。コメント書いてるのに反応ないのと書き換えて知らんぷりはマイナス。失礼ってこと。")
+      ;; (:li "実力つけた人は数人以上いると見る。"
+      ;;      "変なことせんでも追試は通るだろうし、今後も明るい。"
+      ;;      "懲りなかった人はどこかでまたやらかすやろな。"
+      ;;      "もう助けないよ。")
+      ;; (:li (:a :href "/recent" "最近の10回答")
+      ;;      "と、本日分は"
+      ;;      (:a :href "/todays" "こちら") "。")
 
-       (:hr))
-
+      ;; (:hr))
+      ;; ****
       (loop for row = (dbi:fetch results)
             while row
             do
@@ -459,9 +462,9 @@
       (:p :class "warn" (str *top-message*))
       ;;(:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
       ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
-      (:p (:img :src "/by-numbers.svg" :width "90%"))
-      (:p "横軸:問題番号、縦軸:回答数。"
-          "グラフは毎朝アップデート。")
+      ;; (:p (:img :src "/by-numbers.svg" :width "90%"))
+      ;; (:p "横軸:問題番号、縦軸:回答数。"
+      ;;     "グラフは毎朝アップデート。")
       (:h2 "problems")
       (:ul
        (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
@@ -469,16 +472,16 @@
             "上の関数定義は回答に含めないでOK。")
        (:li "すべての回答関数の上には"
             "#include &lt;stdio.h> #include &lt;stdlib.h>"
-              "があると仮定してよい。"))
-     (:hr)
-     (loop for row in results
-           do
-           (let ((num (getf row :|num|)))
-             (format t "<p><a href='/answer?num=~a'>~a</a>(~a) ~a</p>~%"
-                     num
-                     num
-                     (zero_or_num (gethash num nums))
-                     (getf row :|detail|)))))))
+            "があると仮定してよい。"))
+      (:hr)
+      (loop for row in results
+            do
+               (let ((num (getf row :|num|)))
+                 (format t "<p><a href='/answer?num=~a'>~a</a>(~a) ~a</p>~%"
+                         num
+                         num
+                         (zero_or_num (gethash num nums))
+                         (getf row :|detail|)))))))
 
 (defun detail (num)
   (let* ((q (format
