@@ -1,9 +1,15 @@
 #!/bin/sh
+# .pgpass か PGPASSWORD を使う。
+
 if [ -z "${R99_HOST}" ]; then
   echo need source ../env.sh
   exit
 fi
 
+# backup
+pg_dump -U user1 -W -h localhost r99 > `date +backups/+%F.sql`
+
+# restore
 FROM=$1
 if [ -z "$FROM" ]; then
     FROM=`date +backups/%F.sql"
