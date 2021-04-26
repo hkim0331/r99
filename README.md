@@ -2,8 +2,21 @@
 
 ## Unreleased
 * docker. roswell コンテナからじゃなくて、r99 コンテナを作れないか？
+* /todays に引数。/todays?data=2021-04-17 みたいに。
 
 ## Released
+### 2.44.8 - 2021-04-18
+* changed /others の文章を変えた。日数*回答数で追試持ち点を公表。
+
+### 2.44.6 - 2021-04-17
+* resumed 24hours-> 48hours
+* changed width 80% -> width 90%
+
+### 2.44.5 - 2021-04-17
+* changed 回答数を絵文字と全角ドットに
+* changed 中間試験の成績を表示しない
+* changed /todays の表示順を order by myid,num に。
+
 ### 2.44.4 - 2021-04-15
 * added /todays
 * changed header messages
