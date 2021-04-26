@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.44.4")
+(defvar *version* "2.44.10")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
@@ -78,7 +78,6 @@
 ;; trim datetme
 (defun short (datetime)
   (subseq datetime 0 19))
-
 
 (defun yyyy-mm-dd (iso)
   (let ((ans (multiple-value-list (decode-universal-time iso))))
@@ -194,8 +193,12 @@
          :crossorigin "anonymous"))))))
 
 (defun stars-aux (n ret)
-  (if (zerop n) ret
-    (stars-aux (- n 1) (concatenate 'string ret "*"))))
+  ;; (if (zerop n) ret
+  ;;   (stars-aux (- n 1) (concatenate 'string ret "*"))))
+  (cond
+    ((zerop n ) ret)
+    ((<= 10 n) (stars-aux (- n 10) (concatenate 'string ret "😃")))
+    (t (stars-aux (- n 1) (concatenate 'string ret ".")))))
 
 (defun stars (n)
   (stars-aux n ""))
@@ -216,11 +219,12 @@
    (dbi:fetch (query "select count(*) from answers"))
    :|count|))
 
-
+;; FIXME: how to test
 ;; 2021-04-15
 (define-easy-handler (todays :uri "/todays") ()
-  (let* ((q "select myid,num,timestamp::text from answers
-             where timestamp > CURRENT_DATE")
+  (let* ((q "select myid, num, timestamp::text from answers
+             where timestamp > CURRENT_DATE
+             order by timestamp desc")
          (ret (dbi:fetch-all (query q))))
     (page
       (loop for row in ret
@@ -312,36 +316,40 @@
 
 (defparameter *top-message*
   (concatenate 'string
-               "追試は 4/27 18:00-19:00 C-2F。丸暗記はムダ。"))
+               "日曜で R99 は終了。"
+               "２度目の R99 でまじ力つけた人は数人以上いるだろう。"
+               "コピペで単位だけ取ろうとするヤツは万引きと同じ。"
+               "追試の回答は晒します。一人ひとり、違う問題になる予定。"
+               "落ちて元々と思う時は受験しない方がいい。"))
 
 ;; 2021-04-11
 ;; 2021-04-07
 (define-easy-handler (user-answers :uri "/user-answers") (myid)
   (if (or (string= myid (myid)) (string= "2999" (myid)))
-    (let* ((q (format
-                nil
-                "select id, num, answer, timestamp::text
-                from answers where myid='~a'
-                order by timestamp desc"
-                myid))
-           (ret (dbi:fetch-all (query q))))
+      (let* ((q (format
+                 nil
+                 "select id, num, answer, timestamp::text
+               from answers where myid='~a'
+               order by timestamp desc"
+                 myid))
+             (ret (dbi:fetch-all (query q))))
+        (page
+          (loop for r in ret
+                do
+                   (htm (:p "#"
+                            (str (getf r :|num|))
+                            ", "
+                            (str (getf r :|timestamp|)))
+                        (:pre   (str (escape (getf r :|answer|))))
+                        (:p (:a :href (format
+                                       nil
+                                       "/comment?id=~a"
+                                       (getf r :|id|))
+                                :class "btn btn-primary btn-sm"
+                                "comment"))
+                        (:hr)))))
       (page
-        (loop for r in ret
-          do
-          (htm (:p "#"
-                   (str (getf r :|num|))
-                   ", "
-                   (str (getf r :|timestamp|)))
-               (:pre   (str (escape (getf r :|answer|))))
-               (:p (:a :href (format
-                              nil
-                              "/comment?id=~a"
-                              (getf r :|id|))
-                       :class "btn btn-primary btn-sm"
-                   "comment"))
-               (:hr)))))
-      (page
-        (:p "access restricted."))))
+        (:p (format t "access restricted.")))))
 
 ;; /others
 (define-easy-handler (users :uri "/others") ()
@@ -351,19 +359,17 @@
     (:p :class "warn" (str *top-message*))
     ;; (:p (:img :src "/kutsugen.jpg" :width "100%"))
     ;; (:p :align "right" "「屈原」横山大観(1868-1958), 1898.")
-    (:p (:img :src "/by-answers.svg" :width "80%"))
-    (:p
-     "横軸：回答数、縦軸：回答数答えた人の数。"
-     "グラフは毎朝アップデートします。"
-     "キャッシュをクリアしないとグラフがアップデートされないブラウザ"
-     "(Chromeなど)がある。")
+    ;; (:p (:img :src "/by-answers.svg" :width "90%"))
+    ;; (:p
+    ;;  "横軸：回答数、縦軸：回答数答えた人の数。"
+    ;;  "グラフは毎朝アップデート。")
     (:h1)
     ;;(:h2 "コピー、丸暗記はムダ")
     (let* ((n 0)
            (recent
              (dbi:fetch
               (query "select myid, num, timestamp::text from answers
-             order by timestamp desc limit 1")))
+               order by timestamp desc limit 1")))
            (results
              (query "select users.myid, count(distinct answer)
                from users
@@ -404,22 +410,20 @@
                  (when (string= working "yes")
                    (format
                     t
-                    "<pre><span class=~a><a href='/user-answers?myid=~a'>~A</a></span>(~a) ~A<a href='/last?myid=~d'>~d</a>,~a</pre>"
+                    ;;"<pre><span class=~a><a href='/user-answers?myid=~a'>~A</a></span>(~a) ~A <a href='/last?myid=~d'>~d</a>,~a</pre>"
+                    "<pre><span class=~a><a href='/user-answers?myid=~a'>~A</a></span> ~A ~d</pre>"
                     working
                     myid
                     myid
-                    (cdr (assoc myid *mt*))
+                    ;;(cdr (assoc myid *mt*))
                     (stars (getf row :|count|))
-                    myid
-                    (getf row :|count|)
+                    ;;myid
+                    ;;(getf row :|count|)
                     (work-days myid)))) ;;slow
-               (when (< 60 (getf row :|count|))
+               ;;(sqrt (* (getf row :|count|) (work-days myid))))))
+               (when (< 70 (getf row :|count|))
                  (incf n)))
-      (htm (:p "60題以上回答者 "
-               (str n)
-               " 人。"
-               "日数かけて問題数解いてこないと追試受験資格ない。"
-               "インチキは自分に跳ね返る。")))))
+      (htm (:p "70題以上 " (str n) " 人。")))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; problems
@@ -450,11 +454,9 @@
       (:p :class "warn" (str *top-message*))
       ;;(:p (:img :src "/a-gift-of-the-sea.jpg" :width "100%"))
       ;;(:p :align "right" "「海の幸」青木 繁(1882-1911), 1904.")
-      (:p (:img :src "/by-numbers.svg" :width "80%"))
-      (:p "横軸:問題番号、縦軸:回答数。"
-          "グラフは毎朝アップデートします。"
-          "キャッシュをクリアしないとグラフがアップデートされない"
-          "(Chromeなど)。")
+      ;; (:p (:img :src "/by-numbers.svg" :width "90%"))
+      ;; (:p "横軸:問題番号、縦軸:回答数。"
+      ;;     "グラフは毎朝アップデート。")
       (:h2 "problems")
       (:ul
        (:li "番号をクリックして回答提出。ビルドできない回答は受け取らない。")
@@ -462,7 +464,7 @@
             "上の関数定義は回答に含めないでOK。")
        (:li "すべての回答関数の上には"
             "#include &lt;stdio.h> #include &lt;stdlib.h>"
-               "があると仮定してよい。"))
+            "があると仮定してよい。"))
       (:hr)
       (loop for row in results
             do
@@ -1121,7 +1123,7 @@ answer like '%/* comment from%' order by num"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun r99-start (&optional (port *http-port*))
+(defun start-r99 (&optional (port *http-port*))
   (format t "R99_HOST: ~a~%" (getenv "R99_HOST"))
   (format t "R99_DB: ~a~%"   (getenv "R99_DB"))
   (if (localtime)
@@ -1136,9 +1138,9 @@ answer like '%/* comment from%' order by num"
   (start *server*)
   (format t "r99-~a started at ~d.~%" *version* port))
 
-(defun r99-stop ()
+(defun stop-r99 ()
   (stop *server*))
 
 (defun main ()
-  (r99-start)
+  (start-r99)
   (loop (sleep 60)))
