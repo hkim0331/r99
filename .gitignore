@@ -19,4 +19,6 @@
 !/db/tables-drop.sql
 /log
 /src/.env
+/src/env.sh
 /src/r99
+/src/static/by-*.svg
