@@ -6,6 +6,9 @@
 
 ## Released
 
+### 2.44.12 - 2021-04-27
+* added 標準回答 ee-answer.html
+
 ### 2.44.11 - 2021-04-27
 * top-message に robocar-2020-extra-exam へのリンク。
 

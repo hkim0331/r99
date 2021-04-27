@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.44.11")
+(defvar *version* "2.44.12")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
@@ -317,7 +317,8 @@
 (defparameter *top-message*
   (concatenate
    'string
-   "追試験終了。<a href='ee-answer.html'>標準回答</a>。"))
+   "追試験終了。受験者は21名だったかな。"
+   "標準回答は <a href='ee-answer.html'>こちら</a>。"))
 ;; "日曜で R99 は終了。"
 ;; "２度目の R99 でまじ力つけた人は数人以上いるだろう。"
 ;; "コピペで単位だけ取ろうとするヤツは万引きと同じ。"
@@ -356,7 +357,7 @@
   (page
     ;;(:p (:a :href "/grading.html" "grading.html"))
     (:p (format t "your ip ~a is recorded." (real-remote-addr)))
-    (:p :class "warn" (str *top-message*))
+    (:p :class "norm" (str *top-message*))
     ;; (:p (:img :src "/kutsugen.jpg" :width "100%"))
     ;; (:p :align "right" "「屈原」横山大観(1868-1958), 1898.")
     ;; (:p (:img :src "/by-answers.svg" :width "90%"))
@@ -415,7 +416,7 @@
                       (working (if (find myid working-users) "yes" "no")))
                  ;; FIXME: ここは 80 cols に収まらない。<pre>で囲んでいるので、
                  ;;        改行できない。
-                 (when (string= working "yes")
+                 (when t ;;(string= working "yes")
                    (format
                     t
                     ;;"<pre><span class=~a><a href='/user-answers?myid=~a'>~A</a></span>(~a) ~A <a href='/last?myid=~d'>~d</a>,~a</pre>"
@@ -429,9 +430,9 @@
                     ;;(getf row :|count|)
                     (work-days myid)))) ;;slow
                ;;(sqrt (* (getf row :|count|) (work-days myid))))))
-               (when (< 70 (getf row :|count|))
+               (when (< 80 (getf row :|count|))
                  (incf n)))
-      (htm (:p "70題以上 " (str n) " 人。")))))
+      (htm (:p "80 題以上 " (str n) " 人。")))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; problems
@@ -990,7 +991,8 @@ answer like '%/* comment from%' order by num"
 ;; dry!
 (defun publish-static-content ()
   (let ((entities
-          '("grading.html"
+          '("ee-answer.html"
+            "grading.html"
             "results-high.png"
             "results-low.png"
             "2__9.png"
