@@ -6,6 +6,9 @@
 
 ## Released
 
+### 2.44.13 - 2021-04-27
+* updated ee-answer.html.
+
 ### 2.44.12 - 2021-04-27
 * added 標準回答 ee-answer.html
 
