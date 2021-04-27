@@ -6,13 +6,11 @@ if [ -z "${R99_HOST}" ]; then
   exit
 fi
 
-# backup
-pg_dump -U user1 -W -h localhost r99 > `date +backups/+%F.sql`
-
-# restore
 FROM=$1
 if [ -z "$FROM" ]; then
-    FROM=`date +backups/%F.sql"
+  BACKUP=`date +backups/+%F.sql`
+  pg_dump -U user1 -W -h localhost r99 > ${BACKUP}
+  FROM=${BACKUP}
 fi
 
 # must drop tables first.
