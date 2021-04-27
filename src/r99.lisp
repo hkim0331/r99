@@ -318,7 +318,7 @@
   (concatenate
    'string
    "<a href='http://ex.melt.kyutech.ac.jp'>ex.melt.kyutech.ac.jp</a>"
-   " から試験開始。~19:00."))
+   " 試験は C-2F, 18:00~ "))
 ;; "日曜で R99 は終了。"
 ;; "２度目の R99 でまじ力つけた人は数人以上いるだろう。"
 ;; "コピペで単位だけ取ろうとするヤツは万引きと同じ。"
@@ -416,7 +416,7 @@
                       (working (if (find myid working-users) "yes" "no")))
                  ;; FIXME: ここは 80 cols に収まらない。<pre>で囲んでいるので、
                  ;;        改行できない。
-                 (when (string= working "yes")
+                 (when t ;;(string= working "yes")
                    (format
                     t
                     ;;"<pre><span class=~a><a href='/user-answers?myid=~a'>~A</a></span>(~a) ~A <a href='/last?myid=~d'>~d</a>,~a</pre>"
@@ -430,9 +430,9 @@
                     ;;(getf row :|count|)
                     (work-days myid)))) ;;slow
                ;;(sqrt (* (getf row :|count|) (work-days myid))))))
-               (when (< 70 (getf row :|count|))
+               (when (< 80 (getf row :|count|))
                  (incf n)))
-      (htm (:p "70題以上 " (str n) " 人。")))))
+      (htm (:p "80 題以上 " (str n) " 人。")))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; problems
