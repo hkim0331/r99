@@ -447,6 +447,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 #include &lt;stdlib.h&gt;
 #include &lt;math.h&gt;
 
+/*****************************************************
+準備: r99 の回答から必要なの取ってくる。
+取ってきたのは is_prime(), my_rand(), shuffle(), sort().
+******************************************************/
 int is_prime(int n) {
   if (n &lt; 3) {
     return n == 2;
@@ -462,6 +466,42 @@ int is_prime(int n) {
     }
   }
   return 1;
+}
+
+int my_rand(int n) {
+  return (int)(random() % n);
+}
+
+int* shuffle(int n) {
+  int* a = (int*)malloc(sizeof(int)*n);
+  int i;
+
+  for (i = 0; i &lt; n; i++) {
+    a[i] = i;
+  }
+
+  for (i = 0; i &lt; 2*n; i++) {
+    int x = my_rand(n); // p51
+    int y = my_rand(n); // p51
+    int temp = a[x];    // a[x] と a[y] を入れ替える。
+    a[x] = a[y];
+    a[y] = temp;
+  }
+  return a;
+}
+
+void sort(int a[], int b[], int n) {
+  int m;
+  int i;
+  int j=0;
+  for (m=0; m&lt;100; m++) {
+    for (i=0; i&lt;n; i++) {
+      if (a[i] == m) {
+        b[j] = m;
+        j++;
+      }
+    }
+  }
 }
 
 /****************************************************
@@ -553,9 +593,11 @@ int shuffle_test(int r[], int n)
 
 int shuffle_test(int r[], int n) {
   int i;
+  int b[n];
 
+  sort(r, b, n); // 51
   for (i = 0; i &lt; n; i++) {
-    if (r[i] != i) {
+    if (b[i] != i) {
       return 0;
     }
   }
@@ -694,7 +736,6 @@ int exists(int x, int p[], int n) {
   return 0;
 }
 
-
 void p103(void) {
   int p[MAX];
   int n = init_primes_sq(p);
@@ -714,27 +755,27 @@ void p103(void) {
 }
 
 int main(int argc, char* argv[]) {
-  printf("%i\n", namor("XXXXII"));
-  printf("%i\n", namor("VIIII"));
-  printf("%i\n", namor("XVII"));
+  printf("%i\n", 42 == namor("XXXXII"));
+  printf("%i\n",  9 == namor("VIIII"));
+  printf("%i\n", 17 == namor("XVII"));
   roman(42);
   roman(7);
   roman(17);
   encode("xxaaabbbbee");
   decode("x2a3b4e2");
-  int i;
-  for (i=0;i&lt;100;i++) {
-    printf("%i %i\n", i, isqrt(i));
-  }
-  printf("%i\n", is_prime(2147483549));
   randoms_near(1000,10);
   printf("%s\n", trim("abc"));
   printf("%s\n", trim("ab"));
   printf("%s\n", trim("a"));
-  printf("%i\n",is_pal("abccba"));
-  printf("%i\n",is_pal("a"));
-  printf("%i\n",is_pal("abcba"));
-  printf("%i\n",is_pal("abcdef"));
+
+  printf("%i\n", 1 == is_pal("abccba"));
+  printf("%i\n", 1 == is_pal("a"));
+  printf("is_pal(abcba)?%i\n", 1 == is_pal("abcba"));
+  printf("not is_pal(abcdef)? %i\n", 0 == is_pal("abcdef"));
+
+  int* bingo = shuffle(100);
+  printf("%i\n", 1 == shuffle_test(bingo,100));
+
   return 0;
 }</code></pre>
 </div>
@@ -742,7 +783,7 @@ int main(int argc, char* argv[]) {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-04-27 22:40:11 +0900
+Last updated 2021-04-27 23:45:09 +0900
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
