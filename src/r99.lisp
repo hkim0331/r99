@@ -317,8 +317,7 @@
 (defparameter *top-message*
   (concatenate
    'string
-   "<a href='http://ex.melt.kyutech.ac.jp'>ex.melt.kyutech.ac.jp</a>"
-   " から試験開始。~19:00."))
+   "追試験終了。<a href='ee-answer.html'>標準回答</a>。"))
 ;; "日曜で R99 は終了。"
 ;; "２度目の R99 でまじ力つけた人は数人以上いるだろう。"
 ;; "コピペで単位だけ取ろうとするヤツは万引きと同じ。"
