@@ -315,22 +315,23 @@
     (length ret)))
 
 (defparameter *top-message*
-  (concatenate 'string
-               "日曜で R99 は終了。"
-               "２度目の R99 でまじ力つけた人は数人以上いるだろう。"
-               "コピペで単位だけ取ろうとするヤツは万引きと同じ。"
-               "追試の回答は晒します。一人ひとり、違う問題になる予定。"
-               "落ちて元々と思う時は受験しない方がいい。"))
+  (concatenate
+   'string
+   "<a href='http://ex.melt.kyutech.ac.jp'>ex.melt.kyutech.ac.jp</a>"
+   " から試験開始。~19:00."))
+;; "日曜で R99 は終了。"
+;; "２度目の R99 でまじ力つけた人は数人以上いるだろう。"
+;; "コピペで単位だけ取ろうとするヤツは万引きと同じ。"
+;; "追試の回答は晒します。一人ひとり、違う問題になる予定。"
+;; "落ちて元々と思う時は受験しない方がいい。"))
 
-;; 2021-04-11
-;; 2021-04-07
 (define-easy-handler (user-answers :uri "/user-answers") (myid)
   (if (or (string= myid (myid)) (string= "2999" (myid)))
       (let* ((q (format
                  nil
                  "select id, num, answer, timestamp::text
-               from answers where myid='~a'
-               order by timestamp desc"
+   from answers where myid='~a'
+   order by timestamp desc"
                  myid))
              (ret (dbi:fetch-all (query q))))
         (page
@@ -369,37 +370,45 @@
            (recent
              (dbi:fetch
               (query "select myid, num, timestamp::text from answers
-               order by timestamp desc limit 1")))
+   order by timestamp desc limit 1")))
            (results
              (query "select users.myid, count(distinct answer)
-               from users
-               inner join answers
-               on users.myid=answers.myid
-               group by users.myid
-               order by users.myid"))
+   from users
+   inner join answers
+   on users.myid=answers.myid
+   group by users.myid
+   order by users.myid"))
            (working-users
              (mapcar (lambda (x) (getf x :|myid|))
                      (dbi:fetch-all
                       (query  "select distinct(myid) from answers
-                               where now() - timestamp < '48 hours'")))))
+   where now() - timestamp < '48 hours'")))))
 
       ;; BUG: 回答が一つもないとエラーになる。
-      (htm
-       ;; (:li
-       ;;  (format
-       ;;   t
-       ;;   "<a href='/recent'>最近の10回答</a>。最新は ~a、全回答数 ~a。"
-       ;;   (short (getf recent :|timestamp|))
-       ;;   (count-answers)))
-       ;; (:li (:a :href "/todays" "本日の回答"))
-       (:li (:a :href "/recent" "最近の10回答")
-            "。本日分は"
-            (:a :href "/todays" "こちら") "。")
-       (:li "48 時間以内にアップデートあったユーザだけリストしてます。")
-       (:li "( ) は中間テスト点数。30点満点。NIL は未受験。")
-       (:li "一番右はR99に費やした日数。")
-       (:hr))
+      ;;(htm
+      ;; (:li
+      ;;  (format
+      ;;   t
+      ;;   "<a href='/recent'>最近の10回答</a>。最新は ~a、全回答数 ~a。"
+      ;;   (short (getf recent :|timestamp|))
+      ;;   (count-answers)))
+      ;; (:li (:a :href "/todays" "本日の回答"))
+      ;; ****
+      ;; (:li "リストは 48 時間以内にアップデートあったユーザ。"
+      ;;      "myid をクリックで自分回答が見える。")
+      ;; (:li "スマホの幅でもわかるよう、10題で😃、残りは . とした。")
+      ;; ;;(:li "( ) は中間テスト点数。30点満点。NIL は未受験。")
+      ;; (:li "一番右は R99 に費やした日数。これと回答数を掛けたルートが追試持ち点(予定)。コメント書いてるのに反応ないのと書き換えて知らんぷりはマイナス。失礼ってこと。")
+      ;; (:li "実力つけた人は数人以上いると見る。"
+      ;;      "変なことせんでも追試は通るだろうし、今後も明るい。"
+      ;;      "懲りなかった人はどこかでまたやらかすやろな。"
+      ;;      "もう助けないよ。")
+      ;; (:li (:a :href "/recent" "最近の10回答")
+      ;;      "と、本日分は"
+      ;;      (:a :href "/todays" "こちら") "。")
 
+      ;; (:hr))
+      ;; ****
       (loop for row = (dbi:fetch results)
             while row
             do
@@ -464,7 +473,7 @@
             "上の関数定義は回答に含めないでOK。")
        (:li "すべての回答関数の上には"
             "#include &lt;stdio.h> #include &lt;stdlib.h>"
-            "があると仮定してよい。"))
+   "があると仮定してよい。"))
       (:hr)
       (loop for row in results
             do
