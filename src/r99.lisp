@@ -317,7 +317,7 @@
 (defparameter *top-message*
   (concatenate
    'string
-   "追試験終了。受験者は21名だったかな。"
+   "追試験終了。"
    "標準回答は <a href='ee-answer.html'>こちら</a>。"))
 ;; "日曜で R99 は終了。"
 ;; "２度目の R99 でまじ力つけた人は数人以上いるだろう。"
