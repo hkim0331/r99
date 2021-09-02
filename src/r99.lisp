@@ -28,21 +28,22 @@
         #+sbcl (sb-ext:posix-getenv name)
         default)))
 
-(defvar db-host  (or (getenv "R99_HOST") "localhost"))
-(defvar db-user  (or (getenv "R99_USER") "user"))
-(defvar db-pass  (or (getenv "R99_PASS") "pass"))
 (defvar db "r99")
+(defvar db-host "localhost")
+(defvar db-user (or (getenv "R99_USER") "user"))
+(defvar db-pass (or (getenv "R99_PASS") "pass"))
 
+;; FIXME: not work well
 (defun read-midterm (fname)
   (with-open-file
-      (in fname)
-    (let ((ret nil))
-      (loop for line = (read-line in nil)
-            while line do
-              (destructuring-bind
-                  (f s) (ppcre:split " " line)
-                (push (cons (parse-integer f) (parse-integer s)) ret)))
-      ret)))
+   (in fname)
+   (let ((ret nil))
+     (loop for line = (read-line in nil)
+           while line do
+           (destructuring-bind
+            (f s) (ppcre:split " " line)
+            (push (cons (parse-integer f) (parse-integer s)) ret)))
+     ret)))
 
 (defparameter *mt*
   (if (probe-file "midterm.txt")
@@ -75,7 +76,7 @@
 (defun myid ()
   (cookie-in *myid*))
 
-;; trim datetme
+;; trim datetime
 (defun short (datetime)
   (subseq datetime 0 19))
 
@@ -433,6 +434,7 @@
                (when (< 80 (getf row :|count|))
                  (incf n)))
       (htm (:p "80 題以上 " (str n) " 人。")))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; problems
@@ -1137,7 +1139,7 @@ answer like '%/* comment from%' order by num"
   (format t "R99_DB: ~a~%"   (getenv "R99_DB"))
   (if (localtime)
       (format t "database connection OK.~%")
-      (error "check your datanase connection.~%"))
+      (error "check your database connection.~%"))
   ;;(read-midterm "midterm.txt")
   (publish-static-content)
   (setf *server* (make-instance 'easy-acceptor
