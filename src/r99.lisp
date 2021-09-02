@@ -3,7 +3,7 @@
 
 (in-package :r99)
 
-(defvar *version* "2.44.11")
+(defvar *version* "3.0.0")
 (defvar *nakadouzono* 2998)
 (defvar *hkimura*     2999)
 
@@ -28,21 +28,22 @@
         #+sbcl (sb-ext:posix-getenv name)
         default)))
 
-(defvar db-host  (or (getenv "R99_HOST") "localhost"))
-(defvar db-user  (or (getenv "R99_USER") "user"))
-(defvar db-pass  (or (getenv "R99_PASS") "pass"))
 (defvar db "r99")
+(defvar db-host "localhost")
+(defvar db-user (or (getenv "R99_USER") "user"))
+(defvar db-pass (or (getenv "R99_PASS") "pass"))
 
+;; FIXME: not work well
 (defun read-midterm (fname)
   (with-open-file
-      (in fname)
-    (let ((ret nil))
-      (loop for line = (read-line in nil)
-            while line do
-              (destructuring-bind
-                  (f s) (ppcre:split " " line)
-                (push (cons (parse-integer f) (parse-integer s)) ret)))
-      ret)))
+   (in fname)
+   (let ((ret nil))
+     (loop for line = (read-line in nil)
+           while line do
+           (destructuring-bind
+            (f s) (ppcre:split " " line)
+            (push (cons (parse-integer f) (parse-integer s)) ret)))
+     ret)))
 
 (defparameter *mt*
   (if (probe-file "midterm.txt")
@@ -75,7 +76,7 @@
 (defun myid ()
   (cookie-in *myid*))
 
-;; trim datetme
+;; trim datetime
 (defun short (datetime)
   (subseq datetime 0 19))
 
@@ -318,7 +319,7 @@
   (concatenate
    'string
    "<a href='http://ex.melt.kyutech.ac.jp'>ex.melt.kyutech.ac.jp</a>"
-   " から試験開始。~19:00."))
+   " 試験は C-2F, 18:00~ "))
 ;; "日曜で R99 は終了。"
 ;; "２度目の R99 でまじ力つけた人は数人以上いるだろう。"
 ;; "コピペで単位だけ取ろうとするヤツは万引きと同じ。"
@@ -416,7 +417,7 @@
                       (working (if (find myid working-users) "yes" "no")))
                  ;; FIXME: ここは 80 cols に収まらない。<pre>で囲んでいるので、
                  ;;        改行できない。
-                 (when (string= working "yes")
+                 (when t ;;(string= working "yes")
                    (format
                     t
                     ;;"<pre><span class=~a><a href='/user-answers?myid=~a'>~A</a></span>(~a) ~A <a href='/last?myid=~d'>~d</a>,~a</pre>"
@@ -430,9 +431,10 @@
                     ;;(getf row :|count|)
                     (work-days myid)))) ;;slow
                ;;(sqrt (* (getf row :|count|) (work-days myid))))))
-               (when (< 70 (getf row :|count|))
+               (when (< 80 (getf row :|count|))
                  (incf n)))
-      (htm (:p "70題以上 " (str n) " 人。")))))
+      (htm (:p "80 題以上 " (str n) " 人。")))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; problems
@@ -1137,7 +1139,7 @@ answer like '%/* comment from%' order by num"
   (format t "R99_DB: ~a~%"   (getenv "R99_DB"))
   (if (localtime)
       (format t "database connection OK.~%")
-      (error "check your datanase connection.~%"))
+      (error "check your database connection.~%"))
   ;;(read-midterm "midterm.txt")
   (publish-static-content)
   (setf *server* (make-instance 'easy-acceptor
