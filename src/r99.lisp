@@ -319,9 +319,7 @@
   (concatenate
    'string
    "追試験終了。"
-   "標準回答は <a href='ee-answer.html'>こちら</a>。"
-   "受験生の回答は <a href='http://ex.melt.kyutech.ac.jp'>こっち</a>。"
-   "自分のために R99 やったか？"))
+   "標準回答は <a href='ee-answer.html'>こちら</a>。"))
 ;; "日曜で R99 は終了。"
 ;; "２度目の R99 でまじ力つけた人は数人以上いるだろう。"
 ;; "コピペで単位だけ取ろうとするヤツは万引きと同じ。"
